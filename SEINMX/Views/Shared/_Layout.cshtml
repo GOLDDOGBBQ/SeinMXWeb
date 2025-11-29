@@ -1,0 +1,93 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="es" data-bs-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] - SEINMX</title>
+
+    <!-- AdminLTE + Bootstrap + FontAwesome -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="~/AdminLTE-4/css/adminlte.css" />
+
+
+</head>
+
+<body class="layout-top-nav">
+    <div class="wrapper">
+
+        <!-- NAVBAR TOP -->
+        <nav class="main-header navbar navbar-expand navbar-dark bg-dark">
+            <div class="container">
+
+                <!-- Brand -->
+                <a href="~/" class="navbar-brand">
+                    <i class="fas fa-layer-group"></i>
+                    <span class="ms-2 fw-bold">SEINMX</span>
+                </a>
+
+                <!-- Nav Links -->
+                <ul class="navbar-nav ms-auto">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Home/Index">
+                            <i class="fas fa-home"></i> Inicio
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="/Home/Privacy">
+                            <i class="fas fa-lock"></i> Privacidad
+                        </a>
+                    </li>
+
+                    <!-- Dropdown ejemplo -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="fas fa-user"></i> Cuenta
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="/Account/Login">
+                                    <i class="fas fa-sign-in-alt"></i> Iniciar sesión
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="/Account/Logout">
+                                    <i class="fas fa-sign-out-alt"></i> Salir
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                </ul>
+            </div>
+        </nav>
+        <!-- /NAVBAR TOP -->
+
+        <!-- CONTENT WRAPPER -->
+        <div class="content-wrapper">
+            <div class="content p-3">
+                <div class="container">
+                    @RenderBody()
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <footer class="main-footer text-center small">
+            <strong>SEINMX © @DateTime.Now.Year</strong>
+        </footer>
+
+    </div>
+
+    <!-- JS -->
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/AdminLTE-4/js/adminlte.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    </body>
+</html>

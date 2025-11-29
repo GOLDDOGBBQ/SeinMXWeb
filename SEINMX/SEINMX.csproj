@@ -1,0 +1,125 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="bootstrap" Version="5.3.7" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
+      <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
+      <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration" Version="8.0.0" />
+      <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Core" Version="8.0.0" />
+      <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0" />
+      <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore" Version="8.0.0" />
+      <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Templating" Version="8.0.0" />
+      <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Utils" Version="8.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Context\" />
+      <Folder Include="Models\Database\" />
+      <Folder Include="plugins\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="wwwroot\AdminLTE-4\assets\img\AdminLTEFullLogo.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\AdminLTELogo.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\avatar.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\avatar2.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\avatar3.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\avatar4.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\avatar5.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\boxed-bg.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\boxed-bg.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\credit\american-express.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\credit\cirrus.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\credit\mastercard.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\credit\paypal.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\credit\paypal2.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\credit\visa.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\default-150x150.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\icons.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\photo1.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\photo2.png" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\photo3.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\photo4.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\prod-1.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\prod-2.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\prod-3.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\prod-4.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\prod-5.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\user1-128x128.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\user2-160x160.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\user3-128x128.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\user4-128x128.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\user5-128x128.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\user6-128x128.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\user7-128x128.jpg" />
+      <None Include="wwwroot\AdminLTE-4\assets\img\user8-128x128.jpg" />
+      <None Include="wwwroot\AdminLTE-4\css\adminlte.css" />
+      <None Include="wwwroot\AdminLTE-4\css\adminlte.css.map" />
+      <None Include="wwwroot\AdminLTE-4\css\adminlte.min.css" />
+      <None Include="wwwroot\AdminLTE-4\css\adminlte.min.css.map" />
+      <None Include="wwwroot\AdminLTE-4\css\adminlte.rtl.css" />
+      <None Include="wwwroot\AdminLTE-4\css\adminlte.rtl.css.map" />
+      <None Include="wwwroot\AdminLTE-4\css\adminlte.rtl.min.css" />
+      <None Include="wwwroot\AdminLTE-4\css\adminlte.rtl.min.css.map" />
+      <None Include="wwwroot\AdminLTE-4\docs\browser-support.html" />
+      <None Include="wwwroot\AdminLTE-4\docs\color-mode.html" />
+      <None Include="wwwroot\AdminLTE-4\docs\components\main-header.html" />
+      <None Include="wwwroot\AdminLTE-4\docs\components\main-sidebar.html" />
+      <None Include="wwwroot\AdminLTE-4\docs\faq.html" />
+      <None Include="wwwroot\AdminLTE-4\docs\how-to-contribute.html" />
+      <None Include="wwwroot\AdminLTE-4\docs\introduction.html" />
+      <None Include="wwwroot\AdminLTE-4\docs\javascript\treeview.html" />
+      <None Include="wwwroot\AdminLTE-4\docs\layout.html" />
+      <None Include="wwwroot\AdminLTE-4\docs\license.html" />
+      <None Include="wwwroot\AdminLTE-4\examples\lockscreen.html" />
+      <None Include="wwwroot\AdminLTE-4\examples\login-v2.html" />
+      <None Include="wwwroot\AdminLTE-4\examples\login.html" />
+      <None Include="wwwroot\AdminLTE-4\examples\register-v2.html" />
+      <None Include="wwwroot\AdminLTE-4\examples\register.html" />
+      <None Include="wwwroot\AdminLTE-4\forms\general.html" />
+      <None Include="wwwroot\AdminLTE-4\generate\theme.html" />
+      <None Include="wwwroot\AdminLTE-4\js\adminlte.js" />
+      <None Include="wwwroot\AdminLTE-4\js\adminlte.js.map" />
+      <None Include="wwwroot\AdminLTE-4\js\adminlte.min.js" />
+      <None Include="wwwroot\AdminLTE-4\js\adminlte.min.js.map" />
+      <None Include="wwwroot\AdminLTE-4\layout\collapsed-sidebar.html" />
+      <None Include="wwwroot\AdminLTE-4\layout\fixed-complete.html" />
+      <None Include="wwwroot\AdminLTE-4\layout\fixed-footer.html" />
+      <None Include="wwwroot\AdminLTE-4\layout\fixed-header.html" />
+      <None Include="wwwroot\AdminLTE-4\layout\fixed-sidebar.html" />
+      <None Include="wwwroot\AdminLTE-4\layout\layout-custom-area.html" />
+      <None Include="wwwroot\AdminLTE-4\layout\layout-rtl.html" />
+      <None Include="wwwroot\AdminLTE-4\layout\logo-switch.html" />
+      <None Include="wwwroot\AdminLTE-4\layout\sidebar-mini.html" />
+      <None Include="wwwroot\AdminLTE-4\layout\unfixed-sidebar.html" />
+      <None Include="wwwroot\AdminLTE-4\tables\simple.html" />
+      <None Include="wwwroot\AdminLTE-4\UI\general.html" />
+      <None Include="wwwroot\AdminLTE-4\UI\icons.html" />
+      <None Include="wwwroot\AdminLTE-4\UI\timeline.html" />
+      <None Include="wwwroot\AdminLTE-4\widgets\cards.html" />
+      <None Include="wwwroot\AdminLTE-4\widgets\info-box.html" />
+      <None Include="wwwroot\AdminLTE-4\widgets\small-box.html" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\Login.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\Logout.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\Register.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\Account\_ViewImports.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ValidationScriptsPartial.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewImports.cshtml" />
+      <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewStart.cshtml" />
+    </ItemGroup>
+
+</Project>
