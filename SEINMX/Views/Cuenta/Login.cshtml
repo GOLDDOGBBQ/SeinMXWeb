@@ -1,0 +1,40 @@
+﻿@{
+    ViewData["Title"] = "Login";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="login-box">
+    <div class="card card-dark">
+        <div class="card-header text-center">
+            <h3>Iniciar Sesión</h3>
+        </div>
+        <div class="card-body">
+            @if(ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">@ViewBag.Error</div>
+            }
+
+            <form method="post" asp-controller="Cuenta" asp-action="Login">
+                <div class="input-group mb-3">
+                    <input type="text" name="usuario" class="form-control" placeholder="Usuario"  value="@(ViewBag.Usuario ?? "")" required />
+                    <div class="input-group-append">
+                        <div class="input-group-text"><span class="fas fa-user"></span></div>
+                    </div>
+                </div>
+
+                <div class="input-group mb-3">
+                    <input type="password" name="password" class="form-control" placeholder="Contraseña" required />
+                    <div class="input-group-append">
+                        <div class="input-group-text"><span class="fas fa-lock"></span></div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-dark btn-block">Iniciar Sesión</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

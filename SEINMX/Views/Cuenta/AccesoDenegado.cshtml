@@ -1,0 +1,16 @@
+﻿@{
+    ViewData["Title"] = "Acceso Denegado";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="login-box">
+    <div class="card card-dark">
+        <div class="card-header text-center">
+            <h3>Acceso Denegado</h3>
+        </div>
+        <div class="card-body text-center">
+            <p>No tienes permisos para acceder a esta sección.</p>
+            <a href="@Url.Action("Login", "Cuenta")" class="btn btn-dark">Volver al Login</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,280 @@
+﻿@model IEnumerable<SEINMX.Context.Database.Cliente>
+@{
+    ViewData["Title"] = "Clientes / Proveedores";
+}
+
+
+<div class="content-wrapper p-3">
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title">
+                <i class="fas fa-users"></i> Lista de Clientes y Proveedores
+            </h3>
+        </div>
+
+        <div class="card-body">
+
+            <!-- FILTROS -->
+            <form method="get" class="row g-3">
+
+                <div class="col-md-3">
+                    <label class="form-label"># Cliente</label>
+                    <input type="text" name="idCliente" class="form-control" placeholder="ID...">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Nombre </label>
+                    <input type="text" name="nombre" class="form-control" placeholder="Buscar...">
+                </div>
+
+                <!-- FILTRO DE IDTIPO -->
+                <div class="col-md-3">
+                    <label class="form-label">Tipo</label>
+                    <select name="idTipo" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="0">Cliente</option>
+                        <option value="1">Proveedor</option>
+                    </select>
+                </div>
+
+                <!-- BOTÓN DE BÚSQUEDA -->
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+
+            <hr/>
+
+
+            <!-- BOTÓN AGREGAR CLIENTE -->
+            <div class="mb-3">
+                <button class="btn btn-success" id="btnNuevoCliente">
+                    <i class="fas fa-user-plus"></i> Agregar Cliente
+                </button>
+            </div>
+
+
+            <!-- TABLA -->
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead class="table-dark">
+                    <tr>
+
+                        <th><i class="fas fa-passport"></i> # Cliente</th>
+                        <th><i class="fas fa-id-card"></i> Nombre</th>
+                        <th><i class="fas fa-tag"></i> Tipo</th>
+                        <th><i class="fas fa-tag"></i> Tarifa</th>
+                        <th><i class="fas fa-gear"></i> Opciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @* Aquí iteras los datos que envíes desde el controlador *@
+                    @foreach (var item in Model)
+                    {
+                        <tr id="row-@item.IdCliente">
+
+                            <td>@item.IdCliente</td>
+                            <td>@item.Nombre</td>
+                            <td>
+                                @if (item.IdTipo == 0)
+                                {
+                                    <span class="badge bg-primary">Cliente</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">Proveedor</span>
+                                }
+                            </td>
+                            <td>
+                                @item.Tarifa
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-warning" onclick="editarCliente(@item.IdCliente)">
+                                    <i class="fas fa-pen-to-square"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-danger" onclick="eliminarCliente(@item.IdCliente, this)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+
+<!-- MODAL PANEL CLIENTE -->
+<div class="modal fade" id="modalCliente" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-body p-0" id="modalClienteBody">
+                <!-- Aquí se cargará _PanelCliente -->
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    // CLICK NUEVO CLIENTE
+
+    $("#btnNuevoCliente").on("click", function () {
+        $("#modalClienteBody").html(`
+        <div class="text-center p-5">
+            <i class='fas fa-spinner fa-spin fa-2x'></i><br>
+            Cargando formulario...
+        </div>`);
+
+        $("#modalCliente").modal("show");
+
+        $.get("/Cliente/Crear")
+            .done(function (data) {
+                $("#modalClienteBody").html(data);
+            })
+            .fail(function (xhr) {
+                $("#modalClienteBody").html(`
+                <div class="p-4">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-circle-exclamation"></i>
+                        Error al cargar el formulario de nuevo cliente.<br>
+                        <strong>Detalle:</strong> ${xhr.status} - ${xhr.statusText}
+                    </div>
+                </div>
+            `);
+            });
+    });
+
+
+    // FUNCION PARA EDITAR
+    function editarCliente(id) {
+        abrirPanelCliente(id);
+    }
+
+    // CARGA DEL PANEL CLIENTE
+    function abrirPanelCliente(id) {
+
+        $("#modalClienteBody").html(`
+        <div class="text-center p-5">
+            <i class='fas fa-spinner fa-spin fa-2x'></i><br>
+            Cargando información...
+        </div>`);
+
+        $("#modalCliente").modal("show");
+
+        $.get(`/Cliente/Detalle/${id}`)
+            .done(function (html) {
+                $("#modalClienteBody").html(html);
+            })
+            .fail(function (xhr) {
+
+                $("#modalClienteBody").html(`
+                <div class="p-4">
+                    <div class="alert alert-danger">
+                        <i class="fas fa-triangle-exclamation"></i>
+                        No se pudo cargar la información del cliente.<br>
+                        <strong>Error:</strong> ${xhr.status} - ${xhr.statusText}
+                    </div>
+
+                    <div class="text-end">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-xmark"></i> Cerrar
+                        </button>
+                    </div>
+                </div>
+            `);
+            });
+    }
+
+    // RECIBIR EVENTO DE _PanelCliente AL GUARDAR
+    function onClienteGuardado(data) {
+
+        // CERRAR MODAL
+        $("#modalCliente").modal("hide");
+
+        // AGREGAR O ACTUALIZAR EN TABLA
+        agregarClienteATabla(data.cliente);
+    }
+
+    // INSERTAR O ACTUALIZAR FILA
+    function agregarClienteATabla(c) {
+
+        let tipo = c.idTipo == 0
+            ? `<span class="badge bg-primary">Cliente</span>`
+            : `<span class="badge bg-warning">Proveedor</span>`;
+
+        let fila = `
+        <tr id="row-${c.idCliente}">
+            <td>${c.idCliente}</td>
+            <td>${c.nombre}</td>
+            <td>${tipo}</td>
+            <td>${c.tarifa ?? ""}</td>
+            <td>
+                <button class="btn btn-sm btn-warning" onclick="editarCliente(${c.idCliente})">
+                      <i class="fas fa-pen-to-square"></i>
+                </button>
+
+               <button class="btn btn-sm btn-danger" onclick="eliminarCliente(${c.idCliente}, this)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        </tr>
+    `;
+
+        // SI EXISTE → REEMPLAZAR
+        if ($("#row-" + c.idCliente).length)
+            $("#row-" + c.idCliente).replaceWith(fila);
+        else
+            $("table tbody").prepend(fila); // INICIO DE TABLA
+    }
+
+
+    function eliminarCliente(id, btn) {
+
+        // Cambiar icono a cargando
+        let originalHtml = btn.innerHTML;
+        btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i>";
+        btn.disabled = true;
+
+        if (!confirm("¿Seguro que deseas eliminar este registro?")) {
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+            return;
+        }
+
+        $.ajax({
+            url: `/Cliente/Eliminar/${id}`,
+            type: "DELETE",
+            success: function (resp) {
+
+                if (resp.ok === true) {
+                    // Eliminar visualmente de la tabla
+                    $(`#row-${id}`).fadeOut(300, function () {
+                        $(this).remove();
+                    });
+                } else {
+                    // Mostrar error desde el controlador
+                    alert("No se pudo eliminar: " + resp.mensaje);
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                }
+            },
+            error: function (xhr) {
+                alert("Error al eliminar: " + xhr.status + " - " + xhr.statusText);
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        });
+    }
+
+</script>

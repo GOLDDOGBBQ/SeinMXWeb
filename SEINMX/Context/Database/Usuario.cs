@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SEINMX.Data;
+namespace SEINMX.Context.Database;
 
 public partial class Usuario
 {
@@ -17,7 +17,7 @@ public partial class Usuario
 
     public bool Admin { get; set; }
 
-    public string Password { get; set; } = null!;
+    public string PasswordHash { get; set; } = null!;
 
     public bool CambiarPassword { get; set; }
 

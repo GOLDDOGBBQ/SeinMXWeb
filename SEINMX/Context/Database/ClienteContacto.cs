@@ -1,25 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SEINMX.Data;
+namespace SEINMX.Context.Database;
 
-public partial class Cliente
+public partial class ClienteContacto
 {
-    public int IdClientes { get; set; }
+    public int IdClienteContacto { get; set; }
+
+    public int IdCliente { get; set; }
 
     public string Nombre { get; set; } = null!;
 
     public string Telefono { get; set; } = null!;
 
     public string Correo { get; set; } = null!;
-
-    public string Direccion { get; set; } = null!;
-
-    public string Observaciones { get; set; } = null!;
-
-    public decimal Tarifa { get; set; }
-
-    public int IdTipo { get; set; }
 
     public string CreadoPor { get; set; } = null!;
 
@@ -34,4 +28,6 @@ public partial class Cliente
     public string? UsrAct { get; set; }
 
     public bool Eliminado { get; set; }
+
+    public virtual Cliente IdClienteNavigation { get; set; } = null!;
 }

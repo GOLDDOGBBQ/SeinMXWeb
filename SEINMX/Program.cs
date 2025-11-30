@@ -1,44 +1,42 @@
-using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using SEINMX.Data;
-//using SEINMX.Models.Sistema;
+using SEINMX.Context;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 
+// =======================
+// Configurar DbContext
+// =======================
 builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-
-builder.Services.AddSession();
-
-
-/*
-builder.Services.AddDefaultIdentity<Usuario>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<AppDbContext>();
-
-builder.Services.AddIdentity<Usuario, IdentityRole>(options =>
+// =======================
+// Configurar autenticación por cookies
+// =======================
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
     {
-        options.Password.RequireDigit = true;
-        options.Password.RequireLowercase = false;
-        options.Password.RequireUppercase = false;
-        options.Password.RequiredLength = 6;
-    })
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
+        options.LoginPath = "/Cuenta/Login";
+        options.AccessDeniedPath = "/Cuenta/AccesoDenegado";
+        options.ExpireTimeSpan = TimeSpan.FromHours(24);
+        options.SlidingExpiration = true;
+    });
 
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = "/Identity/Account/Login";
-    options.AccessDeniedPath = "/Identity/Account/AccessDenied";
-});*/
+builder.Services.AddAuthorization();
 
 
-// Add services to the container.
+// =======================
+// MVC
+// =======================
 builder.Services.AddControllersWithViews();
 
+// =======================
+// Build
+// =======================
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -53,10 +51,13 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication(); // Antes de Authorization
 app.UseAuthorization();
-app.UseSession();
 
+
+// =======================
+// Rutas MVC
+// =======================
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
