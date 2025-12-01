@@ -1,13 +1,20 @@
 ﻿@model SEINMX.Context.Database.Cliente
 
 <div class="card shadow-sm">
+
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <div>
             <i class="fas fa-user"></i> Cliente: @Model.Nombre
         </div>
-        <button class="btn btn-success btn-sm" onclick="guardarCliente()">
-            <i class="fas fa-save"></i> Guardar
-        </button>
+        <div>
+            <button class="btn btn-light btn-sm me-2" onclick="cancelarCliente()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+
+            <button  id="btnGuardarCliente"  class="btn btn-success btn-sm" onclick="guardarCliente()">
+                <i class="fas fa-save"></i> Guardar
+            </button>
+        </div>
     </div>
 
     <div class="card-body">
@@ -43,17 +50,11 @@
         <h5><i class="fas fa-address-book"></i> Contactos</h5>
 
         <div class="row g-2 mb-2">
-            <div class="col-md-3">
-                <input id="ctNombre" class="form-control" placeholder="Nombre"/>
-            </div>
-            <div class="col-md-3">
-                <input id="ctTel" class="form-control" placeholder="Teléfono"/>
-            </div>
-            <div class="col-md-3">
-                <input id="ctCorreo" class="form-control" placeholder="Correo"/>
-            </div>
+            <div class="col-md-3"><input id="ctNombre" class="form-control" placeholder="Nombre"/></div>
+            <div class="col-md-3"><input id="ctTel" class="form-control" placeholder="Teléfono"/></div>
+            <div class="col-md-3"><input id="ctCorreo" class="form-control" placeholder="Correo"/></div>
             <div class="col-md-3 d-grid">
-                <button class="btn btn-primary" onclick="guardarContacto()">
+                <button class="btn btn-primary" onclick="agregarContactoTemp()">
                     <i class="fas fa-plus"></i> Agregar
                 </button>
             </div>
@@ -71,12 +72,12 @@
             <tbody id="listaContactos">
             @foreach (var c in Model.ClienteContactos)
             {
-                <tr id="cont_@c.IdClienteContacto">
+                <tr data-id="@c.IdClienteContacto">
                     <td>@c.Nombre</td>
                     <td>@c.Telefono</td>
                     <td>@c.Correo</td>
                     <td class="text-end">
-                        <button class="btn btn-danger btn-sm" onclick="borrarContacto(@c.IdClienteContacto)">
+                        <button class="btn btn-danger btn-sm" onclick="quitarContactoTemp(this)">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -88,20 +89,14 @@
         <hr/>
 
         <!-- RAZONES SOCIALES -->
-        <h5><i class="fas fa-file-invoice"></i> Razones Sociales</h5>
+        <h5><i class="fas a-file-invoice"></i> Razones Sociales</h5>
 
         <div class="row g-2 mb-2">
-            <div class="col-md-3">
-                <input id="rzRFC" class="form-control" placeholder="RFC"/>
-            </div>
-            <div class="col-md-3">
-                <input id="rzRazon" class="form-control" placeholder="Razón Social"/>
-            </div>
-            <div class="col-md-3">
-                <input id="rzDom" class="form-control" placeholder="Domicilio"/>
-            </div>
+            <div class="col-md-3"><input id="rzRFC" class="form-control" placeholder="RFC"/></div>
+            <div class="col-md-3"><input id="rzRazon" class="form-control" placeholder="Razón Social"/></div>
+            <div class="col-md-3"><input id="rzDom" class="form-control" placeholder="Domicilio"/></div>
             <div class="col-md-3 d-grid">
-                <button class="btn btn-primary" onclick="guardarRazon()">
+                <button class="btn btn-primary" onclick="agregarRazonTemp()">
                     <i class="fas fa-plus"></i> Agregar
                 </button>
             </div>
@@ -119,12 +114,12 @@
             <tbody id="listaRazones">
             @foreach (var r in Model.ClienteRazonSolcials)
             {
-                <tr id="rz_@r.IdClienteRazonSolcial">
+                <tr data-id="@r.IdClienteRazonSolcial">
                     <td>@r.Rfc</td>
                     <td>@r.RazonSocial</td>
                     <td>@r.Domicilio</td>
                     <td class="text-end">
-                        <button class="btn btn-danger btn-sm" onclick="borrarRazon(@r.IdClienteRazonSolcial)">
+                        <button class="btn btn-danger btn-sm" onclick="quitarRazonTemp(this)">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -137,114 +132,204 @@
 </div>
 
 <script>
-    // =====================================================
-    // GUARDAR CLIENTE
-    // =====================================================
+    // ===============================================
+    // CONTACTOS TEMPORALES EN NAVAGADOR
+    // ===============================================
+    function agregarContactoTemp() {
+        let n = document.getElementById("ctNombre").value;
+        let t = document.getElementById("ctTel").value;
+        let c = document.getElementById("ctCorreo").value;
+
+        if (!n) return alert("Falta nombre del contacto");
+
+        let tr = `
+            <tr>
+                <td>${n}</td>
+                <td>${t}</td>
+                <td>${c}</td>
+                <td class="text-end">
+                    <button class="btn btn-danger btn-sm" onclick="quitarContactoTemp(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+
+        document.querySelector("#listaContactos").insertAdjacentHTML("beforeend", tr);
+
+        document.getElementById("ctNombre").value = "";
+        document.getElementById("ctTel").value = "";
+        document.getElementById("ctCorreo").value = "";
+    }
+
+    function quitarContactoTemp(btn) {
+        btn.closest("tr").remove();
+    }
+
+    // ===============================================
+    // RAZONES SOCIALES TEMPORALES
+    // ===============================================
+    function agregarRazonTemp() {
+        let rfc = document.getElementById("rzRFC").value;
+        let rz = document.getElementById("rzRazon").value;
+        let dom = document.getElementById("rzDom").value;
+
+        if (!rfc || !rz) return alert("RFC y Razón social son requeridos");
+
+        let tr = `
+            <tr>
+                <td>${rfc}</td>
+                <td>${rz}</td>
+                <td>${dom}</td>
+                <td class="text-end">
+                    <button class="btn btn-danger btn-sm" onclick="quitarRazonTemp(this)">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+
+        document.querySelector("#listaRazones").insertAdjacentHTML("beforeend", tr);
+
+        document.getElementById("rzRFC").value = "";
+        document.getElementById("rzRazon").value = "";
+        document.getElementById("rzDom").value = "";
+    }
+
+    function quitarRazonTemp(btn) {
+        btn.closest("tr").remove();
+    }
+
+    // ===============================================
+    // GUARDAR CLIENTE COMPLETO (incluye listas)
+    // ===============================================
     async function guardarCliente() {
-        let payload = {
-            idCliente: parseInt(document.getElementById("cliId").value),
-            nombre: document.getElementById("cliNombre").value,
-            direccion: document.getElementById("cliDireccion").value,
-            observaciones: document.getElementById("cliObs").value,
-            tarifa: parseFloat(document.getElementById("cliTarifa").value) || 0,
-            idTipo: 0
-        };
+        const btn = document.getElementById("btnGuardarCliente");
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Guardando...`;
 
-        let res = await fetch('/Cliente/GuardarCliente', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
-        });
+        try {
+            const cliId = document.getElementById("cliId");
+            const cliNombre = document.getElementById("cliNombre");
+            const cliDireccion = document.getElementById("cliDireccion");
+            const cliObs = document.getElementById("cliObs");
+            const cliTarifa = document.getElementById("cliTarifa");
 
-        if (!res.ok) {
-            alert("Error al guardar el cliente.");
-            return;
+            if (!cliId || !cliNombre || !cliDireccion || !cliObs || !cliTarifa) {
+                console.error("❌ ERROR: Falta uno o más elementos del formulario");
+                alert("Error interno: No se encontró un campo del formulario. Revisa el _PanelCliente.");
+                return;
+            }
+
+
+
+            // ========================
+            // 📌 Construir CONTACTOS
+            // ========================
+            let contactos = [];
+            document.querySelectorAll("#listaContactos tr").forEach(tr => {
+                let tds = tr.querySelectorAll("td");
+                if (tds.length >= 3) {
+                    contactos.push({
+                        nombre: tds[0].innerText.trim(),
+                        telefono: tds[1].innerText.trim(),
+                        correo: tds[2].innerText.trim()
+                    });
+                }
+            });
+
+            // ========================
+            // 📌 Construir RAZONES SOCIALES
+            // ========================
+            let razones = [];
+            document.querySelectorAll("#listaRazones tr").forEach(tr => {
+                let tds = tr.querySelectorAll("td");
+                if (tds.length >= 3) {
+                    razones.push({
+                        rfc: tds[0].innerText.trim(),
+                        razonSocial: tds[1].innerText.trim(),
+                        domicilio: tds[2].innerText.trim()
+                    });
+                }
+            });
+
+            // ========================
+            // 📌 Construir payload
+            // ========================
+            let payload = {
+                idCliente: parseInt(cliId.value),
+                nombre: cliNombre.value,
+                direccion: cliDireccion.value,
+                observaciones: cliObs.value,
+                tarifa: parseFloat(cliTarifa.value) || 0,
+                idTipo: 0,
+                ClienteContactos: contactos,
+                ClienteRazonSolcials: razones
+            };
+
+
+            // ========================
+            // 📌 Petición al servidor (con manejo de errores)
+            // ========================
+            const res = await fetch('/Cliente/GuardarClienteCompleto', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            // ❗ Si el servidor regresa error (400, 500, etc.)
+            console.log(res);
+            if (!res.ok) {
+                let serverMsg = "Error desconocido al guardar el cliente.";
+
+                try {
+                    serverMsg = await res.text() || serverMsg;
+                } catch { }
+
+                throw new Error(serverMsg);
+            }
+
+            // Respuesta JSON válida
+            const data = await res.json();
+            console.log(data);
+            if (!data.ok) {
+                throw new Error(data.message || "No se pudo guardar el cliente.");
+            }
+
+            // ========================
+            // ✔ ÉXITO
+            // ========================
+            $("#modalCliente").modal("hide");
+
+            // Si viene el HTML de la nueva fila → insertarlo al inicio
+            if (data.rowHtml) {
+                $("#tblClientes tbody").prepend(data.rowHtml);
+            }
+
+        } catch (err) {
+            mostrarErrorCliente(err.message);
         }
 
-        let data = await res.json(); // 👈 Recibimos el cliente con Id asignado
+        // ========================
+        // 🔄 Volver a mostrar el botón normal
+        // ========================
+        btn.disabled = false;
+        btn.innerHTML = `<i class="fas fa-save"></i> Guardar`;
+    }
 
-        // 🔥 Notificar al INDEX
-        if (typeof onClienteGuardado === "function") {
-            onClienteGuardado(data);
+    function mostrarErrorCliente(mensaje) {
+        const div = document.getElementById("errorCliente");
+
+        if (div) {
+            div.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-circle-exclamation"></i> ${mensaje}
+            </div>`;
+            div.style.display = "block";
+        } else {
+            alert(mensaje); // fallback
         }
+    }
 
-        // Cerrar modal
+    function cancelarCliente() {
         $("#modalCliente").modal("hide");
     }
-
-
-    // =====================================================
-    // CONTACTOS
-    // =====================================================
-    async function guardarContacto() {
-
-        let payload = {
-            idClienteContacto: 0,
-            idCliente: parseInt(document.getElementById("cliId").value),
-            nombre: document.getElementById("ctNombre").value,
-            telefono: document.getElementById("ctTel").value,
-            correo: document.getElementById("ctCorreo").value
-        };
-
-        let res = await fetch('/Cliente/GuardarContacto', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
-        });
-
-        if (res.ok) {
-            location.reload();
-        }
-    }
-
-    async function borrarContacto(id) {
-        if (!confirm("¿Eliminar contacto?")) return;
-
-        let res = await fetch(`/Cliente/BorrarContacto?id=${id}`, {
-            method: 'DELETE'
-        });
-
-        if (res.ok) {
-            document.getElementById("cont_" + id)?.remove();
-        }
-    }
-
-    // =====================================================
-    // RAZONES SOCIALES
-    // =====================================================
-    async function guardarRazon() {
-
-        let payload = {
-            idClienteRazonSolcial: 0,
-            idCliente: parseInt(document.getElementById("cliId").value),
-            rfc: document.getElementById("rzRFC").value,
-            razonSocial: document.getElementById("rzRazon").value,
-            domicilio: document.getElementById("rzDom").value,
-            esPublicoGeneral: false,
-            observaciones: ""
-        };
-
-        let res = await fetch('/Cliente/GuardarRazon', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(payload)
-        });
-
-        if (res.ok) {
-            location.reload();
-        }
-    }
-
-    async function borrarRazon(id) {
-        if (!confirm("¿Eliminar razón social?")) return;
-
-        let res = await fetch(`/Cliente/BorrarRazon?id=${id}`, {
-            method: 'DELETE'
-        });
-
-        if (res.ok) {
-            document.getElementById("rz_" + id)?.remove();
-        }
-    }
-
 </script>
