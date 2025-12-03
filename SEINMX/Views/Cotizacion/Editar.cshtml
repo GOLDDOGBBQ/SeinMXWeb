@@ -86,7 +86,7 @@
 
                         <!-- Tarifa -->
                         <div class="col-md-2">
-                            <label class="form-label">Tarifa</label>
+                            <label class="form-label">Tarifa (%)</label>
                             <input type="number" step="0.0001" name="Tarifa"
                                    class="form-control"
                                    value="@Model.Cotizacion.Tarifa">
@@ -109,21 +109,37 @@
                         </div>
 
 
-
-
                     </div>
 
                     <div class="row mt-3">
                         <!-- Usuario Responsable -->
+                        <div class=" col-sm-12 col-md-4 col-lg-5 ps-0 mb-3 ps-1 pe-1">
+                            <label for="idCliente" class="mb-0 ps-0 col-md-12">COMBO</label>
+                            <cb-dropdown
+                                id="idCliente"
+                                name="idCliente"
+                                onchange="">
+                            </cb-dropdown>
+                            <script type="module">
+                                import {
+                                    ClientsDataProvider
+                                } from "../../dropdown-1.1.0/clientsDataProvider-1.1.0.js";
+
+                                const clientesDropdown = document.querySelector("#idCliente");
+                                clientesDropdown.dataProvider = new ClientsDataProvider('Todos');
+                                clientesDropdown.setAttribute('selected', '@((Model.IdCliente ?? 0) > 0 ? Model.IdCliente.ToString() : "")');
+                            </script>
+                        </div>
+
                         <div class="col-md-3">
                             <label class="form-label">Usuario Responsable</label>
-                            <select id="cmbUsuario" name="IdUsuarioResponsable" class="form-control select2-ajax"
-                                    data-url="/Cotizaciones/BuscarUsuario"
+                            <select id="cmbUsuario" name="UsuarioResponsable" class="form-control select2-ajax"
+                                    data-url="/Utilerias/GetComboUsuarios"
                                     data-placeholder="Buscar usuario...">
-                                @if (Model.Cotizacion.IdUsuarioResponsable != null)
+                                @if (Model.Cotizacion.UsuarioResponsable != null)
                                 {
-                                    <option value="@Model.Cotizacion.IdUsuarioResponsable" selected>
-                                        Model.Cotizacion.Responsable
+                                    <option value="@Model.Cotizacion.UsuarioResponsable" selected>
+                                        @Model.Cotizacion.Responsable
                                     </option>
                                 }
                             </select>
@@ -133,7 +149,7 @@
                         <div class="col-md-9">
                             <label class="form-label">Cliente</label>
                             <select id="cmbCliente" name="IdCliente" class="form-control select2-ajax"
-                                    data-url="/Cotizaciones/BuscarCliente"
+                                    data-url="/Utilerias/GetComboCliente"
                                     data-placeholder="Buscar cliente...">
                                 @if (Model.Cotizacion.IdCliente != null)
                                 {
@@ -197,6 +213,7 @@
     }
 </div>
 
+@*
 @section Scripts {
     <script>
         $('.select2-ajax').each(function () {
@@ -227,3 +244,4 @@
         });
     </script>
 }
+*@

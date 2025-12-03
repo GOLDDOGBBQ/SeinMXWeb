@@ -35,7 +35,7 @@ public class CotizacionController : ApplicationController
             Tarifa = 20,
             TipoCambio = 1,
             PorcentajeIva = 16,
-            IdUsuarioResponsable = int.Parse(GetUserId()),
+            UsuarioResponsable = GetUserId(),
             CreadoPor =  GetApiName(),
             FchReg = DateTime.Now,
             UsrReg = User.Identity?.Name ?? "SYSTEM"
@@ -102,31 +102,7 @@ public class CotizacionController : ApplicationController
         return View("Panel", model);
     }
 
-    // =====================================================
-    // CREAR COTIZACION
-    // =====================================================
-    [HttpPost]
-    public async Task<IActionResult> Crear3()
-    {
-        string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        var entity = new Cotizacion
-        {
-            Fecha = DateOnly.FromDateTime(DateTime.Now),
-            Status = 1,
-            IdUsuarioResponsable = int.Parse(userId),
-            IdCliente = 0,
-            PorcentajeIva = 0.16m,
-            CreadoPor = User.Identity?.Name ?? "",
-            UsrReg = User.Identity?.Name ?? "",
-            FchReg = DateTime.Now
-        };
-
-        _db.Cotizacions.Add(entity);
-        await _db.SaveChangesAsync();
-
-        return Ok(new { ok = true, idCotizacion = entity.IdCotizacion });
-    }
 
     // =====================================================
     // GUARDAR ENCABEZADO
@@ -137,7 +113,7 @@ public class CotizacionController : ApplicationController
         var item = await _db.Cotizacions.FindAsync(model.IdCotizacion);
         if (item == null) return NotFound();
 
-        item.IdUsuarioResponsable = model.IdUsuarioResponsable;
+        item.UsuarioResponsable = model.UsuarioResponsable;
         item.IdCliente = model.IdCliente;
         item.IdClienteeContacto = model.IdClienteeContacto;
         item.IdClienteRazonSolcial = model.IdClienteRazonSolcial;

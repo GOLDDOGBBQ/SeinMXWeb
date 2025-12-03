@@ -389,11 +389,33 @@ public class ClienteController : ApplicationController
         return Ok();
     }
 
-    // =====================================================
-    // VISTAS BÁSICAS (para evitar errores 404)
-    // =====================================================
-    public IActionResult Create() => View();
-    public IActionResult Edit(int id) => View();
-    public IActionResult Details(int id) => View();
-    public IActionResult Delete(int id) => View();
+    public async Task<JsonResult> Dropdown(int page = 0, int pageSize = 30, int? id = default, string search = "")
+    {
+
+
+        var lista = _db.Clientes.Where(x => x.Eliminado == false);
+
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            lista.Where(x => x.Nombre.Contains(search));
+        }
+
+        if (id.HasValue)
+        {
+            lista = lista.Where(c => c.IdCliente == id.Value);
+        }
+
+        var count = await lista.CountAsync();
+        var data = await lista.Skip(page * pageSize).Take(pageSize)
+            .Select(drmCliente => new { display = drmCliente.Nombre, value = drmCliente.IdCliente.ToString() })
+            .ToListAsync();
+        var remaining = Math.Max(count - (page * pageSize) - data.Count, 0);
+
+        return Json(new
+        {
+            moreToLoad = remaining > 0,
+            data
+        });
+    }
 }

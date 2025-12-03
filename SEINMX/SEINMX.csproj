@@ -28,6 +28,7 @@
       <Folder Include="Models\Cuenta\" />
       <Folder Include="Models\DRO\" />
       <Folder Include="plugins\" />
+      <Folder Include="wwwroot\css\Interno\" />
     </ItemGroup>
 
     <ItemGroup>

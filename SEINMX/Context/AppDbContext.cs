@@ -154,7 +154,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<Cotizacion>(entity =>
         {
-            entity.HasKey(e => e.IdCotizacion).HasName("PK__Cotizaci__9A6DA9EFA608D4D7");
+            entity.HasKey(e => e.IdCotizacion).HasName("PK__Cotizaci__9A6DA9EF769635C5");
 
             entity.ToTable("Cotizacion", "INV");
 
@@ -173,29 +173,30 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.TipoCambio).HasColumnType("numeric(18, 4)");
             entity.Property(e => e.UsrAct).HasMaxLength(50);
             entity.Property(e => e.UsrReg).HasMaxLength(50);
+            entity.Property(e => e.UsuarioResponsable).HasMaxLength(25);
 
             entity.HasOne(d => d.IdClienteNavigation).WithMany(p => p.Cotizacions)
                 .HasForeignKey(d => d.IdCliente)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Cotizacio__IdCli__0E6E26BF");
+                .HasConstraintName("FK__Cotizacio__IdCli__2FCF1A8A");
 
             entity.HasOne(d => d.IdClienteRazonSolcialNavigation).WithMany(p => p.Cotizacions)
                 .HasForeignKey(d => d.IdClienteRazonSolcial)
-                .HasConstraintName("FK__Cotizacio__IdCli__10566F31");
+                .HasConstraintName("FK__Cotizacio__IdCli__31B762FC");
 
             entity.HasOne(d => d.IdClienteeContactoNavigation).WithMany(p => p.Cotizacions)
                 .HasForeignKey(d => d.IdClienteeContacto)
-                .HasConstraintName("FK__Cotizacio__IdCli__0F624AF8");
+                .HasConstraintName("FK__Cotizacio__IdCli__30C33EC3");
 
-            entity.HasOne(d => d.IdUsuarioResponsableNavigation).WithMany(p => p.Cotizacions)
-                .HasForeignKey(d => d.IdUsuarioResponsable)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Cotizacio__IdUsu__0D7A0286");
+            entity.HasOne(d => d.UsuarioResponsableNavigation).WithMany(p => p.Cotizacions)
+                .HasPrincipalKey(p => p.Usuario1)
+                .HasForeignKey(d => d.UsuarioResponsable)
+                .HasConstraintName("FK__Cotizacio__Usuar__2EDAF651");
         });
 
         modelBuilder.Entity<CotizacionDetalle>(entity =>
         {
-            entity.HasKey(e => e.IdCotizacionDetalle).HasName("PK__Cotizaci__6C5616FE425E9016");
+            entity.HasKey(e => e.IdCotizacionDetalle).HasName("PK__Cotizaci__6C5616FE3E824FF3");
 
             entity.ToTable("CotizacionDetalle", "INV");
 
@@ -223,12 +224,12 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.IdCotizacionNavigation).WithMany(p => p.CotizacionDetalles)
                 .HasForeignKey(d => d.IdCotizacion)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Cotizacio__IdCot__1DB06A4F");
+                .HasConstraintName("FK__Cotizacio__IdCot__395884C4");
 
             entity.HasOne(d => d.IdProductoNavigation).WithMany(p => p.CotizacionDetalles)
                 .HasForeignKey(d => d.IdProducto)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Cotizacio__IdPro__1EA48E88");
+                .HasConstraintName("FK__Cotizacio__IdPro__3A4CA8FD");
         });
 
         modelBuilder.Entity<Producto>(entity =>
@@ -312,6 +313,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.RazonSocial)
                 .HasMaxLength(250)
                 .IsUnicode(false);
+            entity.Property(e => e.Responsable).HasMaxLength(50);
             entity.Property(e => e.Rfc)
                 .HasMaxLength(50)
                 .IsUnicode(false)
@@ -324,6 +326,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Telefono).HasMaxLength(250);
             entity.Property(e => e.TipoCambio).HasColumnType("numeric(18, 4)");
             entity.Property(e => e.Total).HasColumnType("numeric(38, 6)");
+            entity.Property(e => e.UsuarioResponsable).HasMaxLength(25);
         });
 
         OnModelCreatingPartial(modelBuilder);

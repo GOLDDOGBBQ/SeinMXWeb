@@ -1,0 +1,96 @@
+﻿.cb-dropdown {
+    display: flex;
+    flex-direction: column;
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: var(--bs-border-radius);
+
+    label {
+        display: block;
+        width: 65%;
+        margin: 0 auto;
+        text-align: left;
+        font-size: .75rem;
+    }
+
+    button, ul {
+        text-align: left;
+        background: white;
+        border: 0;
+    }
+
+    input {
+        cursor: pointer;
+        color: inherit;
+        width: 100%;
+        min-width: 2px;
+        border: 0;
+        margin: 0;
+        outline: 0;
+        padding: 0;
+        text-transform: uppercase;
+    }
+
+    button {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+        cursor: pointer;
+
+        &::before {
+            font-family: "Font Awesome 7 Free";
+            content: "\f107";
+            vertical-align: middle;
+            font-weight: 900;
+            position: absolute;
+            right: .8rem;
+        }
+    }
+
+    ul {
+        overflow: clip;
+        border: var(--bs-border-width) solid var(--bs-border-color);
+        border-radius: var(--bs-border-radius);
+        display: none;
+        position: absolute;
+        color: #3f403b;
+        max-height: 20rem;
+        overflow-y: auto;
+        list-style-type: none;
+        padding: 0.25rem 0;
+        pointer-events: none;
+        z-index: 5;
+
+        &.cb-dropdown-active {
+            display: block;
+            pointer-events: auto;
+        }
+
+        li {
+            padding: .25rem .5rem;
+            border-top: 1px solid #e6e6e6;
+            position: relative;
+            cursor: pointer;
+
+            &:hover, &.cb-dropdown-focused {
+                background: #e6e6e6;
+            }
+
+            &.cb-dropdown-selected {
+                background: var(--bs-primary);
+                color: white;
+
+                &:hover, &.cb-dropdown-focused {
+                    background: #0a53be;
+                }
+            }
+        }
+
+        div {
+            padding: .25rem .5rem;
+            border-top: 1px solid #e6e6e6;
+            /*transition: all .3s ease-in;*/
+            position: relative;
+        }
+    }
+}
