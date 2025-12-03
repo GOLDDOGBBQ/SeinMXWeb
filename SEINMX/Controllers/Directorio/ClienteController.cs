@@ -1,11 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using SEINMX.Clases;
 using SEINMX.Context;
 using SEINMX.Context.Database;
 
 [Authorize]
-public class ClienteController : Controller
+public class ClienteController : ApplicationController
 {
     private readonly AppDbContext _db;
 
@@ -89,8 +90,8 @@ public class ClienteController : Controller
                     Tarifa = model.Tarifa,
                     IdTipo = model.IdTipo,
                     FchReg = DateTime.Now,
-                    CreadoPor = User.Identity?.Name ?? "",
-                    UsrReg = User.Identity?.Name ?? ""
+                    CreadoPor = GetApiName(),
+                    UsrReg = GetUserId()
                 };
 
                 _db.Clientes.Add(entity);
@@ -113,8 +114,8 @@ public class ClienteController : Controller
                 entity.Observaciones = model.Observaciones;
                 entity.Tarifa = model.Tarifa;
                 entity.IdTipo = model.IdTipo;
-                entity.ModificadoPor = User.Identity?.Name ?? "";
-                entity.UsrAct = User.Identity?.Name ?? "";
+                entity.ModificadoPor = GetApiName();
+                entity.UsrAct = GetUserId();
                 entity.FchAct = DateTime.Now;
             }
 
@@ -139,8 +140,8 @@ public class ClienteController : Controller
                     // Nuevo contacto
                     c.IdCliente = entity.IdCliente;
                     c.FchReg = DateTime.Now;
-                    c.CreadoPor = User.Identity?.Name ?? "";
-                    c.UsrReg = User.Identity?.Name ?? "";
+                    c.CreadoPor = GetApiName();
+                    c.UsrReg = GetUserId();
                     _db.ClienteContactos.Add(c);
                 }
                 else
@@ -156,8 +157,8 @@ public class ClienteController : Controller
                         ct.Correo = c.Correo;
 
                         ct.FchAct = DateTime.Now;
-                        ct.ModificadoPor = User.Identity?.Name ?? "";
-                        ct.UsrAct = User.Identity?.Name ?? "";
+                        ct.ModificadoPor = GetApiName();
+                        ct.UsrAct = GetUserId();
                     }
                 }
             }
@@ -182,8 +183,8 @@ public class ClienteController : Controller
                 {
                     r.IdCliente = entity.IdCliente;
                     r.FchReg = DateTime.Now;
-                    r.CreadoPor = User.Identity?.Name ?? "";
-                    r.UsrReg = User.Identity?.Name ?? "";
+                    r.CreadoPor = GetApiName();
+                    r.UsrReg = GetUserId();
                     _db.ClienteRazonSolcials.Add(r);
                 }
                 else
@@ -200,8 +201,8 @@ public class ClienteController : Controller
                         rz.Observaciones = r.Observaciones;
 
                         rz.FchAct = DateTime.Now;
-                        rz.ModificadoPor = User.Identity?.Name ?? "";
-                        rz.UsrAct = User.Identity?.Name ?? "";
+                        rz.ModificadoPor = GetApiName();
+                        rz.UsrAct = GetUserId();
 
                     }
                 }
@@ -244,8 +245,8 @@ public class ClienteController : Controller
         if (model.IdCliente == 0)
         {
             model.FchReg = DateTime.Now;
-            model.CreadoPor = User.Identity?.Name ?? "";
-            model.UsrReg = User.Identity?.Name ?? "";
+            model.CreadoPor = GetApiName();
+            model.UsrReg = GetUserId();
             _db.Clientes.Add(model);
         }
         else
@@ -258,9 +259,9 @@ public class ClienteController : Controller
             item.Observaciones = model.Observaciones;
             item.Tarifa = model.Tarifa;
             item.IdTipo = model.IdTipo;
-            item.ModificadoPor = User.Identity?.Name ?? "";
+            item.ModificadoPor = GetApiName();
             item.FchAct = DateTime.Now;
-            item.UsrAct = User.Identity?.Name ?? "";
+            item.UsrAct = GetUserId();
         }
 
         await _db.SaveChangesAsync();
@@ -286,8 +287,8 @@ public class ClienteController : Controller
         if (model.IdClienteContacto == 0)
         {
             model.FchReg = DateTime.Now;
-            model.CreadoPor = User.Identity?.Name ?? "";
-            model.UsrReg = User.Identity?.Name ?? "";
+            model.CreadoPor = GetApiName();
+            model.UsrReg = GetUserId();
             _db.ClienteContactos.Add(model);
         }
         else
@@ -298,9 +299,9 @@ public class ClienteController : Controller
             item.Nombre = model.Nombre;
             item.Telefono = model.Telefono;
             item.Correo = model.Correo;
-            item.ModificadoPor = User.Identity?.Name ?? "";
+            item.ModificadoPor = GetApiName();
             item.FchAct = DateTime.Now;
-            item.UsrAct = User.Identity?.Name ?? "";
+            item.UsrAct = GetUserId();
         }
 
         await _db.SaveChangesAsync();
@@ -317,7 +318,8 @@ public class ClienteController : Controller
             if (item == null) return Json(new { ok = false, mensaje = "Cliente no encontrado" });
 
             item.Eliminado = true;
-            item.UsrAct = User.Identity?.Name ?? "";
+            item.ModificadoPor = GetApiName();
+            item.UsrAct = GetUserId();
             item.FchAct = DateTime.Now;
             await _db.SaveChangesAsync();
             return Ok(new { ok = true });
@@ -336,6 +338,8 @@ public class ClienteController : Controller
         if (item == null) return NotFound();
 
         item.Eliminado = true;
+        item.ModificadoPor = GetApiName();
+        item.UsrAct = GetUserId();
         await _db.SaveChangesAsync();
         return Ok();
     }
@@ -349,8 +353,8 @@ public class ClienteController : Controller
         if (model.IdClienteRazonSolcial == 0)
         {
             model.FchReg = DateTime.Now;
-            model.CreadoPor = User.Identity?.Name ?? "";
-            model.UsrReg = User.Identity?.Name ?? "";
+            model.CreadoPor = GetApiName();
+            model.UsrReg = GetUserId();
             _db.ClienteRazonSolcials.Add(model);
         }
         else
@@ -363,9 +367,9 @@ public class ClienteController : Controller
             item.EsPublicoGeneral = model.EsPublicoGeneral;
             item.Domicilio = model.Domicilio;
             item.Observaciones = model.Observaciones;
-            item.ModificadoPor = User.Identity?.Name ?? "";
+            item.ModificadoPor = GetApiName();
             item.FchAct = DateTime.Now;
-            item.UsrAct = User.Identity?.Name ?? "";
+            item.UsrAct = GetUserId();
         }
 
         await _db.SaveChangesAsync();
@@ -379,6 +383,8 @@ public class ClienteController : Controller
         if (item == null) return NotFound();
 
         item.Eliminado = true;
+        item.ModificadoPor = GetApiName();
+        item.UsrAct = GetUserId();
         await _db.SaveChangesAsync();
         return Ok();
     }

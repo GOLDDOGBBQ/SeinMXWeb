@@ -34,4 +34,8 @@ public partial class Cliente
     public virtual ICollection<ClienteContacto> ClienteContactos { get; set; } = new List<ClienteContacto>();
 
     public virtual ICollection<ClienteRazonSolcial> ClienteRazonSolcials { get; set; } = new List<ClienteRazonSolcial>();
+
+    public virtual ICollection<Cotizacion> Cotizacions { get; set; } = new List<Cotizacion>();
+
+    public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();
 }

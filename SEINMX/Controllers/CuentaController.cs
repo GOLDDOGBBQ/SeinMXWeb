@@ -74,7 +74,7 @@ namespace SEINMX.Controllers
             // Crear claims
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.IdUsuario.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Usuario1),
                 new Claim(ClaimTypes.Name, user.Nombre ?? user.Usuario1),
                 new Claim("Usuario", user.Usuario1),
                 new Claim("Admin", user.Admin.ToString())

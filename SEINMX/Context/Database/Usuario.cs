@@ -36,4 +36,6 @@ public partial class Usuario
     public string? UsrAct { get; set; }
 
     public bool Eliminado { get; set; }
+
+    public virtual ICollection<Cotizacion> Cotizacions { get; set; } = new List<Cotizacion>();
 }

@@ -29,5 +29,7 @@ public partial class ClienteContacto
 
     public bool Eliminado { get; set; }
 
+    public virtual ICollection<Cotizacion> Cotizacions { get; set; } = new List<Cotizacion>();
+
     public virtual Cliente IdClienteNavigation { get; set; } = null!;
 }
