@@ -38,7 +38,7 @@
         cursor: pointer;
 
         &::before {
-            font-family: "Font Awesome 7 Free";
+            font-family: "Font Awesome 7 Free", serif;
             content: "\f107";
             vertical-align: middle;
             font-weight: 900;

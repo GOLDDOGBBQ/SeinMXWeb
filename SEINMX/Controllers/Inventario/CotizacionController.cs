@@ -1,5 +1,4 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SEINMX.Clases;
@@ -21,8 +20,6 @@ public class CotizacionController : ApplicationController
     public IActionResult Nueva()
     {
         return RedirectToAction("Editar");
-
-
     }
 
     public async Task<IActionResult> Crear()
@@ -36,9 +33,9 @@ public class CotizacionController : ApplicationController
             TipoCambio = 1,
             PorcentajeIva = 16,
             UsuarioResponsable = GetUserId(),
-            CreadoPor =  GetApiName(),
+            CreadoPor = GetApiName(),
             FchReg = DateTime.Now,
-            UsrReg = User.Identity?.Name ?? "SYSTEM"
+            UsrReg = GetUserId()
         };
 
         _db.Cotizacions.Add(nueva);
@@ -50,9 +47,6 @@ public class CotizacionController : ApplicationController
     [HttpGet("Editar/{id?}")]
     public async Task<IActionResult> Editar(int? id)
     {
-
-
-
         CotizacionViewModel vm = new();
 
         if (id == null)
@@ -61,23 +55,91 @@ public class CotizacionController : ApplicationController
             return View("Editar", vm);
         }
 
-        // Buscar vista
-        vm.Cotizacion = await _db.VsCotizacions
-            .FirstOrDefaultAsync(x => x.IdCotizacion == id);
+        vm = await GetModelView((int)id);
 
         if (vm.Cotizacion == null)
             return NotFound();
 
-        // Cargar detalles
-        vm.Detalles = await _db.CotizacionDetalles
-            .Where(x => x.IdCotizacion == id)
-            .ToListAsync();
 
         return View("Editar", vm);
     }
 
+    private async Task<CotizacionViewModel> GetModelView(int idCotizacion)
+    {
+        CotizacionViewModel vm = new()
+        {
+            // Buscar vista
+            Cotizacion = await _db.VsCotizacions
+                .FirstOrDefaultAsync(x => x.IdCotizacion == idCotizacion),
+            // Cargar detalles
+            Detalles = await _db.CotizacionDetalles
+                .Where(x => x.IdCotizacion == idCotizacion)
+                .ToListAsync()
+        };
 
 
+        return vm;
+    }
+
+
+    [HttpPost]
+    public async Task<IActionResult> Guardar(CotizacionViewModel model)
+    {
+        /*if (!ModelState.Cotizacion.IsValid)
+        {
+            ViewBag.Error = "El formulario contiene errores.";
+            return View("Editar", model);
+        }*/
+
+        if (model.Cotizacion is null || model.Cotizacion is { IdCotizacion: 0 })
+        {
+            ViewBag.Error = "No se recibio el numero de cotizacion";
+            return View("Editar", model);
+        }
+
+
+        try
+        {
+            // Validar que exista
+            var cot = await _db.Cotizacions
+                .FirstOrDefaultAsync(x => model.Cotizacion != null && x.IdCotizacion == model.Cotizacion.IdCotizacion);
+
+            if (cot == null)
+            {
+                ViewBag.Error = "La cotización no existe o fue eliminada.";
+                return View("Editar", model);
+            }
+
+            // === ACTUALIZAR CAMPOS EDITABLES ===
+            cot.Fecha = model.Cotizacion?.Fecha;
+            cot.TipoCambio = model.Cotizacion.TipoCambio;
+            cot.Tarifa = model.Cotizacion.Tarifa;
+            cot.PorcentajeIva = model.Cotizacion.PorcentajeIva;
+            cot.Descuento = model.Cotizacion.Descuento;
+            cot.Observaciones = model.Cotizacion.Observaciones;
+
+            cot.UsuarioResponsable = model.Cotizacion.UsuarioResponsable;
+            cot.IdCliente = model.Cotizacion.IdCliente;
+            cot.IdClienteContacto = model.Cotizacion.IdClienteContacto;
+            cot.IdClienteRazonSolcial = model.Cotizacion.IdClienteRazonSolcial;
+
+            // === CAMPOS AUTOMÁTICOS DE MODIFICACIÓN ===
+            cot.ModificadoPor = GetApiName();
+            cot.FchAct = DateTime.Now;
+            cot.UsrAct = GetUserId();
+
+            await _db.SaveChangesAsync();
+
+            TempData["Success"] = "Los datos fueron guardados correctamente.";
+            return RedirectToAction("Editar", new { id = cot.IdCotizacion });
+        }
+        catch (Exception ex)
+        {
+            // En caso de error, regresar al formulario SIN PERDER DATOS
+            ViewBag.Error = "Error al guardar: " + ex.Message;
+            return View("Editar", model);
+        }
+    }
 
 
     // =====================================================
@@ -103,7 +165,6 @@ public class CotizacionController : ApplicationController
     }
 
 
-
     // =====================================================
     // GUARDAR ENCABEZADO
     // =====================================================
@@ -115,7 +176,7 @@ public class CotizacionController : ApplicationController
 
         item.UsuarioResponsable = model.UsuarioResponsable;
         item.IdCliente = model.IdCliente;
-        item.IdClienteeContacto = model.IdClienteeContacto;
+        item.IdClienteContacto = model.IdClienteContacto;
         item.IdClienteRazonSolcial = model.IdClienteRazonSolcial;
         item.Observaciones = model.Observaciones;
         item.Tarifa = model.Tarifa;

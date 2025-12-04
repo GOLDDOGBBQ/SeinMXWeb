@@ -260,7 +260,6 @@ export class CbDropdown extends HTMLElement {
                 this.#elements.placeholder.textContent = '';
 
                 const opt = await this.dataProvider.find(newValue);
-
                 if (opt != null) {
                     this.#elements.placeholder.textContent = opt.display;
                     this.#selected = [opt.value];

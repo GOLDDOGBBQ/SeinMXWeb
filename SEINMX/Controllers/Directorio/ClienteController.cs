@@ -389,9 +389,8 @@ public class ClienteController : ApplicationController
         return Ok();
     }
 
-    public async Task<JsonResult> Dropdown(int page = 0, int pageSize = 30, int? id = default, string search = "")
+    public async Task<JsonResult> DropdownClientes(int page = 0, int pageSize = 30, int? id = null, string search = "")
     {
-
 
         var lista = _db.Clientes.Where(x => x.Eliminado == false);
 
@@ -409,6 +408,71 @@ public class ClienteController : ApplicationController
         var count = await lista.CountAsync();
         var data = await lista.Skip(page * pageSize).Take(pageSize)
             .Select(drmCliente => new { display = drmCliente.Nombre, value = drmCliente.IdCliente.ToString() })
+            .ToListAsync();
+        var remaining = Math.Max(count - (page * pageSize) - data.Count, 0);
+
+        return Json(new
+        {
+            moreToLoad = remaining > 0,
+            data
+        });
+    }
+
+    public async Task<JsonResult> DropdownClienteContacto(int page = 0, int pageSize = 30, int? id = null, string search = "", int? idCliente = null)
+    {
+
+        var lista = _db.ClienteContactos.Where(x => x.Eliminado == false);
+
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            lista.Where(x => x.Nombre.Contains(search));
+        }
+
+        if (id.HasValue)
+        {
+            lista = lista.Where(c => c.IdClienteContacto == id.Value);
+        }
+        if (idCliente.HasValue)
+        {
+            lista = lista.Where(c => c.IdCliente == idCliente.Value);
+        }
+        var count = await lista.CountAsync();
+        var data = await lista.Skip(page * pageSize).Take(pageSize)
+            .Select(drmCliente => new { display = drmCliente.Nombre, value = drmCliente.IdClienteContacto.ToString() })
+            .ToListAsync();
+        var remaining = Math.Max(count - (page * pageSize) - data.Count, 0);
+
+        return Json(new
+        {
+            moreToLoad = remaining > 0,
+            data
+        });
+    }
+
+    public async Task<JsonResult> DropdownClienteRazonSolcial(int page = 0, int pageSize = 30, int? id = default, string search = "", int? idCliente = null)
+    {
+
+        var lista = _db.ClienteRazonSolcials.Where(x => x.Eliminado == false);
+
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            lista.Where(x => x.RazonSocial.Contains(search));
+        }
+
+        if (id.HasValue)
+        {
+            lista = lista.Where(c => c.IdClienteRazonSolcial == id.Value);
+        }
+        if (idCliente.HasValue)
+        {
+            lista = lista.Where(c => c.IdCliente == idCliente.Value);
+        }
+
+        var count = await lista.CountAsync();
+        var data = await lista.Skip(page * pageSize).Take(pageSize)
+            .Select(drmCliente => new { display = drmCliente.RazonSocial, value = drmCliente.IdClienteRazonSolcial.ToString() })
             .ToListAsync();
         var remaining = Math.Max(count - (page * pageSize) - data.Count, 0);
 

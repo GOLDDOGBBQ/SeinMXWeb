@@ -7,13 +7,15 @@
 export class ClientsDataProvider extends FetchingDataProvider {
     /**
      * Create a new ClientesDataProvider.
+     * @param {string}  urlBase  - URL REQUEST.
      * @param {string} allDisplayText - Localized display text for "ALL" clients dropdown option.
+
      */
-    constructor(allDisplayText) {
+    constructor(urlBase, allDisplayText, ) {
         super(
             async ({page, pageSize, search}) => {
                 const encodedSearch = encodeURIComponent(search);
-                return await fetch(`/Cliente/Dropdown?page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
+                return await fetch(`${urlBase}?page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
                     .then(r => r.json());
             },
             async (value) => {
@@ -22,7 +24,7 @@ export class ClientsDataProvider extends FetchingDataProvider {
                 }
                 
                 const encodedValue = encodeURIComponent(value);
-                return await fetch(`/Cliente/Dropdown?id=${encodedValue}`)
+                return await fetch(`${urlBase}?id=${encodedValue}`)
                     .then(r => r.json())
                     .then(j => j?.data?.at(0))
                     .catch(() => undefined);

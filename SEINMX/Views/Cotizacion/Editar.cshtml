@@ -1,7 +1,6 @@
 ﻿
 @{
     ViewBag.Title = "Editar";
-    //Layout = "_Layout";
 }
 
 @model SEINMX.Models.Inventario.CotizacionViewModel
@@ -18,6 +17,13 @@
     }
     else
     {
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                @Html.ValidationSummary()
+            </div>
+        }
+
         <div class="row">
             <div class="col-md-3">
                 <div class="info-box bg-info">
@@ -57,8 +63,9 @@
         </div>
 
         <form id="formCotizacion" method="post" action="@Url.Action("Guardar", "Cotizacion")">
+            @Html.HiddenFor(m => m.Cotizacion!.IdCotizacion)
 
-            <input type="hidden" name="IdCotizacion" value="@Model.Cotizacion.IdCotizacion"/>
+
 
             <div class="card card-primary mt-3">
                 <div class="card-header">
@@ -72,14 +79,14 @@
                         <!-- Fecha -->
                         <div class="col-md-2">
                             <label class="form-label">Fecha</label>
-                            <input type="date" name="Fecha" class="form-control"
+                            <input type="date" name="Cotizacion.Fecha" class="form-control"
                                    value="@Model.Cotizacion.Fecha?.ToString("yyyy-MM-dd")">
                         </div>
 
                         <!-- Tipo de Cambio -->
                         <div class="col-md-2">
                             <label class="form-label">Tipo Cambio</label>
-                            <input type="number" step="0.0001" name="TipoCambio"
+                            <input type="number" step="0.0001" name="Cotizacion.TipoCambio"
                                    class="form-control"
                                    value="@Model.Cotizacion.TipoCambio">
                         </div>
@@ -87,7 +94,7 @@
                         <!-- Tarifa -->
                         <div class="col-md-2">
                             <label class="form-label">Tarifa (%)</label>
-                            <input type="number" step="0.0001" name="Tarifa"
+                            <input type="number" step="0.0001" name="Cotizacion.Tarifa"
                                    class="form-control"
                                    value="@Model.Cotizacion.Tarifa">
                         </div>
@@ -95,15 +102,15 @@
                         <!-- IVA -->
                         <div class="col-md-2">
                             <label class="form-label">IVA (%)</label>
-                            <input type="number" step="0.0001" name="PorcentajeIVA"
+                            <input type="number" step="0.0001" name="Cotizacion.PorcentajeIVA"
                                    class="form-control"
                                    value="@Model.Cotizacion.PorcentajeIva">
                         </div>
 
                         <!-- Descuento -->
                         <div class="col-md-2">
-                            <label class="form-label">Descuento</label>
-                            <input type="number" step="0.0001" name="Descuento"
+                            <label class="form-label">Descuento ($)</label>
+                            <input type="number" step="0.0001" name="Cotizacion.Descuento"
                                    class="form-control"
                                    value="@Model.Cotizacion.Descuento">
                         </div>
@@ -113,27 +120,10 @@
 
                     <div class="row mt-3">
                         <!-- Usuario Responsable -->
-                        <div class=" col-sm-12 col-md-4 col-lg-5 ps-0 mb-3 ps-1 pe-1">
-                            <label for="idCliente" class="mb-0 ps-0 col-md-12">COMBO</label>
-                            <cb-dropdown
-                                id="idCliente"
-                                name="idCliente"
-                                onchange="">
-                            </cb-dropdown>
-                            <script type="module">
-                                import {
-                                    ClientsDataProvider
-                                } from "../../dropdown-1.1.0/clientsDataProvider-1.1.0.js";
-
-                                const clientesDropdown = document.querySelector("#idCliente");
-                                clientesDropdown.dataProvider = new ClientsDataProvider('Todos');
-                                clientesDropdown.setAttribute('selected', '@((Model.IdCliente ?? 0) > 0 ? Model.IdCliente.ToString() : "")');
-                            </script>
-                        </div>
-
                         <div class="col-md-3">
                             <label class="form-label">Usuario Responsable</label>
-                            <select id="cmbUsuario" name="UsuarioResponsable" class="form-control select2-ajax"
+                            <select id="cmbUsuario" name="Cotizacion.UsuarioResponsable"
+                                    class="form-control select2-ajax"
                                     data-url="/Utilerias/GetComboUsuarios"
                                     data-placeholder="Buscar usuario...">
                                 @if (Model.Cotizacion.UsuarioResponsable != null)
@@ -145,49 +135,38 @@
                             </select>
                         </div>
 
+
                         <!-- Cliente -->
                         <div class="col-md-9">
                             <label class="form-label">Cliente</label>
-                            <select id="cmbCliente" name="IdCliente" class="form-control select2-ajax"
-                                    data-url="/Utilerias/GetComboCliente"
-                                    data-placeholder="Buscar cliente...">
-                                @if (Model.Cotizacion.IdCliente != null)
-                                {
-                                    <option value="@Model.Cotizacion.IdCliente" selected>
-                                        @Model.Cotizacion.Cliente
-                                    </option>
-                                }
-                            </select>
+                            <cb-dropdown
+                                id="IdCliente"
+                                name="Cotizacion.IdCliente"
+                            >
+                            </cb-dropdown>
                         </div>
 
                         <!-- Contacto -->
+
                         <div class="col-md-6">
                             <label class="form-label">Contacto</label>
-                            <select id="cmbContacto" name="IdClienteeContacto" class="form-control select2-ajax"
-                                    data-url="/Cotizaciones/BuscarContacto"
-                                    data-placeholder="Buscar contacto...">
-                                @if (Model.Cotizacion.IdClienteeContacto != null)
-                                {
-                                    <option value="@Model.Cotizacion.IdClienteeContacto" selected>
-                                        @Model.Cotizacion.NombreContacto
-                                    </option>
-                                }
-                            </select>
+                            <cb-dropdown
+                                id="IdClienteContacto"
+                                name="Cotizacion.IdClienteContacto"
+                            >
+                            </cb-dropdown>
                         </div>
+
 
                         <!-- Razón Social -->
                         <div class="col-md-6">
                             <label class="form-label">Razón Social</label>
-                            <select id="cmbRazon" name="IdClienteRazonSolcial" class="form-control select2-ajax"
-                                    data-url="/Cotizaciones/BuscarRazon"
-                                    data-placeholder="Buscar razón social...">
-                                @if (Model.Cotizacion.IdClienteRazonSolcial != null)
-                                {
-                                    <option value="@Model.Cotizacion.IdClienteRazonSolcial" selected>
-                                        @Model.Cotizacion.RazonSocial
-                                    </option>
-                                }
-                            </select>
+                            <cb-dropdown
+                                id="IdClienteRazonSolcial"
+                                name="Cotizacion.IdClienteRazonSolcial"
+                            >
+                            </cb-dropdown>
+
                         </div>
 
 
@@ -196,7 +175,7 @@
                     <div class="row mt-3">
                         <div class="col-md-12">
                             <label class="form-label">Observaciones</label>
-                            <textarea name="Observaciones" class="form-control"
+                            <textarea name="Cotizacion.Observaciones" class="form-control"
                                       rows="3">@Model.Cotizacion.Observaciones</textarea>
                         </div>
                     </div>
@@ -213,35 +192,68 @@
     }
 </div>
 
-@*
-@section Scripts {
-    <script>
-        $('.select2-ajax').each(function () {
+<script type="module">
+    import {ClientsDataProvider} from "../../dropdown-1.1.0/clientsDataProvider-1.1.1.js";
 
-            let control = $(this);
+    // Dropdowns
+    const clientesDropdown = document.querySelector("#IdCliente");
+    const contactoDropdown = document.querySelector("#IdClienteContacto");
+    const razonDropdown = document.querySelector("#IdClienteRazonSolcial");
 
-            control.select2({
-                theme: "bootstrap-5",
-                placeholder: control.data("placeholder"),
-                minimumInputLength: 1,
-                ajax: {
-                    url: control.data("url"),
-                    dataType: 'json',
-                    delay: 250,
-                    data: function (params) {
-                        return {q: params.term};
-                    },
-                    processResults: function (data) {
-                        return {
-                            results: data.map(x => ({
-                                id: x.id,
-                                text: x.text
-                            }))
-                        };
-                    }
-                }
-            });
-        });
-    </script>
-}
-*@
+    // Provider inicial del cliente
+    clientesDropdown.dataProvider = new ClientsDataProvider(
+        '/Cliente/DropdownClientes',
+        'Buscar Cliente...'
+    );
+
+    // Provider inicial del contacto (sin cliente seleccionado)
+    contactoDropdown.dataProvider = new ClientsDataProvider(
+        '/Cliente/DropdownClienteContacto',
+        'Buscar contacto...'
+    );
+
+    razonDropdown.dataProvider = new ClientsDataProvider(
+        '/Cliente/DropdownClienteRazonSolcial',
+        'Buscar razón social...'
+    );
+
+
+    clientesDropdown.setAttribute('selected', '@(Model.Cotizacion is { IdCliente: > 0 } ? Model.Cotizacion.IdCliente.ToString() : "")');
+    contactoDropdown.setAttribute('selected', '@((Model.Cotizacion?.IdClienteContacto ?? 0) > 0 ? Model.Cotizacion?.IdClienteContacto.ToString() : "")');
+    razonDropdown.setAttribute('selected', '@((Model.Cotizacion?.IdClienteRazonSolcial ?? 0) > 0 ? Model.Cotizacion?.IdClienteRazonSolcial.ToString() : "")');
+
+    // CUANDO CAMBIA EL CLIENTE
+    clientesDropdown.addEventListener("change", () => {
+        const idCliente = clientesDropdown.selected;
+
+
+
+        // Cambiar la URL del dataProvider del combo dependiente
+        contactoDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
+            const encodedSearch = encodeURIComponent(search);
+            return await fetch(`/Cliente/DropdownClienteContacto?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
+                .then(r => r.json());
+        }
+
+        razonDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
+            const encodedSearch = encodeURIComponent(search);
+            return await fetch(`/Cliente/DropdownClienteRazonSolcial?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
+                .then(r => r.json());
+        }
+
+        //Limpiar la caché del provider
+        contactoDropdown.dataProvider.reset();
+        razonDropdown.dataProvider.reset()
+
+            ////Limpiar la selección del combo
+            contactoDropdown.setAttribute("selected", "");
+            razonDropdown.setAttribute("selected", "")
+
+
+        // Limpiar placeholder visible
+        // contactoDropdown.shadowRoot.querySelector("span").textContent = contactoDropdown.placeholder;
+        //razonoDropdown.shadowRoot.querySelector("span").textContent = contactoDropdown.placeholder;
+
+
+    });
+</script>

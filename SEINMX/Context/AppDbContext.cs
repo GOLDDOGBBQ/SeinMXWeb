@@ -185,7 +185,7 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK__Cotizacio__IdCli__31B762FC");
 
             entity.HasOne(d => d.IdClienteeContactoNavigation).WithMany(p => p.Cotizacions)
-                .HasForeignKey(d => d.IdClienteeContacto)
+                .HasForeignKey(d => d.IdClienteContacto)
                 .HasConstraintName("FK__Cotizacio__IdCli__30C33EC3");
 
             entity.HasOne(d => d.UsuarioResponsableNavigation).WithMany(p => p.Cotizacions)

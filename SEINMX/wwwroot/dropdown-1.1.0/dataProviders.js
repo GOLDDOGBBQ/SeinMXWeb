@@ -98,6 +98,11 @@
         return await this.#fetch(params);
     };
 
+    reset() {
+        this.cache = {};
+        this.moreToLoad = true;
+    }
+
     moreToLoad = true;
 }
 
