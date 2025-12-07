@@ -1,8 +1,40 @@
-﻿@model IEnumerable<SEINMX.Context.Database.VsCotizacion>
+﻿@using System.Globalization
+@model SEINMX.Models.Inventario.CotizacionBuscadorViewModel
 
 @{
     ViewBag.Title = "Cotizaciones";
-/*    Layout = "_Layout";*/
+    CultureInfo cultureMx = new CultureInfo("es-MX");
+
+    @functions {
+
+        public static string BadgeEstatus(int? status)
+        {
+            switch (status)
+            {
+                case 1:
+                    return "<span class=\"badge bg-primary\">CREADA</span>";
+
+                case 2:
+                    return "<span class=\"badge bg-info\">COTIZADA</span>";
+
+                case 3:
+                    return "<span class=\"badge bg-success\">AUTORIZADA</span>";
+
+                case 4:
+                    return "<span class=\"badge bg-warning text-dark\">PAGADA</span>";
+
+                case 5:
+                    return "<span class=\"badge bg-secondary\">EN PROCESO</span>";
+
+                case 6:
+                    return "<span class=\"badge bg-dark\">CERRADA</span>";
+
+                default:
+                    return "<span class=\"badge bg-light text-dark\">DESCONOCIDO</span>";
+            }
+        }
+
+    }
 }
 
 <div class="container-fluid mt-4">
@@ -19,34 +51,33 @@
             <!-- FILTROS -->
             <form method="get" class="row g-3">
 
-                <div class="col-md-3">
+                <div class="col-md-2">
                     <label class="form-label"># Cotizacion</label>
-                    <input type="text" name="idCotizacion" class="form-control" placeholder="ID...">
+                    <input type="text" name="idCotizacion" class="form-control" placeholder="ID..."
+                           value="@Model.IdCotizacion">
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-6">
                     <label class="form-label">Cliente </label>
-                    <input type="text" name="cliente" class="form-control" placeholder="Buscar...">
+                    <input type="text" name="cliente" class="form-control" placeholder="Buscar..."
+                           value="@Model.Cliente">
                 </div>
 
 
                 <!-- FILTRO DE IDTIPO -->
-                <div class="col-md-3">
-                    <label class="form-label">Tipo</label>
-                    <select name="status" class="form-select">
-                        <option value="">Todos</option>
-
-                        <option value="1">CREADA</option>
-                        <option value="2">COTIZADA</option>
-                        <option value="3">AUTORIZADA</option>
-                        <option value="4">PAGADA</option>
-                        <option value="5">EN PROCESO</option>
-                        <option value="6">CERRADA</option>
-                    </select>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <label class="form-label" for="Status">Status</label>
+                        @Html.DropDownListFor(
+                            m => m.Status,
+                            Model.GetComboStatus(),
+                            new { @class = "form-select", id = "Status", name = "Status" }
+                        )
+                    </div>
                 </div>
 
                 <!-- BOTÓN DE BÚSQUEDA -->
-                <div class="col-md-3 d-flex align-items-end">
+                <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary w-100">
                         <i class="fas fa-search"></i> Buscar
                     </button>
@@ -58,8 +89,9 @@
 
             <!-- BOTÓN AGREGAR CLIENTE -->
             <div class="mb-3">
-                <button class="btn btn-success" id="btnNuevoCliente">
-                    <i class="fas fa-user-plus"></i> Agregar Cliente
+                <button class="btn btn-primary"
+                        onclick="location.href='@Url.Action("Crear", "Cotizacion")'">
+                    Crear Cotización
                 </button>
             </div>
 
@@ -69,42 +101,38 @@
                 <table class="table table-striped table-hover table-bordered">
                     <thead class="table-dark">
                     <tr>
-
-                        <th><i class="fas fa-passport"></i> # Cliente</th>
-                        <th><i class="fas fa-id-card"></i> Nombre</th>
-                        <th><i class="fas fa-tag"></i> Tipo</th>
-                        <th><i class="fas fa-tag"></i> Tarifa</th>
+                        <th><i class="fa-solid fa-hashtag"></i> Cotizacion</th>
+                        <th><i class="fas fa-id-card"></i> Cliente</th>
+                        <th><i class="fas fa-tag"></i> Status</th>
+                        <th><i class="fa-solid fa-percent"></i> Tarifa</th>
+                        <th><i class="fa-regular fa-money-bill-1"></i> Total</th>
                         <th><i class="fas fa-gear"></i> Opciones</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @* Aquí iteras los datos que envíes desde el controlador *@
-                    @foreach (var item in Model)
+                    @foreach (var item in Model.Cotizaciones)
                     {
-                        <tr id="row-@item.IdCliente">
-
-                            <td>@item.IdCliente</td>
+                        <tr id="row-@item.IdCotizacion">
+                            <td>@item.IdCotizacion</td>
                             <td>@item.Cliente</td>
+
                             <td>
-                                @if (item.Status == 0)
-                                {
-                                    <span class="badge bg-primary">Cliente</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-warning">Proveedor</span>
-                                }
+                                @Html.Raw(BadgeEstatus(item.Status))
                             </td>
+
                             <td>
                                 @item.Tarifa
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-warning" onclick="editarCliente(@item.IdCliente)">
+                                @string.Format(cultureMx, "{0:C}", item.Total)
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary"  onclick="location.href='@Url.Action("Editar", "Cotizacion",new {id = item.IdCotizacion })'">
                                     <i class="fas fa-pen-to-square"></i>
                                 </button>
 
-                                <button class="btn btn-sm btn-danger" onclick="eliminarCliente(@item.IdCliente, this)">
-                                    <i class="fas fa-trash"></i>
+                                <button class="btn btn-sm btn-secondary" onclick="VerPdf(@item.IdCotizacion, this)">
+                                    <i class="fa-regular fa-file-pdf"></i>
                                 </button>
 
                             </td>

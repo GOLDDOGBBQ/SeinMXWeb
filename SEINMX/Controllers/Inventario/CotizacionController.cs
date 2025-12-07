@@ -7,47 +7,71 @@ using SEINMX.Context.Database;
 using SEINMX.Models.Inventario;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using SEINMX.Clases.Utilerias;
 
 [Authorize]
 public class CotizacionController : ApplicationController
 {
     private readonly AppDbContext _db;
     private readonly AppClassContext _ClasContext;
+    private readonly RazorViewToStringRenderer _razorRenderer;
 
-    public CotizacionController(AppDbContext db, AppClassContext clasContext)
+    public CotizacionController(AppDbContext db, AppClassContext clasContext, RazorViewToStringRenderer razorRenderer)
     {
         _db = db;
         _ClasContext = clasContext;
+        _razorRenderer = razorRenderer;
     }
 
 
 
-    public async Task<IActionResult> Index(int? idCotizacion, string? cliente,int? status)
+    public async Task<IActionResult> Index(CotizacionBuscadorViewModel model)
     {
-
         var query = _db.VsCotizacions.OrderByDescending(x => x.IdCotizacion).AsQueryable();
 
-        if (idCotizacion != null)
-            query = query.Where(x => x.IdCotizacion == idCotizacion);
+        if (model.IdCotizacion != null)
+        {
+            query = query.Where(x => x.IdCotizacion == model.IdCotizacion );
+        }
+        else
+        {
+            if (!string.IsNullOrWhiteSpace(model.Cliente))
+                query = query.Where(x => x.Cliente!.Contains(model.Cliente));
 
-        if (!string.IsNullOrWhiteSpace(cliente))
-            query = query.Where(x => x.Cliente!.Contains(cliente));
 
-
-        if (status != null)
-            query = query.Where(x => x.Status == status);
+            if (model.Status != null)
+                query = query.Where(x => x.Status == model.Status);
+        }
 
         var lista = await query
             .OrderByDescending(x => x.IdCotizacion)
             .ToListAsync();
 
-        return View(lista);
+        model.Cotizaciones = lista;
+
+        return View(model);
     }
 
     public IActionResult Nueva()
     {
         return RedirectToAction("Editar");
     }
+
+
+    public async Task<IActionResult> GenerarPdf()
+    {
+        CotizacionPdfModel model = new CotizacionPdfModel(1,null,null,null,null,null,null,null,null,null,1,null,null,null,null,null);
+
+
+        var pdf = await _razorRenderer.RenderViewToPdfAsync(
+            "~/Reportes/Inventario/Rp_Cotizacion.cshtml",
+            model
+        );
+
+
+        return View("Rp_Cotizacion", model);
+    }
+
 
     public async Task<IActionResult> Crear()
     {

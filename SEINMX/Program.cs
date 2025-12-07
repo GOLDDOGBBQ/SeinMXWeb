@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using SEINMX.Clases.Utilerias;
 using SEINMX.Context;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -40,6 +41,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization();
 
+
+builder.Services.AddTransient<RazorViewToStringRenderer>();
+//builder.Services.AddSingleton<BlazorRenderer>();
 
 // =======================
 // MVC

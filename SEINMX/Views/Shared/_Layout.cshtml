@@ -219,6 +219,11 @@
         <div class="app-content">
             <div class="container-fluid">
                 @RenderBody()
+
+                <!-- Toast Container -->
+                <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
+                    <div id="toastContainer"></div>
+                </div>
             </div>
         </div>
 
@@ -239,6 +244,62 @@
 
 
 @await RenderSectionAsync("Scripts", required: false)
+
+
+@section Scripts
+{
+
+    @if (TempData["toast-success"] != null)
+    {
+        <script>
+        showToast("Éxito", "@TempData["toast-success"]", "success");
+    </script>
+    }
+
+    @if (TempData["toast-error"] != null)
+    {
+        <script>
+        showToast("Error", "@TempData["toast-error"]", "error");
+    </script>
+    }
+}
+
+<script>
+    function showToast(titulo, mensaje, tipo = "success") {
+
+        const tiempo = new Date().toLocaleTimeString("es-MX");
+
+        const icon = tipo === "success"
+            ? "fa-circle-check text-success"
+            : "fa-circle-xmark text-danger";
+
+        const toastId = "toast_" + Date.now();
+
+        const html = `
+        <div id="${toastId}" class="toast align-items-center text-bg-light border-0 shadow mb-3"
+             role="alert" aria-live="assertive" aria-atomic="true"
+             data-autohide="true" data-delay="5000">
+
+            <div class="toast-header">
+                <i class="fa-solid ${icon} me-2"></i>
+                <strong class="me-auto">${titulo}</strong>
+                <small>hace un momento</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
+
+            <div class="toast-body">
+                ${mensaje}
+            </div>
+        </div>`;
+
+        const container = document.getElementById("toastContainer");
+        container.insertAdjacentHTML("beforeend", html);
+
+        const toastEl = document.getElementById(toastId);
+        const bsToast = new bootstrap.Toast(toastEl);
+        bsToast.show();
+    }
+</script>
 
 <script>
     function cambiarTema(tema) {
