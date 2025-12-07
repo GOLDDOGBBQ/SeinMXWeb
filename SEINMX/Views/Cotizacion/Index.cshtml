@@ -1,0 +1,121 @@
+﻿@model IEnumerable<SEINMX.Context.Database.VsCotizacion>
+
+@{
+    ViewBag.Title = "Cotizaciones";
+/*    Layout = "_Layout";*/
+}
+
+<div class="container-fluid mt-4">
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white">
+            <h3 class="card-title">
+                <i class="fas fa-users"></i> Lista de Cotizaciones
+            </h3>
+        </div>
+
+        <div class="card-body">
+
+            <!-- FILTROS -->
+            <form method="get" class="row g-3">
+
+                <div class="col-md-3">
+                    <label class="form-label"># Cotizacion</label>
+                    <input type="text" name="idCotizacion" class="form-control" placeholder="ID...">
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">Cliente </label>
+                    <input type="text" name="cliente" class="form-control" placeholder="Buscar...">
+                </div>
+
+
+                <!-- FILTRO DE IDTIPO -->
+                <div class="col-md-3">
+                    <label class="form-label">Tipo</label>
+                    <select name="status" class="form-select">
+                        <option value="">Todos</option>
+
+                        <option value="1">CREADA</option>
+                        <option value="2">COTIZADA</option>
+                        <option value="3">AUTORIZADA</option>
+                        <option value="4">PAGADA</option>
+                        <option value="5">EN PROCESO</option>
+                        <option value="6">CERRADA</option>
+                    </select>
+                </div>
+
+                <!-- BOTÓN DE BÚSQUEDA -->
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+
+            <hr/>
+
+
+            <!-- BOTÓN AGREGAR CLIENTE -->
+            <div class="mb-3">
+                <button class="btn btn-success" id="btnNuevoCliente">
+                    <i class="fas fa-user-plus"></i> Agregar Cliente
+                </button>
+            </div>
+
+
+            <!-- TABLA -->
+            <div class="table-responsive">
+                <table class="table table-striped table-hover table-bordered">
+                    <thead class="table-dark">
+                    <tr>
+
+                        <th><i class="fas fa-passport"></i> # Cliente</th>
+                        <th><i class="fas fa-id-card"></i> Nombre</th>
+                        <th><i class="fas fa-tag"></i> Tipo</th>
+                        <th><i class="fas fa-tag"></i> Tarifa</th>
+                        <th><i class="fas fa-gear"></i> Opciones</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @* Aquí iteras los datos que envíes desde el controlador *@
+                    @foreach (var item in Model)
+                    {
+                        <tr id="row-@item.IdCliente">
+
+                            <td>@item.IdCliente</td>
+                            <td>@item.Cliente</td>
+                            <td>
+                                @if (item.Status == 0)
+                                {
+                                    <span class="badge bg-primary">Cliente</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning">Proveedor</span>
+                                }
+                            </td>
+                            <td>
+                                @item.Tarifa
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-warning" onclick="editarCliente(@item.IdCliente)">
+                                    <i class="fas fa-pen-to-square"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-danger" onclick="eliminarCliente(@item.IdCliente, this)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+

@@ -9,7 +9,7 @@
 
 <div class="container-fluid mt-4">
 
-    @if (Model.Cotizacion == null)
+    @if (Model.IdCotizacion == 0)
     {
         <button class="btn btn-primary"
                 onclick="location.href='@Url.Action("Crear", "Cotizacion")'">
@@ -23,6 +23,7 @@
         {
             <div class="alert alert-danger">
                 @ViewBag.Error
+                @TempData["toast-error"]
                 @Html.ValidationSummary()
             </div>
         }
@@ -30,13 +31,13 @@
         <div class="row">
             <div class="col-md-3">
                 <div class="info-box">
-                <span class="info-box-icon text-bg-success shadow-sm">
-                    <i class="fa-solid fa-hashtag"></i>
-                </span>
+                    <span class="info-box-icon text-bg-success shadow-sm">
+                        <i class="fa-solid fa-hashtag"></i>
+                    </span>
 
                     <div class="info-box-content">
                         <span class="info-box-text">Cotizacion Numero</span>
-                        <span class="info-box-number">@Model.Cotizacion.IdCotizacion</span>
+                        <span class="info-box-number">@Model.IdCotizacion</span>
                     </div>
                 </div>
             </div>
@@ -44,7 +45,7 @@
         </div>
 
         <form id="formCotizacion" method="post" action="@Url.Action("Guardar", "Cotizacion")">
-            @Html.HiddenFor(m => m.Cotizacion!.IdCotizacion)
+            @Html.HiddenFor(m => m.IdCotizacion)
 
             <div class="card card-secondary mt-3">
                 <div class="card-header">
@@ -58,45 +59,45 @@
                         <!-- Fecha -->
                         <div class="col-md-2">
                             <label class="form-label">Fecha</label>
-                            <input type="date" name="Cotizacion.Fecha" class="form-control"
-                                   value="@Model.Cotizacion.Fecha?.ToString("yyyy-MM-dd")">
+                            <input type="date" name="Fecha" class="form-control"
+                                   value="@Model.Fecha?.ToString("yyyy-MM-dd")">
                         </div>
 
                         <!-- Tipo de Cambio -->
                         <div class="col-md-2">
                             <label class="form-label">Tipo Cambio</label>
-                            <input type="number" step="0.0001" name="Cotizacion.TipoCambio"
+                            <input type="number" step="0.0001" name="TipoCambio"
                                    class="form-control"
-                                   value="@Model.Cotizacion.TipoCambio">
+                                   value="@Model.TipoCambio">
                         </div>
 
                         <!-- Tarifa -->
                         <div class="col-md-2">
                             <label class="form-label">Tarifa (%)</label>
-                            <input type="number" step=".01" name="Cotizacion.Tarifa"
+                            <input type="number" step=".01" name="Tarifa"
                                    class="form-control"
-                                   value="@Model.Cotizacion.Tarifa">
+                                   value="@Model.Tarifa">
                         </div>
 
                         <!-- IVA -->
                         <div class="col-md-2">
                             <label class="form-label">IVA (%)</label>
-                            <input type="number" step="0.01" name="Cotizacion.PorcentajeIVA"
+                            <input type="number" step="0.01" name="PorcentajeIVA"
                                    class="form-control"
-                                   value="@Model.Cotizacion.PorcentajeIva">
+                                   value="@Model.PorcentajeIVA">
                         </div>
 
                         <!-- Descuento -->
                         <div class="col-md-2">
                             <label class="form-label">Descuento ($)</label>
-                            <input type="number" step="0.0001" name="Cotizacion.Descuento"
+                            <input type="number" step="0.0001" name="Descuento"
                                    class="form-control"
-                                   value="@Model.Cotizacion.Descuento">
+                                   value="@Model.Descuento">
                         </div>
 
 
                         @{
-                            var currentStatus = Model?.Cotizacion?.Status ?? 0;
+                            var currentStatus = Model.Status;
 
                             var items = new List<SelectListItem>
                             {
@@ -113,7 +114,7 @@
                             <div class="form-group">
                                 <label for="Status">Status</label>
                                 @Html.DropDownListFor(
-                                    m => m.Cotizacion.Status,
+                                    m => m.Status,
                                     items,
                                     new { @class = "form-select", id = "Status", name = "Status" }
                                 )
@@ -125,17 +126,14 @@
                         <!-- Usuario Responsable -->
                         <div class="col-md-3">
                             <label class="form-label">Usuario Responsable</label>
-                            <select id="cmbUsuario" name="Cotizacion.UsuarioResponsable"
-                                    class="form-control select2-ajax"
-                                    data-url="/Utilerias/GetComboUsuarios"
-                                    data-placeholder="Buscar usuario...">
-                                @if (Model.Cotizacion.UsuarioResponsable != null)
-                                {
-                                    <option value="@Model.Cotizacion.UsuarioResponsable" selected>
-                                        @Model.Cotizacion.Responsable
-                                    </option>
-                                }
+
+                            <select asp-for="UsuarioResponsable"
+                                    asp-items="ViewBag.UsuariosResponsables"
+                                    class="form-select">
+                                <option value="">Seleccione un responsable</option>
                             </select>
+
+                            <span asp-validation-for="UsuarioResponsable" class="text-danger"></span>
                         </div>
 
 
@@ -144,7 +142,7 @@
                             <label class="form-label">Cliente</label>
                             <cb-dropdown
                                 id="IdCliente"
-                                name="Cotizacion.IdCliente"
+                                name="IdCliente"
                             >
                             </cb-dropdown>
                         </div>
@@ -155,7 +153,7 @@
                             <label class="form-label">Contacto</label>
                             <cb-dropdown
                                 id="IdClienteContacto"
-                                name="Cotizacion.IdClienteContacto"
+                                name="IdClienteContacto"
                             >
                             </cb-dropdown>
                         </div>
@@ -166,7 +164,7 @@
                             <label class="form-label">Razón Social</label>
                             <cb-dropdown
                                 id="IdClienteRazonSolcial"
-                                name="Cotizacion.IdClienteRazonSolcial"
+                                name="IdClienteRazonSolcial"
                             >
                             </cb-dropdown>
 
@@ -178,8 +176,8 @@
                     <div class="row mt-3">
                         <div class="col-md-12">
                             <label class="form-label">Observaciones</label>
-                            <textarea name="Cotizacion.Observaciones" class="form-control"
-                                      rows="3">@Model.Cotizacion.Observaciones</textarea>
+                            <textarea name="Observaciones" class="form-control"
+                                      rows="3">@Model.Observaciones</textarea>
                         </div>
                     </div>
 
@@ -203,7 +201,7 @@
 
                     <div class="info-box-content">
                         <span class="info-box-text">Cotizacion Numero</span>
-                        <span class="info-box-number">@Model.Cotizacion.IdCotizacion</span>
+                        <span class="info-box-number">@Model.IdCotizacion</span>
                     </div>
                 </div>
             </div>
@@ -219,7 +217,7 @@
                         <span class="info-box-text">Sub total</span>
                         <span class="info-box-number" id="infoSubTotal"
                               name="infoSubTotal">
-                            @string.Format(cultureMx, "{0:C}", Model.Cotizacion.SubTotal)
+                            @string.Format(cultureMx, "{0:C}", Model.SubTotal)
                         </span>
                     </div>
                 </div>
@@ -236,7 +234,7 @@
                     <div class="info-box-content">
                         <span class="info-box-text">IVA</span>
                         <span class="info-box-number" id="infoIva" name="infoIva">
-                            @string.Format(cultureMx, "{0:C}", Model.Cotizacion.Iva)
+                            @string.Format(cultureMx, "{0:C}", Model.Iva)
                         </span>
                     </div>
                 </div>
@@ -252,7 +250,7 @@
                     <div class="info-box-content">
                         <span class="info-box-text">Total</span>
                         <span class="info-box-number" id="infoTotal" name="infoTotal">
-                            @string.Format(cultureMx, "{0:C}", Model.Cotizacion.Total)
+                            @string.Format(cultureMx, "{0:C}", Model.Total)
                         </span>
                     </div>
                 </div>
@@ -293,9 +291,6 @@
         <div class="card mt-3">
             <div class="card-header">
                 <b>Productos</b>
-                <button type="button" class="btn btn-sm btn-primary float-end" onclick="abrirModalProducto()">
-                    Agregar Producto
-                </button>
             </div>
             <div class="card-body">
                 <table class="table table-bordered mt-4" id="tablaDetalle">
@@ -352,9 +347,9 @@
             );
 
 
-            clientesDropdown.setAttribute('selected', '@(Model.Cotizacion is { IdCliente: > 0 } ? Model.Cotizacion.IdCliente.ToString() : "")');
-            contactoDropdown.setAttribute('selected', '@((Model.Cotizacion?.IdClienteContacto ?? 0) > 0 ? Model.Cotizacion?.IdClienteContacto.ToString() : "")');
-            razonDropdown.setAttribute('selected', '@((Model.Cotizacion?.IdClienteRazonSolcial ?? 0) > 0 ? Model.Cotizacion?.IdClienteRazonSolcial.ToString() : "")');
+            clientesDropdown.setAttribute('selected', '@(Model is { IdCliente: > 0 } ? Model.IdCliente.ToString() : "")');
+            contactoDropdown.setAttribute('selected', '@((Model.IdClienteContacto ?? 0) > 0 ? Model.IdClienteContacto.ToString() : "")');
+            razonDropdown.setAttribute('selected', '@((Model.IdClienteRazonSolcial ?? 0) > 0 ? Model.IdClienteRazonSolcial.ToString() : "")');
 
 
             clientesDropdown.addEventListener("change", () => {
@@ -384,7 +379,7 @@
 
             function isError(json) {
                 if (!json.ok) {
-                  //  alert(json.msg);
+                    //  alert(json.msg);
                     showToast("Error", json.msg ?? "Ocurrió un error", "error");
                     return true;
                 }
@@ -393,7 +388,7 @@
             }
 
 
-            const idCotizacion = @Model.Cotizacion?.IdCotizacion;
+            const idCotizacion = @Model.IdCotizacion;
 
             async function cargarTabla() {
                 const res = await fetch(`/Cotizacion/GetDetalles?idCotizacion=${idCotizacion}`);
@@ -544,7 +539,11 @@
         <div id="toastContainer"></div>
     </div>
 
+
 </div>
+
+
+
 <script>
     function showToast(titulo, mensaje, tipo = "success") {
 
@@ -581,3 +580,23 @@
         bsToast.show();
     }
 </script>
+
+
+@section Scripts
+{
+
+    @if (TempData["toast-success"] != null)
+    {
+        <script>
+        showToast("Éxito", "@TempData["toast-success"]", "success");
+    </script>
+    }
+
+    @if (TempData["toast-error"] != null)
+    {
+        <script>
+        showToast("Error", "@TempData["toast-error"]", "error");
+    </script>
+    }
+}
+

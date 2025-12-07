@@ -6,6 +6,7 @@ using SEINMX.Context;
 using SEINMX.Context.Database;
 using SEINMX.Models.Inventario;
 using System.Text.Json;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 [Authorize]
 public class CotizacionController : ApplicationController
@@ -19,6 +20,29 @@ public class CotizacionController : ApplicationController
         _ClasContext = clasContext;
     }
 
+
+
+    public async Task<IActionResult> Index(int? idCotizacion, string? cliente,int? status)
+    {
+
+        var query = _db.VsCotizacions.OrderByDescending(x => x.IdCotizacion).AsQueryable();
+
+        if (idCotizacion != null)
+            query = query.Where(x => x.IdCotizacion == idCotizacion);
+
+        if (!string.IsNullOrWhiteSpace(cliente))
+            query = query.Where(x => x.Cliente!.Contains(cliente));
+
+
+        if (status != null)
+            query = query.Where(x => x.Status == status);
+
+        var lista = await query
+            .OrderByDescending(x => x.IdCotizacion)
+            .ToListAsync();
+
+        return View(lista);
+    }
 
     public IActionResult Nueva()
     {
@@ -50,37 +74,55 @@ public class CotizacionController : ApplicationController
     [HttpGet("Editar/{id?}")]
     public async Task<IActionResult> Editar(int? id)
     {
-        CotizacionViewModel vm = new();
-
         if (id == null)
         {
-            // Mostrar botón "Crear Cotización" en la vista
-            return View("Editar", vm);
+            CotizacionViewModel modelEmpy = new();
+            return View("Editar", modelEmpy);
         }
 
-        vm = await GetModelView((int)id);
+        var entity = await _db.VsCotizacions
+            .FirstOrDefaultAsync(x => x.IdCotizacion == id);
 
-        if (vm.Cotizacion == null)
+        if (entity == null)
             return NotFound();
 
-
-        return View("Editar", vm);
-    }
-
-    private async Task<CotizacionViewModel> GetModelView(int idCotizacion)
-    {
-        CotizacionViewModel vm = new()
+        var model = new CotizacionViewModel
         {
-            // Buscar vista
-            Cotizacion = await _db.VsCotizacions
-                .FirstOrDefaultAsync(x => x.IdCotizacion == idCotizacion),
-            // Cargar detalles
-            Detalles = await _db.CotizacionDetalles
-                .Where(x => x.IdCotizacion == idCotizacion)
-                .ToListAsync()
+            IdCotizacion = entity.IdCotizacion,
+            Fecha = entity.Fecha,
+            TipoCambio = entity.TipoCambio,
+            Tarifa = entity.Tarifa,
+            PorcentajeIVA = entity.PorcentajeIva,
+            Descuento = entity.Descuento,
+            UsuarioResponsable = entity.UsuarioResponsable,
+            IdCliente = entity.IdCliente,
+            IdClienteContacto = entity.IdClienteContacto,
+            IdClienteRazonSolcial = entity.IdClienteRazonSolcial,
+            Status = entity.Status ?? 1,
+            Observaciones = entity.Observaciones,
+            SubTotal = entity.SubTotal,
+            Iva = entity.Iva,
+            Total = entity.Total,
+
+            // Agrega todos los campos adicionales que tenga tu modelo
         };
 
-        return vm;
+
+            ViewBag.UsuariosResponsables = await ObtenerUsuariosResponsablesAsync();
+
+        return View("Editar", model);
+    }
+
+    private async Task<List<SelectListItem>> ObtenerUsuariosResponsablesAsync()
+    {
+        return await _db.Usuarios
+            .Select(u => new SelectListItem
+            {
+                Value = u.Usuario1,
+                Text = u.Nombre
+            })
+            .OrderBy(u => u.Text)
+            .ToListAsync();
     }
 
     [HttpGet]
@@ -104,9 +146,11 @@ public class CotizacionController : ApplicationController
     [HttpPost]
     public async Task<IActionResult> Guardar(CotizacionViewModel model)
     {
-        if (model.Cotizacion is null || model.Cotizacion is { IdCotizacion: 0 })
+        ViewBag.UsuariosResponsables = await ObtenerUsuariosResponsablesAsync();
+
+        if (!ModelState.IsValid)
         {
-            ViewBag.Error = "No se recibio el numero de cotizacion";
+            TempData["toast-error"] = "Revise los campos marcados.";
             return View("Editar", model);
         }
 
@@ -117,7 +161,7 @@ public class CotizacionController : ApplicationController
                 .SpCotizacionNuevoResults
                 .FromSqlInterpolated($@"
                 EXEC [INV].[GP_CotizacionNuevo]
-                     @json = {JsonSerializer.Serialize(model.Cotizacion)},
+                     @json = {JsonSerializer.Serialize(model)},
                      @UserId = {GetUserId()},
                      @ProgName = {GetApiName()}
             ")
@@ -127,23 +171,23 @@ public class CotizacionController : ApplicationController
             // Si el SP no regresó nada (caso muy raro)
             if (result == null)
             {
-                ViewBag.Error = "No se recibió respuesta del servidor.";
+                TempData["toast-error"] = "No se recibió respuesta del servidor.";
                 return View("Editar", model);
             }
 
             // Si el SP reporta error
             if (result.IdError != 0)
             {
-                ViewBag.Error = "La cotización no existe o fue eliminada.";
+                TempData["toast-error"] = result.MensajeError + " "+ result.MensajeErrorDev;
                 return View("Editar", model);
             }
 
-            TempData["Success"] = "Los datos fueron guardados correctamente.";
+            TempData["toast-success"] = "Los datos fueron guardados correctamente.";
             return RedirectToAction("Editar", new { id = result.IdCotizacion });
         }
         catch (Exception ex)
         {
-            ViewBag.Error = "Error del servidor." + ex.Message;
+            TempData["toast-error"] = "Error del servidor." + ex.Message;
             return View("Editar", model);
         }
     }
@@ -268,15 +312,5 @@ public class CotizacionController : ApplicationController
         {
             return Json(new { ok = false, msg = ex.Message });
         }
-    }
-
-
-    public async Task<IActionResult> TablaProductos(int id)
-    {
-        var lista = await _db.CotizacionDetalles
-            .Where(x => x.IdCotizacion == id)
-            .ToListAsync();
-
-        return PartialView("_TablaProductos", lista);
     }
 }

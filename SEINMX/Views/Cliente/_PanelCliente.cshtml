@@ -251,9 +251,6 @@
                 }
             });
 
-            // ========================
-            // 📌 Construir payload
-            // ========================
             let payload = {
                 idCliente: parseInt(cliId.value),
                 nombre: cliNombre.value,
@@ -266,16 +263,12 @@
             };
 
 
-            // ========================
-            // 📌 Petición al servidor (con manejo de errores)
-            // ========================
             const res = await fetch('/Cliente/GuardarClienteCompleto', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
-            // ❗ Si el servidor regresa error (400, 500, etc.)
             console.log(res);
             if (!res.ok) {
                 let serverMsg = "Error desconocido al guardar el cliente.";
@@ -287,19 +280,15 @@
                 throw new Error(serverMsg);
             }
 
-            // Respuesta JSON válida
             const data = await res.json();
             console.log(data);
             if (!data.ok) {
                 throw new Error(data.message || "No se pudo guardar el cliente.");
             }
 
-            // ========================
-            // ✔ ÉXITO
-            // ========================
             $("#modalCliente").modal("hide");
 
-            // Si viene el HTML de la nueva fila → insertarlo al inicio
+
             if (data.rowHtml) {
                 $("#tblClientes tbody").prepend(data.rowHtml);
             }
@@ -308,9 +297,6 @@
             mostrarErrorCliente(err.message);
         }
 
-        // ========================
-        // 🔄 Volver a mostrar el botón normal
-        // ========================
         btn.disabled = false;
         btn.innerHTML = `<i class="fas fa-save"></i> Guardar`;
     }
