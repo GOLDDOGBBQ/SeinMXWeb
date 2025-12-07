@@ -47,5 +47,9 @@ public partial class VsCotizacion
 
     public decimal? SubTotal { get; set; }
 
+    public decimal? FactorIva { get; set; }
+
+    public decimal? Iva { get; set; }
+
     public decimal? Total { get; set; }
 }

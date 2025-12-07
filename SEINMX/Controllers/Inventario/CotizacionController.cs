@@ -5,15 +5,18 @@ using SEINMX.Clases;
 using SEINMX.Context;
 using SEINMX.Context.Database;
 using SEINMX.Models.Inventario;
+using System.Text.Json;
 
 [Authorize]
 public class CotizacionController : ApplicationController
 {
     private readonly AppDbContext _db;
+    private readonly AppClassContext _ClasContext;
 
-    public CotizacionController(AppDbContext db)
+    public CotizacionController(AppDbContext db, AppClassContext clasContext)
     {
         _db = db;
+        _ClasContext = clasContext;
     }
 
 
@@ -77,20 +80,30 @@ public class CotizacionController : ApplicationController
                 .ToListAsync()
         };
 
-
         return vm;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetTotales(int idCotizacion)
+    {
+        var item = await _db.VsCotizacions
+            .FirstOrDefaultAsync(x => x.IdCotizacion == idCotizacion);
+
+        if (item == null) return NotFound();
+
+
+        return Json(new
+        {
+            ok = true,
+            Iva = item.Iva,
+            SubTotal = item.SubTotal,
+            Total = item.Total,
+        });
+    }
 
     [HttpPost]
     public async Task<IActionResult> Guardar(CotizacionViewModel model)
     {
-        /*if (!ModelState.Cotizacion.IsValid)
-        {
-            ViewBag.Error = "El formulario contiene errores.";
-            return View("Editar", model);
-        }*/
-
         if (model.Cotizacion is null || model.Cotizacion is { IdCotizacion: 0 })
         {
             ViewBag.Error = "No se recibio el numero de cotizacion";
@@ -100,167 +113,170 @@ public class CotizacionController : ApplicationController
 
         try
         {
-            // Validar que exista
-            var cot = await _db.Cotizacions
-                .FirstOrDefaultAsync(x => model.Cotizacion != null && x.IdCotizacion == model.Cotizacion.IdCotizacion);
+            var result = _ClasContext
+                .SpCotizacionNuevoResults
+                .FromSqlInterpolated($@"
+                EXEC [INV].[GP_CotizacionNuevo]
+                     @json = {JsonSerializer.Serialize(model.Cotizacion)},
+                     @UserId = {GetUserId()},
+                     @ProgName = {GetApiName()}
+            ")
+                .AsEnumerable()
+                .FirstOrDefault();
 
-            if (cot == null)
+            // Si el SP no regresó nada (caso muy raro)
+            if (result == null)
+            {
+                ViewBag.Error = "No se recibió respuesta del servidor.";
+                return View("Editar", model);
+            }
+
+            // Si el SP reporta error
+            if (result.IdError != 0)
             {
                 ViewBag.Error = "La cotización no existe o fue eliminada.";
                 return View("Editar", model);
             }
 
-            // === ACTUALIZAR CAMPOS EDITABLES ===
-            cot.Fecha = model.Cotizacion?.Fecha;
-            cot.TipoCambio = model.Cotizacion.TipoCambio;
-            cot.Tarifa = model.Cotizacion.Tarifa;
-            cot.PorcentajeIva = model.Cotizacion.PorcentajeIva;
-            cot.Descuento = model.Cotizacion.Descuento;
-            cot.Observaciones = model.Cotizacion.Observaciones;
-
-            cot.UsuarioResponsable = model.Cotizacion.UsuarioResponsable;
-            cot.IdCliente = model.Cotizacion.IdCliente;
-            cot.IdClienteContacto = model.Cotizacion.IdClienteContacto;
-            cot.IdClienteRazonSolcial = model.Cotizacion.IdClienteRazonSolcial;
-
-            // === CAMPOS AUTOMÁTICOS DE MODIFICACIÓN ===
-            cot.ModificadoPor = GetApiName();
-            cot.FchAct = DateTime.Now;
-            cot.UsrAct = GetUserId();
-
-            await _db.SaveChangesAsync();
-
             TempData["Success"] = "Los datos fueron guardados correctamente.";
-            return RedirectToAction("Editar", new { id = cot.IdCotizacion });
+            return RedirectToAction("Editar", new { id = result.IdCotizacion });
         }
         catch (Exception ex)
         {
-            // En caso de error, regresar al formulario SIN PERDER DATOS
-            ViewBag.Error = "Error al guardar: " + ex.Message;
+            ViewBag.Error = "Error del servidor." + ex.Message;
             return View("Editar", model);
         }
     }
 
-
-    // =====================================================
-    // PANEL PRINCIPAL (CREAR / EDITAR)
-    // =====================================================
-
-    public async Task<IActionResult> Panel(int? id)
+    public async Task<JsonResult> DropdownProducto(int page = 0, int pageSize = 30, int? id = null, string search = "")
     {
-        if (id == null)
+        var lista = _db.Productos.Where(x => x.Eliminado == false);
+
+
+        if (!string.IsNullOrWhiteSpace(search))
         {
-            // Modo CREAR – La vista mostrará botón "Crear Cotización"
-            return View("Panel", null);
+            lista.Where(x => x.Descripcion.Contains(search));
         }
 
-        // Modo EDITAR
-        var model = await _db.VsCotizacions
-            .FirstOrDefaultAsync(x => x.IdCotizacion == id);
-
-        if (model == null)
-            return NotFound();
-
-        return View("Panel", model);
-    }
-
-
-    // =====================================================
-    // GUARDAR ENCABEZADO
-    // =====================================================
-    [HttpPost]
-    public async Task<IActionResult> GuardarEncabezado([FromBody] Cotizacion model)
-    {
-        var item = await _db.Cotizacions.FindAsync(model.IdCotizacion);
-        if (item == null) return NotFound();
-
-        item.UsuarioResponsable = model.UsuarioResponsable;
-        item.IdCliente = model.IdCliente;
-        item.IdClienteContacto = model.IdClienteContacto;
-        item.IdClienteRazonSolcial = model.IdClienteRazonSolcial;
-        item.Observaciones = model.Observaciones;
-        item.Tarifa = model.Tarifa;
-        item.TipoCambio = model.TipoCambio;
-        item.PorcentajeIva = model.PorcentajeIva;
-        item.Descuento = model.Descuento;
-
-        item.ModificadoPor = User.Identity?.Name ?? "";
-        item.FchAct = DateTime.Now;
-        item.UsrAct = User.Identity?.Name ?? "";
-
-        await _db.SaveChangesAsync();
-        return Ok(new { ok = true });
-    }
-
-
-    // =====================================================
-    // GUARDAR PRODUCTO (CREATE / UPDATE)
-    // =====================================================
-    [HttpPost]
-    public async Task<IActionResult> GuardarProducto([FromBody] CotizacionDetalle model)
-    {
-        CotizacionDetalle item;
-
-        if (model.IdCotizacionDetalle == 0)
+        if (id.HasValue)
         {
-            item = model;
-            item.CreadoPor = User.Identity?.Name ?? "";
-            item.UsrReg = User.Identity?.Name ?? "";
-            item.FchReg = DateTime.Now;
-            _db.CotizacionDetalles.Add(item);
+            lista = lista.Where(c => c.IdProducto == id.Value);
         }
-        else
+
+        var count = await lista.CountAsync();
+        var data = await lista.Skip(page * pageSize).Take(pageSize)
+            .Select(drmCliente => new { display = drmCliente.Descripcion, value = drmCliente.IdProducto.ToString() })
+            .ToListAsync();
+        var remaining = Math.Max(count - (page * pageSize) - data.Count, 0);
+
+        return Json(new
         {
-            item = await _db.CotizacionDetalles.FindAsync(model.IdCotizacionDetalle);
+            moreToLoad = remaining > 0,
+            data
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> AgregarProducto([FromBody] AgregarProductoRequest request)
+    {
+        try
+        {
+            var result = _ClasContext
+                .SpCotizacionDetalleNuevoResults
+                .FromSqlInterpolated($@"
+                EXEC [INV].[GP_CotizacionDetalleNuevo]
+                     @IdCotizacion = {request.IdCotizacion},
+                     @IdCotizacionDetalle = {request.IdCotizacionDetalle},
+                     @IdProducto = {request.IdProducto},
+                     @Cantidad = {request.Cantidad},
+                     @Observaciones = {request.Observaciones},
+                     @UserId = {GetUserId()},
+                     @ProgName = {GetApiName()}
+            ")
+                .AsEnumerable()
+                .FirstOrDefault();
+
+            // Si el SP no regresó nada (caso muy raro)
+            if (result == null)
+            {
+                return Json(new { ok = false, msg = "No se recibió respuesta del servidor." });
+            }
+
+            // Si el SP reporta error
+            if (result.IdError != 0)
+            {
+                return Json(new
+                {
+                    ok = false,
+                    msg = result.MensajeError,
+                    dev = result.MensajeErrorDev
+                });
+            }
+
+            return Json(new
+            {
+                ok = true,
+                idCotizacionDetalle = result.IdCotizacionDetalle
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { ok = false, msg = ex.Message });
+        }
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetDetalles(int idCotizacion)
+    {
+        var detalles = await _db.VsCotizacionDetalles
+            .Where(x => x.IdCotizacion == idCotizacion)
+            .Select(x => new
+            {
+                x.IdCotizacionDetalle,
+                x.Cantidad,
+                x.IdProducto,
+                x.Codigo,
+                x.Descripcion,
+                x.PrecioListaMxn,
+                x.PorcentajeProveedor,
+                x.PrecioProveedor,
+                x.PorcentajeProveedorGanancia,
+                x.GananciaProveedor,
+                x.PrecioSein,
+                x.PrecioCliente,
+                x.Total,
+                x.Observaciones
+            }).ToListAsync();
+
+        return Json(detalles);
+    }
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteProducto(int idDetalle)
+    {
+        try
+        {
+            var item = await _db.CotizacionDetalles.FindAsync(idDetalle);
             if (item == null) return NotFound();
 
-            item.IdProducto = model.IdProducto;
-            item.Cantidad = model.Cantidad;
-            item.PrecioCliente = model.PrecioCliente;
-            item.Total = model.Total;
-            item.Observaciones = model.Observaciones;
-            item.PrecioListaMxn = model.PrecioListaMxn;
-            item.PrecioProveedor = model.PrecioProveedor;
-            item.GananciaProveedor = model.GananciaProveedor;
-            item.PorcentajeProveedor = model.PorcentajeProveedor;
-            item.PorcentajeProveedorGanancia = model.PorcentajeProveedorGanancia;
-            item.IdMoneda = model.IdMoneda;
-            item.PrecioSein = model.PrecioSein;
+            _db.CotizacionDetalles.Remove(item);
+            await _db.SaveChangesAsync();
 
-            item.ModificadoPor = User.Identity?.Name ?? "";
-            item.UsrAct = User.Identity?.Name ?? "";
-            item.FchAct = DateTime.Now;
+            return Json(new { ok = true });
         }
-
-        await _db.SaveChangesAsync();
-        return Ok(new { ok = true });
+        catch (Exception ex)
+        {
+            return Json(new { ok = false, msg = ex.Message });
+        }
     }
 
 
-    // =====================================================
-    // ELIMINAR PRODUCTO
-    // =====================================================
-    [HttpDelete]
-    public async Task<IActionResult> EliminarProducto(int id)
+    public async Task<IActionResult> TablaProductos(int id)
     {
-        var item = await _db.CotizacionDetalles.FindAsync(id);
-        if (item == null) return NotFound();
-
-        _db.CotizacionDetalles.Remove(item);
-        await _db.SaveChangesAsync();
-
-        return Ok(new { ok = true });
-    }
-
-    // =====================================================
-    // LISTA PRODUCTOS DE LA COTIZACION
-    // =====================================================
-    public async Task<IActionResult> Productos(int idCotizacion)
-    {
-        var data = await _db.CotizacionDetalles
-            .Where(x => x.IdCotizacion == idCotizacion)
+        var lista = await _db.CotizacionDetalles
+            .Where(x => x.IdCotizacion == id)
             .ToListAsync();
 
-        return PartialView("_Productos", data);
+        return PartialView("_TablaProductos", lista);
     }
 }

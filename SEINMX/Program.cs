@@ -16,6 +16,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.EnableSensitiveDataLogging();
 });
 
+
+
+builder.Services.AddDbContext<AppClassContext>(options =>
+
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    options.EnableSensitiveDataLogging();
+});
+
+
 // =======================
 // Configurar autenticación por cookies
 // =======================

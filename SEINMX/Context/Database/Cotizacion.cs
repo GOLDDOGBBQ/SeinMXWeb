@@ -43,11 +43,11 @@ public partial class Cotizacion
 
     public virtual ICollection<CotizacionDetalle> CotizacionDetalles { get; set; } = new List<CotizacionDetalle>();
 
+    public virtual ClienteContacto? IdClienteContactoNavigation { get; set; }
+
     public virtual Cliente IdClienteNavigation { get; set; } = null!;
 
     public virtual ClienteRazonSolcial? IdClienteRazonSolcialNavigation { get; set; }
-
-    public virtual ClienteContacto? IdClienteeContactoNavigation { get; set; }
 
     public virtual Usuario? UsuarioResponsableNavigation { get; set; }
 }

@@ -1,11 +1,13 @@
 ﻿
 @{
     ViewBag.Title = "Editar";
+    CultureInfo cultureMx = new CultureInfo("es-MX");
 }
 
+@using System.Globalization
 @model SEINMX.Models.Inventario.CotizacionViewModel
 
-<div class="container mt-4">
+<div class="container-fluid mt-4">
 
     @if (Model.Cotizacion == null)
     {
@@ -20,54 +22,31 @@
         @if (!ViewData.ModelState.IsValid)
         {
             <div class="alert alert-danger">
+                @ViewBag.Error
                 @Html.ValidationSummary()
             </div>
         }
 
         <div class="row">
             <div class="col-md-3">
-                <div class="info-box bg-info">
+                <div class="info-box">
+                <span class="info-box-icon text-bg-success shadow-sm">
+                    <i class="fa-solid fa-hashtag"></i>
+                </span>
+
                     <div class="info-box-content">
-                        <span class="info-box-text">Numero de cotizacion</span>
+                        <span class="info-box-text">Cotizacion Numero</span>
                         <span class="info-box-number">@Model.Cotizacion.IdCotizacion</span>
                     </div>
                 </div>
             </div>
 
-            <div class="col-md-3">
-                <div class="info-box bg-success">
-                    <div class="info-box-content">
-                        <span class="info-box-text">Sub total</span>
-                        <span class="info-box-number">@Model.Cotizacion.SubTotal</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="info-box bg-warning">
-                    <div class="info-box-content">
-                        <span class="info-box-text">IVA</span>
-                        <span class="info-box-number">@Model.Cotizacion.PorcentajeIva</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-md-3">
-                <div class="info-box bg-primary">
-                    <div class="info-box-content">
-                        <span class="info-box-text">Total</span>
-                        <span class="info-box-number">@Model.Cotizacion.Total</span>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <form id="formCotizacion" method="post" action="@Url.Action("Guardar", "Cotizacion")">
             @Html.HiddenFor(m => m.Cotizacion!.IdCotizacion)
 
-
-
-            <div class="card card-primary mt-3">
+            <div class="card card-secondary mt-3">
                 <div class="card-header">
                     <h3 class="card-title">Datos generales</h3>
                 </div>
@@ -94,7 +73,7 @@
                         <!-- Tarifa -->
                         <div class="col-md-2">
                             <label class="form-label">Tarifa (%)</label>
-                            <input type="number" step="0.0001" name="Cotizacion.Tarifa"
+                            <input type="number" step=".01" name="Cotizacion.Tarifa"
                                    class="form-control"
                                    value="@Model.Cotizacion.Tarifa">
                         </div>
@@ -102,7 +81,7 @@
                         <!-- IVA -->
                         <div class="col-md-2">
                             <label class="form-label">IVA (%)</label>
-                            <input type="number" step="0.0001" name="Cotizacion.PorcentajeIVA"
+                            <input type="number" step="0.01" name="Cotizacion.PorcentajeIVA"
                                    class="form-control"
                                    value="@Model.Cotizacion.PorcentajeIva">
                         </div>
@@ -116,6 +95,30 @@
                         </div>
 
 
+                        @{
+                            var currentStatus = Model?.Cotizacion?.Status ?? 0;
+
+                            var items = new List<SelectListItem>
+                            {
+                                new SelectListItem("CREADA", "1", currentStatus == 1),
+                                new SelectListItem("COTIZADA", "2", currentStatus == 2),
+                                new SelectListItem("AUTORIZADA", "3", currentStatus == 3),
+                                new SelectListItem("PAGADA", "4", currentStatus == 4),
+                                new SelectListItem("EN PROCESO", "5", currentStatus == 5),
+                                new SelectListItem("CERRADA", "6", currentStatus == 6)
+                            };
+                        }
+                        <div class="col-md-2">
+
+                            <div class="form-group">
+                                <label for="Status">Status</label>
+                                @Html.DropDownListFor(
+                                    m => m.Cotizacion.Status,
+                                    items,
+                                    new { @class = "form-select", id = "Status", name = "Status" }
+                                )
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row mt-3">
@@ -189,71 +192,392 @@
                 </div>
             </div>
         </form>
+
+
+        <div class="row  mt-3">
+            <div class="col-md-3">
+                <div class="info-box">
+                    <span class="info-box-icon text-bg-success shadow-sm">
+                        <i class="fa-solid fa-hashtag"></i>
+                    </span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Cotizacion Numero</span>
+                        <span class="info-box-number">@Model.Cotizacion.IdCotizacion</span>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="col-md-3">
+                <div class="info-box">
+                    <span class="info-box-icon text-bg-success shadow-sm">
+                        <i class="fa-solid fa-filter-circle-dollar"></i>
+                    </span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Sub total</span>
+                        <span class="info-box-number" id="infoSubTotal"
+                              name="infoSubTotal">
+                            @string.Format(cultureMx, "{0:C}", Model.Cotizacion.SubTotal)
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="col-md-3">
+                <div class="info-box">
+                    <span class="info-box-icon text-bg-success shadow-sm">
+                        <i class="fa-solid fa-building-columns"></i>
+                    </span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">IVA</span>
+                        <span class="info-box-number" id="infoIva" name="infoIva">
+                            @string.Format(cultureMx, "{0:C}", Model.Cotizacion.Iva)
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+                <div class="info-box">
+                    <span class="info-box-icon text-bg-success shadow-sm">
+                        <i class="fa-solid fa-sack-dollar"></i>
+                    </span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total</span>
+                        <span class="info-box-number" id="infoTotal" name="infoTotal">
+                            @string.Format(cultureMx, "{0:C}", Model.Cotizacion.Total)
+                        </span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="card card-secondary mt-3">
+            <div class="card-header">
+                <h3 class="card-title">Agregar Producto</h3>
+            </div>
+            <div class="card-body">
+
+                <!-- Combo cb-dropdown -->
+                <cb-dropdown id="IdProducto" name="IdProducto"></cb-dropdown>
+
+                <div class="row mt-3">
+                    <div class="col-md-2">
+                        <label>Cantidad</label>
+                        <input type="number" id="txtCantidad" class="form-control" value="1" step="0.0001">
+                    </div>
+                    <div class="col-md-10">
+                        <label>Observaciones</label>
+                        <input type="text" id="txtObsProd" class="form-control">
+                    </div>
+                </div>
+
+            </div>
+            <div class="card-footer text-end">
+                <button id="btnAgregarProducto" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Agregar
+                </button>
+            </div>
+        </div>
+
+
+        <div class="card mt-3">
+            <div class="card-header">
+                <b>Productos</b>
+                <button type="button" class="btn btn-sm btn-primary float-end" onclick="abrirModalProducto()">
+                    Agregar Producto
+                </button>
+            </div>
+            <div class="card-body">
+                <table class="table table-bordered mt-4" id="tablaDetalle">
+                    <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        <th>Precio Lista</th>
+                        <th>% Prov</th>
+                        <th>Precio Prov</th>
+                        <th>% Gan</th>
+                        <th>Ganancia</th>
+                        <th>Precio Sein</th>
+                        <th>Precio Cliente</th>
+                        <th>Cantidad</th>
+                        <th>Total</th>
+                        <th>Observaciones</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+            </div>
+        </div>
+
+
+        <script type="module">
+            import {ClientsDataProvider} from "../../dropdown-1.1.0/clientsDataProvider-1.1.1.js";
+
+            const clientesDropdown = document.querySelector("#IdCliente");
+            const contactoDropdown = document.querySelector("#IdClienteContacto");
+            const razonDropdown = document.querySelector("#IdClienteRazonSolcial");
+            const ProductDropdown = document.querySelector("#IdProducto");
+
+            clientesDropdown.dataProvider = new ClientsDataProvider(
+                '/Cliente/DropdownClientes',
+                'Buscar Cliente...'
+            );
+
+            contactoDropdown.dataProvider = new ClientsDataProvider(
+                '/Cliente/DropdownClienteContacto',
+                'Buscar contacto...'
+            );
+
+            razonDropdown.dataProvider = new ClientsDataProvider(
+                '/Cliente/DropdownClienteRazonSolcial',
+                'Buscar razón social...'
+            );
+
+            ProductDropdown.dataProvider = new ClientsDataProvider(
+                '/Cotizacion/DropdownProducto',
+                'Buscar Producto...'
+            );
+
+
+            clientesDropdown.setAttribute('selected', '@(Model.Cotizacion is { IdCliente: > 0 } ? Model.Cotizacion.IdCliente.ToString() : "")');
+            contactoDropdown.setAttribute('selected', '@((Model.Cotizacion?.IdClienteContacto ?? 0) > 0 ? Model.Cotizacion?.IdClienteContacto.ToString() : "")');
+            razonDropdown.setAttribute('selected', '@((Model.Cotizacion?.IdClienteRazonSolcial ?? 0) > 0 ? Model.Cotizacion?.IdClienteRazonSolcial.ToString() : "")');
+
+
+            clientesDropdown.addEventListener("change", () => {
+                const idCliente = clientesDropdown.selected;
+
+                contactoDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
+                    const encodedSearch = encodeURIComponent(search);
+                    return await fetch(`/Cliente/DropdownClienteContacto?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
+                        .then(r => r.json());
+                }
+
+                razonDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
+                    const encodedSearch = encodeURIComponent(search);
+                    return await fetch(`/Cliente/DropdownClienteRazonSolcial?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
+                        .then(r => r.json());
+                }
+
+                contactoDropdown.dataProvider.reset();
+                razonDropdown.dataProvider.reset()
+
+                contactoDropdown.setAttribute("selected", "");
+                razonDropdown.setAttribute("selected", "")
+
+            });
+        </script>
+        <script>
+
+            function isError(json) {
+                if (!json.ok) {
+                  //  alert(json.msg);
+                    showToast("Error", json.msg ?? "Ocurrió un error", "error");
+                    return true;
+                }
+                return false;
+
+            }
+
+
+            const idCotizacion = @Model.Cotizacion?.IdCotizacion;
+
+            async function cargarTabla() {
+                const res = await fetch(`/Cotizacion/GetDetalles?idCotizacion=${idCotizacion}`);
+                const data = await res.json();
+
+                const tbody = document.querySelector("#tablaDetalle tbody");
+                tbody.innerHTML = "";
+
+                data.forEach(d => {
+                    tbody.innerHTML += `
+            <tr data-id="${d.idCotizacionDetalle}">
+
+                <td>${d.codigo}</td>
+                <td>${d.descripcion}</td>
+                <td>${d.precioListaMxn.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                <td>${d.porcentajeProveedor}</td>
+                <td>${d.precioProveedor.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                <td>${d.porcentajeProveedorGanancia}</td>
+                <td>${d.gananciaProveedor}</td>
+                <td>${d.precioSein.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                <td>${d.precioCliente.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                <td><input class="form-control txtCantidad" value="${d.cantidad}"></td>
+                <td>${d.total.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                <td><input class="form-control txtObs" value="${d.observaciones}"></td>
+                <td>
+                    <button class="btn btn-danger btnEliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+                });
+            }
+
+            // Agregar producto
+            document.querySelector("#btnAgregarProducto").addEventListener("click", async () => {
+                const Comboprod = document.querySelector("#IdProducto");
+                let prod = Comboprod.selected;
+                let cant = document.querySelector("#txtCantidad").value;
+                let obs = document.querySelector("#txtObsProd").value;
+
+                let payload = {
+                    IdCotizacion: parseInt(idCotizacion),
+                    IdProducto: parseInt(prod),
+                    Cantidad: cant,
+                    Observaciones: obs,
+                };
+
+                const res = await fetch('/Cotizacion/AgregarProducto', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+
+                const json = await res.json();
+
+                if (isError(json)) {
+                    return;
+                }
+                Comboprod.setAttribute("selected", "")
+
+                await recargarTotales();
+                await cargarTabla();
+                showToast("Producto agregado", "Se agregó el producto correctamente");
+
+
+            });
+
+            // Editar producto
+            document.addEventListener("change", async (e) => {
+                if (e.target.classList.contains("txtCantidad") ||
+                    e.target.classList.contains("txtObs")) {
+
+                    let row = e.target.closest("tr");
+                    let idDetalle = row.dataset.id;
+
+
+                    let payload = {
+                        IdCotizacionDetalle: parseInt(idDetalle),
+                        Cantidad: row.querySelector(".txtCantidad").value,
+                        Observaciones: row.querySelector(".txtObs").value
+                    };
+
+                    const res = await fetch(`/Cotizacion/AgregarProducto`, {
+                        method: "POST",
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify(payload)
+                    });
+
+
+                    const json = await res.json();
+                    if (isError(json)) {
+                        return;
+                    }
+                    await recargarTotales();
+                    await cargarTabla();
+                    showToast("Producto actualizado", "Se modificó correctamente");
+
+                }
+            });
+
+            // Eliminar producto
+            document.addEventListener("click", async (e) => {
+                if (e.target.closest(".btnEliminar")) {
+                    let row = e.target.closest("tr");
+                    let idDetalle = row.dataset.id;
+
+                    const res = await fetch(`/Cotizacion/DeleteProducto?idDetalle=${idDetalle}`, {
+                        method: "DELETE",
+                    });
+
+                    const json = await res.json();
+                    if (isError(json)) {
+                        return;
+                    }
+
+                    await cargarTabla();
+                    await recargarTotales();
+                    showToast("Producto eliminado", "Se eliminó el producto correctamente");
+
+                }
+            });
+
+            async function recargarTotales() {
+                const res = await fetch(`/Cotizacion/GetTotales?idCotizacion=${idCotizacion}`);
+                const json = await res.json();
+                if (isError(json)) {
+                    location.reload();
+                }
+
+                const infoTotal = document.getElementById("infoTotal");
+                const infoSubTotal = document.getElementById("infoSubTotal");
+                const infoIva = document.getElementById("infoIva");
+
+                infoTotal.textContent = json.total?.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
+                infoSubTotal.textContent = json.subTotal?.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
+                infoIva.textContent = json.iva?.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
+
+            }
+
+            // Inicial
+            cargarTabla();
+
+        </script>
     }
+
+    <!-- Toast Container -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
+        <div id="toastContainer"></div>
+    </div>
+
 </div>
+<script>
+    function showToast(titulo, mensaje, tipo = "success") {
 
-<script type="module">
-    import {ClientsDataProvider} from "../../dropdown-1.1.0/clientsDataProvider-1.1.1.js";
+        const tiempo = new Date().toLocaleTimeString("es-MX");
 
-    // Dropdowns
-    const clientesDropdown = document.querySelector("#IdCliente");
-    const contactoDropdown = document.querySelector("#IdClienteContacto");
-    const razonDropdown = document.querySelector("#IdClienteRazonSolcial");
+        const icon = tipo === "success"
+            ? "fa-circle-check text-success"
+            : "fa-circle-xmark text-danger";
 
-    // Provider inicial del cliente
-    clientesDropdown.dataProvider = new ClientsDataProvider(
-        '/Cliente/DropdownClientes',
-        'Buscar Cliente...'
-    );
+        const toastId = "toast_" + Date.now();
 
-    // Provider inicial del contacto (sin cliente seleccionado)
-    contactoDropdown.dataProvider = new ClientsDataProvider(
-        '/Cliente/DropdownClienteContacto',
-        'Buscar contacto...'
-    );
+        const html = `
+        <div id="${toastId}" class="toast align-items-center text-bg-light border-0 shadow mb-3"
+             role="alert" aria-live="assertive" aria-atomic="true"
+             data-autohide="true" data-delay="5000">
 
-    razonDropdown.dataProvider = new ClientsDataProvider(
-        '/Cliente/DropdownClienteRazonSolcial',
-        'Buscar razón social...'
-    );
+            <div class="toast-header">
+                <i class="fa-solid ${icon} me-2"></i>
+                <strong class="me-auto">${titulo}</strong>
+                <small>hace un momento</small>
+                <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+            </div>
 
+            <div class="toast-body">
+                ${mensaje}
+            </div>
+        </div>`;
 
-    clientesDropdown.setAttribute('selected', '@(Model.Cotizacion is { IdCliente: > 0 } ? Model.Cotizacion.IdCliente.ToString() : "")');
-    contactoDropdown.setAttribute('selected', '@((Model.Cotizacion?.IdClienteContacto ?? 0) > 0 ? Model.Cotizacion?.IdClienteContacto.ToString() : "")');
-    razonDropdown.setAttribute('selected', '@((Model.Cotizacion?.IdClienteRazonSolcial ?? 0) > 0 ? Model.Cotizacion?.IdClienteRazonSolcial.ToString() : "")');
+        const container = document.getElementById("toastContainer");
+        container.insertAdjacentHTML("beforeend", html);
 
-    // CUANDO CAMBIA EL CLIENTE
-    clientesDropdown.addEventListener("change", () => {
-        const idCliente = clientesDropdown.selected;
-
-
-
-        // Cambiar la URL del dataProvider del combo dependiente
-        contactoDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
-            const encodedSearch = encodeURIComponent(search);
-            return await fetch(`/Cliente/DropdownClienteContacto?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
-                .then(r => r.json());
-        }
-
-        razonDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
-            const encodedSearch = encodeURIComponent(search);
-            return await fetch(`/Cliente/DropdownClienteRazonSolcial?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
-                .then(r => r.json());
-        }
-
-        //Limpiar la caché del provider
-        contactoDropdown.dataProvider.reset();
-        razonDropdown.dataProvider.reset()
-
-            ////Limpiar la selección del combo
-            contactoDropdown.setAttribute("selected", "");
-            razonDropdown.setAttribute("selected", "")
-
-
-        // Limpiar placeholder visible
-        // contactoDropdown.shadowRoot.querySelector("span").textContent = contactoDropdown.placeholder;
-        //razonoDropdown.shadowRoot.querySelector("span").textContent = contactoDropdown.placeholder;
-
-
-    });
+        const toastEl = document.getElementById(toastId);
+        const bsToast = new bootstrap.Toast(toastEl);
+        bsToast.show();
+    }
 </script>
