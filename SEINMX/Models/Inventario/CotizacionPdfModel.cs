@@ -1,8 +1,10 @@
-﻿namespace SEINMX.Models.Inventario;
+﻿using SEINMX.Context.Database;
+
+namespace SEINMX.Models.Inventario;
 
 public record CotizacionPdfModel(
     int IdCotizacion,
-    DateOnly? Fecha,
+    DateOnly Fecha,
     decimal? TipoCambio,
     decimal? Tarifa,
     decimal? PorcentajeIVA,
@@ -11,11 +13,14 @@ public record CotizacionPdfModel(
     int? IdCliente,
     int? IdClienteContacto,
     int? IdClienteRazonSolcial,
-    int Status,
     string? Observaciones,
     decimal? SubTotal,
     decimal? Iva,
     decimal? Total,
-    List<CotizacionDetalle> Detalles
+    List<VsCotizacionDetalle> Detalles,
+
+    string?  Cliente,
+    string?  NombreContacto,
+    string?  Telefono
 );
 

@@ -1,211 +1,227 @@
-﻿@model SEINMX.Models.Inventario.CotizacionPdfModel
+﻿@using System.Globalization
+@model SEINMX.Models.Inventario.CotizacionPdfModel
 
+
+@{
+    Layout = null;
+    CultureInfo cultureMx = new CultureInfo("es-MX");
+}
 
 <!DOCTYPE html>
-
-<html>
+<html lang="es">
 <head>
-    <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
-    <title>Bill of Lading</title>
+    <meta charset="utf-8">
+    <title>Cotización @Model.IdCotizacion</title>
+
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <style>
-        @Html.Raw("@")page {
-            size: letter;
-            margin: 1.27cm;
-        }
-
         body {
             font-family: Arial, Helvetica, sans-serif;
             font-size: 12px;
+            padding: 30px;
         }
 
-        table.cb-table {
-            border: 2px solid #c0c0c0;
-            border-collapse: collapse;
+        .ColorHeader {
+            background-color: #f8aa00;
+        }
+        .ColorSubHeader {
+            background-color: #c5c5c5;
         }
 
-        table.cb-table th {
-            border: 2px solid #c0c0c0;
-            background-color: #c0c0c0;
+        .ColorTablePrincipal tr th {
+            background-color: #000000;
+            color: #ffffff;
         }
 
-        table.cb-table td {
-            border: 2px solid #c0c0c0;
+        .tableHeder,  .tableHeder tr {
+            border: 1px solid #ccc;
+        }
+        .tableDatos {
+            border: 1px solid #ccc;
         }
 
-        .cb-border-bottom *:not(:last-child) {
-            border-bottom: 2px solid #c0c0c0;
+
+        .logo-superior {
+            width: 180px;
+            margin-bottom: 20px;
         }
 
+
+        .table td, .table th {
+            vertical-align: middle;
+        }
+
+        .totales td {
+            font-size: 14px;
+            padding: 4px;
+        }
+
+        .footer {
+            margin-top: 40px;
+            font-size: 11px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+
+        .page-break {
+            page-break-after: always;
+        }
     </style>
 </head>
+
 <body>
 
-<div style="display: flex">
-    <div style="display: flex; flex-direction: column; flex-grow: 3; flex-basis: 0;">
-        <div style="border: 2px solid #c0c0c0;">
-            <div style="background-color: #c0c0c0; text-align: center;">SHIPPER</div>
-            <div style="padding: 0.25rem;">
-                <div>MEXPRO LOGISTICS.</div>
-                <div>2340 Marconi, Ct.</div>
-                <div>San Diego, CA.</div>
-                <div>92154</div>
-            </div>
-        </div>
 
-        <div style="border: 2px solid #c0c0c0; border-top: none">
-            <div style="background-color: #c0c0c0; text-align: center;">CONSIGNEE</div>
-            <div style="padding: 0.25rem;">
-                <div>Cargo Servicios Profesionales S. de R. L. de CV.</div>
-                <div>Padre Nicolás Tamaral M014 L34</div>
-                <div>Brisas del Pacifico CP 23473</div>
-                <div>Cabo San Lucas, BCS</div>
-                <div>Telefono: 624-172-5521</div>
-                <div>RFC: CSP090309MI9</div>
-            </div>
-        </div>
-
-        <div style="border: 2px solid #c0c0c0; border-top: none">
-            <div style="background-color: #c0c0c0; text-align: center;">NOTIFY ADDRESS</div>
-            <div style="padding: 0.25rem;">
-                <div>Cargo Servicios Profesionales S. de R. L. de CV.</div>
-                <div>Padre Nicolás Tamaral M014 L34</div>
-                <div>Brisas del Pacifico CP 23473</div>
-                <div>Cabo San Lucas, BCS</div>
-                <div>Telefono: 624-172-5521</div>
-            </div>
-        </div>
-
-        <div style="display: flex; border: 2px solid #c0c0c0; border-top: none">
-            <div style="flex-grow: 1; flex-basis: 0">
-                <div style="background-color: #c0c0c0; text-align: center;">VESSEL (OCEAN)</div>
-                <div style="padding: 0.25rem;">
-                    <div style="text-align: center">N/A</div>
-                </div>
-            </div>
-            <div style="flex-grow: 1; flex-basis: 0">
-                <div style="background-color: #c0c0c0; text-align: center;">PORT OF LOADING:</div>
-                <div style="padding: 0.25rem;">
-                    <div style="text-align: center">@Model.IdCotizacion</div>
-                </div>
-            </div>
-        </div>
-
-        <div style="border: 2px solid #c0c0c0; border-top: none;">
-            <div style="background-color: #c0c0c0; text-align: center;">PORT OF DISCHARGE *PLACE OF DELIVERY</div>
-            <div style="padding: 0.25rem;">
-                <div style="text-align: center">@Model.IdClienteContacto</div>
-            </div>
-        </div>
-
-        <div style="display: flex; border: 2px solid #c0c0c0; border-top: none; border-bottom: none; flex-grow: 1;">
-            <div style="flex-grow: 1; flex-basis: 0">
-                <div style="background-color: #c0c0c0; text-align: center;">VOLUME</div>
-                <div style="padding: 0.25rem;">
-                    <div style="text-align: center">@Model.Total.ToString() m<sup>3</sup></div>
-                </div>
-            </div>
-            <div style="flex-grow: 1; flex-basis: 0">
-                <div style="background-color: #c0c0c0; text-align: center;">WEIGHT</div>
-                <div style="padding: 0.25rem;">
-                    <div style="text-align: center">@Model.Total.ToString() Kg</div>
-                </div>
-            </div>
-        </div>
+<!-- DATOS DE ENCABEZADO -->
+<div class="row mb-4">
+    <div class="col align-self-start mb-4">
+        <img src="/img/Sein-logo-letras.webp" alt="Logo Empresa" class="logo-superior">
     </div>
 
-    <div style="flex-grow: 4; flex-basis: 0; padding-left: 1rem; padding-right: 1rem">
-        <div style="display: flex; align-items: center; padding-bottom: 1rem">
-            <div style="flex-grow: 1; flex-basis: 0;">
-                <h1 style="margin: 0 1rem 0 0;">TRUCK BILL OF LADING</h1>
-            </div>
-            <div style="flex-grow: 1; flex-basis: 0;">
-                <p style="margin: 0; padding: 0.5rem; border: 1px solid black;">BILL OF LADING NO.:<br>@Model.IdCotizacion</p>
-            </div>
-        </div>
+    <div class="col align-self-end">
+        <table class="tableHeder">
+            <thead class="ColorHeader">
+            <tr>
+                <th colspan="2" class="fw-bold text-center"><strong>COTIZACIÓN # @Model.IdCotizacion</strong></th>
 
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 55.77"
-             style="width: 250px; height: 35px; margin-left: auto; display: block;">
-            <path
-                d="M384.33,6h-8.4a5.81,5.81,0,0,0-4.83,2.66c-0.66,1-1.33,2.11-1.33,2.11l-14.9,23a28.71,28.71,0,0,0,.94-4.61L358.61,6H342L339.29,28.2c-0.35,2.86-1.63,4.61-2.69,4.61h0a0.57,0.57,0,0,1-.15-0.13,3.67,3.67,0,0,1-.6-2.82l0.54-4.28H320.66L320.25,29a21.82,21.82,0,0,0-.16,2.87L310.13,6h-8.42a5.82,5.82,0,0,0-4.84,2.66c-0.66,1-1.33,2.1-1.33,2.1L281.31,32.71a12.85,12.85,0,0,0-1.36-7.49,15.93,15.93,0,0,0,1.49-5.07,12,12,0,0,0-3.09-10A14,14,0,0,0,268.14,6H245.75l-5,40.77h24.36a16.79,16.79,0,0,0,8.71-2.56l-1.66,2.56H288a6.2,6.2,0,0,0,3-.8,5.86,5.86,0,0,0,2.17-2.24l1-1.49H306l1.82,4.53h17.9l-1.41-3.66a15.45,15.45,0,0,0,11.39,4.51,20.08,20.08,0,0,0,12.59-3.91l-1.95,3.06h15.78a6.24,6.24,0,0,0,3-.8,5.87,5.87,0,0,0,2.17-2.24l1-1.49h11.89l1.82,4.53H400Z"
-                transform="translate(0 -0.66)" style="fill:#059639"/>
-            <path
-                d="M195.91,11.88a20.86,20.86,0,0,0-15.39-6.34,25.76,25.76,0,0,0-20,9.86l-0.89-1.34c-3.69-5.58-9.6-8.52-17.09-8.52a25.76,25.76,0,0,0-20.81,11,14.62,14.62,0,0,0-3.26-5.63,15.06,15.06,0,0,0-11.11-4.61H86.68l-4,32.42L70.25,6.27H61.87A5.82,5.82,0,0,0,57,8.93C56.37,10,55.7,11,55.7,11L40.23,34.87l-9.92-6.51-2.37,1.72c-2.93,2.14-4.41,2.51-6.43,2.51a5.29,5.29,0,0,1-3.91-1.54,4.77,4.77,0,0,1-1.2-3.93,7.75,7.75,0,0,1,7.51-6.42,6.9,6.9,0,0,1,5.21,2.22l2.25,2.15,13.1-7.42-2.17-3.31c-3.65-5.61-10.18-9-17.48-9C12.64,5.38,1.6,14.73.2,26.24c-1.55,10.41,6.13,20,17.16,21.51a21.35,21.35,0,0,0,3.2.18,25.64,25.64,0,0,0,13.95-4.24l-2.17,3.36H48.12a6.24,6.24,0,0,0,3-.8A5.88,5.88,0,0,0,53.34,44l1-1.49H66.19L68,47H85.94l12.56,0,1-8.29h0.09c1.37,2.41,3.09,5.41,3.4,5.85a5.49,5.49,0,0,0,1.94,1.68,6.07,6.07,0,0,0,2.64.71h17.09l-8.26-12.69a16.94,16.94,0,0,0,1.77-1.64,18.44,18.44,0,0,0,4.71,9,21,21,0,0,0,15.47,6.37c7.16,0,15.24-3.82,20.13-9.41a18.87,18.87,0,0,0,2.34,3.07,21,21,0,0,0,15.48,6.35c12.17,0,23.21-9.34,24.61-20.81A18.74,18.74,0,0,0,195.91,11.88ZM177.2,32.77A4.9,4.9,0,0,1,172,28.29a4.46,4.46,0,0,1,.06-1,7.79,7.79,0,0,1,7.56-6.42,5.26,5.26,0,0,1,3.88,1.54,4.84,4.84,0,0,1,1.23,4A7.72,7.72,0,0,1,177.2,32.77Z"
-                transform="translate(0 -0.66)" style="fill:#059639"/>
-            <path
-                d="M355.43,8.42H344.28l-2.43,19.9c-0.5,4.13-2.65,6.91-5.34,6.91a3,3,0,0,1-2.22-1A6,6,0,0,1,333,29.43L333.19,28H322.88l-0.14,1.14c-0.59,4.82.59,9.07,3.34,12a12.69,12.69,0,0,0,9.53,3.82c9.89,0,16-5.77,17.32-16.26Z"
-                transform="translate(0 -0.66)" style="fill:#ffdd09"/>
-            <path
-                d="M276.19,11.73A11.23,11.23,0,0,0,268,8.42H248l-4.34,35.65H265c7-.18,12.72-5.19,13.48-11.72a10.45,10.45,0,0,0-1.74-7.21,13.56,13.56,0,0,0,1.87-5.41A9.56,9.56,0,0,0,276.19,11.73ZM268,32.46a2.69,2.69,0,0,1-2.53,2.38h-9.54l0.54-4.46h9.84a1.67,1.67,0,0,1,1.24.51A1.92,1.92,0,0,1,268,32.46Zm0-13.19a2.37,2.37,0,0,1-2.12,2h-8.35l0.48-3.9h8.68a1.24,1.24,0,0,1,.92.4A1.74,1.74,0,0,1,268.06,19.28Z"
-                transform="translate(0 -0.66)" style="fill:#ffdd09"/>
-            <path
-                d="M276.89,44.07h10.85a3.41,3.41,0,0,0,1.73-.43,3.2,3.2,0,0,0,1.2-1.29l1.82-2.82h15.29l1.82,4.53h12.19L308.07,8.42h-6.48a3.1,3.1,0,0,0-2.53,1.43c-0.66,1-1.33,2.11-1.33,2.11ZM304.3,30.51h-6L302,24.28Z"
-                transform="translate(0 -0.66)" style="fill:#ffdd09"/>
-            <path
-                d="M351.1,44.07h10.85a3.41,3.41,0,0,0,1.73-.43,3.22,3.22,0,0,0,1.2-1.29l1.82-2.82H382l1.82,4.53H396L382.3,8.42h-6.51a3.09,3.09,0,0,0-2.53,1.43c-0.66,1-1.33,2.11-1.33,2.11Zm27.4-13.56h-6l3.67-6.23Z"
-                transform="translate(0 -0.66)" style="fill:#ffdd09"/>
-            <path
-                d="M29.46,32c-3.13,2.27-5.17,3-8.1,3a8,8,0,0,1-5.94-2.41,7.2,7.2,0,0,1-1.88-5.93A10.39,10.39,0,0,1,23.75,18a9.68,9.68,0,0,1,7.15,3l0.75,0.72,8.93-5-0.72-1.09A17.84,17.84,0,0,0,24.66,7.79C13.81,7.79,4,16.13,2.74,26.38A16.21,16.21,0,0,0,7,39.74a18.15,18.15,0,0,0,13.42,5.49,22.86,22.86,0,0,0,16.79-7.54l1-1.08L30.25,31.4Z"
-                transform="translate(0 -0.66)" style="fill:#ffdd09"/>
-            <path
-                d="M37,44.35H47.89a3.41,3.41,0,0,0,1.73-.42,3.23,3.23,0,0,0,1.2-1.29l1.82-2.82H67.92l1.82,4.53H81.93L68.22,8.69H61.74a3.1,3.1,0,0,0-2.53,1.43c-0.66,1-1.33,2.11-1.33,2.11ZM64.45,30.79h-6l3.67-6.24Z"
-                transform="translate(0 -0.66)" style="fill:#ffdd09"/>
-            <path
-                d="M119.53,23.16a13.11,13.11,0,0,0-3.26-10.71,12.32,12.32,0,0,0-9.07-3.74H89L84.62,44.35l11.32,0,1-8.29H101s3.69,6.5,4.05,7a2.89,2.89,0,0,0,1,.83,3.4,3.4,0,0,0,1.4.39H119.6l-7.05-10.79A13.73,13.73,0,0,0,119.53,23.16ZM99,19.4h6a3.35,3.35,0,0,1,2.46,1,3,3,0,0,1,.77,2.46c-0.27,2.23-2.44,3.4-4.43,3.4h-5.6Z"
-                transform="translate(0 -0.66)" style="fill:#ffdd09"/>
-            <path
-                d="M155.47,26.66a18.74,18.74,0,0,1,1.09-4.29H143.31a4.52,4.52,0,0,0-2.27.71,6.58,6.58,0,0,0-1.29,1.54l-4.27,6.69h12.15l-1.94,1.54a10.58,10.58,0,0,1-6.57,2.36,7.55,7.55,0,0,1-7.95-7.08,6.89,6.89,0,0,1,.08-1.26c0.57-4.71,5.27-8.71,10.26-8.71a8.76,8.76,0,0,1,6.7,2.56L149,21.44l9-5.06-0.74-1.11C154.06,10.48,149,8,142.45,8c-10.85,0-20.72,8.34-22,18.6-1.36,9,5.3,17.4,14.87,18.68a18.53,18.53,0,0,0,2.85.16A25.56,25.56,0,0,0,157,36h0A16.55,16.55,0,0,1,155.47,26.66Z"
-                transform="translate(0 -0.66)" style="fill:#ffdd09"/>
-            <path
-                d="M193.75,13.47A18.12,18.12,0,0,0,180.38,8c-10.85,0-20.73,8.34-22,18.6-1.36,9,5.28,17.37,14.83,18.65a18.49,18.49,0,0,0,2.88.16c10.85,0,20.67-8.32,21.91-18.55A16.27,16.27,0,0,0,193.75,13.47Zm-24.56,13.4a10.41,10.41,0,0,1,10.26-8.71,8,8,0,0,1,5.89,2.41,7.28,7.28,0,0,1,1.9,6A10.35,10.35,0,0,1,177,35.2a7.53,7.53,0,0,1-7.93-7.05,6.87,6.87,0,0,1,.08-1.29v0Z"
-                transform="translate(0 -0.66)" style="fill:#ffdd09"/>
-            <polygon
-                points="204.01 39.04 200.02 10.18 221.88 2.11 221.84 0.01 197.64 8.77 201.97 39.83 202.01 40.08 221.83 55.77 221.84 55.77 221.8 53.48 204.01 39.04"
-                style="fill:#059639"/>
-            <polygon
-                points="246.03 8.85 221.84 0 221.84 0.01 221.88 2.11 221.89 2.11 243.74 10.42 240.22 38.95 221.8 53.48 221.8 53.48 221.84 55.77 242.06 39.99 246.03 8.85"
-                style="fill:#047a35"/>
-            <rect x="221.84" y="22.29" width="0.01" height="0.05"
-                  style="fill:none;stroke:#059639;stroke-miterlimit:10"/>
-            <polygon points="221.79 22.32 221.84 22.34 221.84 22.3 221.79 22.32" style="fill:#059639"/>
-            <polygon
-                points="205.68 38.33 221.84 51.11 221.84 22.34 221.79 22.32 221.84 22.3 221.84 22.29 202.07 11.68 205.68 38.33"
-                style="fill:#059639"/>
-            <polygon
-                points="221.84 22.29 221.84 22.34 221.84 51.11 238.64 38.18 241.57 11.88 241.61 11.64 221.84 22.29"
-                style="fill:#047a35"/>
-            <polygon
-                points="241.61 11.64 221.84 4.21 221.81 4.22 221.48 4.35 202.07 11.68 221.84 22.29 221.84 22.29 221.84 22.29 241.61 11.64"
-                style="fill:#ffdd09"/>
-        </svg>
+            </tr>
+            </thead>
 
-        <div style="padding-bottom: 1rem; text-align: right">
-            <div>Cargo Servicios Profesionales S. de R. L. de CV.</div>
-            <div>Padre Nicolás Tamaral M014 L34</div>
-            <div>Brisas del Pacifico CP 23473</div>
-            <div>Cabo San Lucas, BCS</div>
-            <div>Telefono: 624-172-5521</div>
-        </div>
+            <tbody>
+            <tr>
+                <td class="ColorSubHeader fw-bold"><strong>Fecha:</strong></td>
+                <td> @Model.Fecha.ToString("dd De MMMM Del yyyy")</td>
+            </tr>
+            <tr>
+                <td class="ColorSubHeader fw-bold"><strong>Moneda:</strong></td>
+                <td> MXN</td>
+            </tr>
+            <tr>
+                <td  class="ColorSubHeader fw-bold"><strong>Sucursal:</strong></td>
+                <td> Guadalajara</td>
 
-        <div style="text-align: justify; padding-bottom: 1rem;">
-            Received the goods in apparent good order and condition and, as far
-            as ascertained by reasonable means of checking, as specified above
-            unless otherwise stated. The Carrier, in accordance with the provision
-            contained in this document:<br>
-            a) undertakes to perform or to procure the performance of the entire
-            transport from the place at which the goods are taken in charge to
-            the place designated for delivery in this document, and<br>
-            b) weight, measure, quality, contents and value, if mentioned in this
-            bill of lading is to be considered unknown unless the contrary has
-            been expressly acknowledged and agreed to.<br>
-            The signature on this bill of lading is not to be considered an
-            agreement. One of the B/L must be surrendered duly endorsed in
-            exchange for the goods or delivery order. In WITNESS whereof
-            number of original B/L, all of this tenor and date have been signed as
-            stated above, one of which being accomplished the others to be void.
-        </div>
+            <tr>
+                <td class="ColorSubHeader fw-bold"><strong>Asesor:</strong></td>
+                <td> @Model.UsuarioResponsable</td>
+            </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+
+    <div class="col-12 mt-3 tableDatos">
+        <table class=" ">
+            <tbody>
+            <tr>
+                <td class="fw-bold"><strong>Cliente:</strong></td>
+                <td> @Model.Cliente</td>
+            </tr>
+            <tr>
+                <td class="fw-bold"><strong>Contacto:</strong></td>
+                <td> @Model.NombreContacto</td>
+            </tr>
+            <tr>
+            <td  class="fw-bold"><strong>Teléfono:</strong></td>
+            <td> @Model.Telefono</td>
+
+            <tr>
+                <td class="fw-bold"><strong>Asesor:</strong></td>
+                <td> @Model.UsuarioResponsable</td>
+            </tr>
+            <tr>
+                <td class="fw-bold"><strong>Vigencia:</strong></td>
+                <td class="fw-bold"> 15 días naturales a partir de la fecha de elaboración</td>
+            </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+</div>
+
+<!-- TABLA DETALLE -->
+<table class="table table-bordered table-striped">
+    <thead class="table-secondary ColorTablePrincipal">
+    <tr>
+        <th>#</th>
+        <th>Código</th>
+        <th>Descripción</th>
+        <th class="text-end">Cantidad</th>
+        <th class="text-end">Precio</th>
+        <th class="text-end">Importe</th>
+        <th>Observaciones</th>
+    </tr>
+    </thead>
+    <tbody>
+    @{ int RowNumber = 1; }
+    @foreach (var item in Model.Detalles)
+    {
+        <tr>
+            <td>@RowNumber</td>
+            <td>@item.Codigo</td>
+            <td>@item.Descripcion</td>
+            <td class="text-end">@item.Cantidad</td>
+            <td class="text-end">@item.PrecioCliente.ToString("C2")</td>
+            <td class="text-end">@item.Total.ToString("C2")</td>
+            <td>@item.Observaciones</td>
+        </tr>
+        RowNumber += 1;
+    }
+    </tbody>
+</table>
+
+<!-- TOTALES -->
+<div class="row mt-4">
+    <div class="col-6"></div>
+    <div class="col-6">
+        <table class="w-100 totales">
+            <tr>
+                <td class="fw-bold text-end">Subtotal:</td>
+                <td class="text-end">
+                    @string.Format(cultureMx, "{0:C}", Model.SubTotal)
+                </td>
+            </tr>
+            <tr>
+                <td class="fw-bold text-end">IVA:</td>
+                <td class="text-end">
+                    @string.Format(cultureMx, "{0:C}", Model.Iva)
+                </td>
+            </tr>
+            <tr>
+                <td class="fw-bold text-end">Total:</td>
+                <td class="text-end">
+                    @string.Format(cultureMx, "{0:C}", Model.Total)
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<!-- CONDICIONES -->
+<div class="footer mt-4">
+
+    <span class="fw-bold"><strong>Términos y condiciones</strong></span>
+    <ul>
+        <li >Existencias sujetas a disponibilidad.</li>
+        <li >Sólo se comprometen existencias con orden de compra y transferencia en firme.</li>
+        <li >Para entregas el mismo día, el límite para recepción de orden de compra es 10:30 am.</li>
+        <li >El precio cotizado contempla el costo total del envío (entrega ocurre).</li>
+    </ul>
+
+
+
+    <!-- LOGO INFERIOR -->
+    <div class="col-12">
+        <img src="/img/PiePagina.webp" class="logo-inferior" alt="Logo Pie" width="100%">
     </div>
 </div>
 
 </body>
 </html>
+
+
+
+
