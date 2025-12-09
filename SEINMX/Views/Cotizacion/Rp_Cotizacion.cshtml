@@ -1,5 +1,7 @@
 ﻿@using System.Globalization
 @model SEINMX.Models.Inventario.CotizacionPdfModel
+@using SEINMX.Clases.Helpers
+
 
 
 @{
@@ -63,15 +65,35 @@
             padding: 4px;
         }
 
+        .page-break {
+            page-break-after: always;
+        }
+
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+        }
+
         .footer {
-            margin-top: 40px;
+            margin-top: auto; /* empuja el footer al fondo */
             font-size: 11px;
             border-top: 1px solid #ccc;
             padding-top: 10px;
         }
 
-        .page-break {
-            page-break-after: always;
+        /* Para PuppeteerSharp y PDF: footer fijo */
+        @@media print {
+            .footer {
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -82,7 +104,7 @@
     <!-- DATOS DE ENCABEZADO -->
     <div class="row mb-4 align-items-center">
         <div class="col-6 ps-1 pt-3">
-            <img src="/img/Sein-logo-letras.webp" alt="Logo Empresa" class="logo-superior">
+            <img src="@UrlExtensions.Absolute("/img/Sein-logo-letras.webp")" alt="Logo Empresa" class="logo-superior">
         </div>
 
         <div class="col-5 offset-1 p-0">
@@ -151,85 +173,87 @@
         </div>
     </div>
 
-</div>
-
-<!-- TABLA DETALLE -->
-<table class="table table-bordered table-striped">
-    <thead class="table-secondary ColorTablePrincipal">
-    <tr>
-        <th>#</th>
-        <th>Código</th>
-        <th>Descripción</th>
-        <th class="text-end">Cantidad</th>
-        <th class="text-end">Precio</th>
-        <th class="text-end">Importe</th>
-        <th>Observaciones</th>
-    </tr>
-    </thead>
-    <tbody>
-    @{ int RowNumber = 1; }
-    @foreach (var item in Model.Detalles)
-    {
+    <!-- TABLA DETALLE -->
+    <table class="table table-bordered table-striped">
+        <thead class="table-secondary ColorTablePrincipal">
         <tr>
-            <td>@RowNumber</td>
-            <td>@item.Codigo</td>
-            <td>@item.Descripcion</td>
-            <td class="text-end">@item.Cantidad</td>
-            <td class="text-end">@item.PrecioCliente.ToString("C2")</td>
-            <td class="text-end">@item.Total.ToString("C2")</td>
-            <td>@item.Observaciones</td>
+            <th>#</th>
+            <th>Código</th>
+            <th>Descripción</th>
+            <th class="text-end">Cantidad</th>
+            <th class="text-end">Precio</th>
+            <th class="text-end">Importe</th>
+            <th>Observaciones</th>
         </tr>
-        RowNumber += 1;
-    }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+        @{ int RowNumber = 1; }
+        @foreach (var item in Model.Detalles)
+        {
+            <tr>
+                <td>@RowNumber</td>
+                <td>@item.Codigo</td>
+                <td>@item.Descripcion</td>
+                <td class="text-end">@item.Cantidad</td>
+                <td class="text-end">@item.PrecioCliente.ToString("C2")</td>
+                <td class="text-end">@item.Total.ToString("C2")</td>
+                <td>@item.Observaciones</td>
+            </tr>
+            RowNumber += 1;
+        }
+        </tbody>
+    </table>
 
-<!-- TOTALES -->
-<div class="row mt-4">
-    <div class="col-6"></div>
-    <div class="col-6">
-        <table class="w-100 totales">
-            <tr>
-                <td class="fw-bold text-end">Subtotal:</td>
-                <td class="text-end">
-                    @string.Format(cultureMx, "{0:C}", Model.SubTotal)
-                </td>
-            </tr>
-            <tr>
-                <td class="fw-bold text-end">IVA:</td>
-                <td class="text-end">
-                    @string.Format(cultureMx, "{0:C}", Model.Iva)
-                </td>
-            </tr>
-            <tr>
-                <td class="fw-bold text-end">Total:</td>
-                <td class="text-end">
-                    @string.Format(cultureMx, "{0:C}", Model.Total)
-                </td>
-            </tr>
-        </table>
+    <!-- TOTALES -->
+    <div class="row mt-4">
+        <div class="col-6"></div>
+        <div class="col-6">
+            <table class="w-100 totales">
+                <tr>
+                    <td class="fw-bold text-end">Subtotal:</td>
+                    <td class="text-end">
+                        @string.Format(cultureMx, "{0:C}", Model.SubTotal)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="fw-bold text-end">IVA:</td>
+                    <td class="text-end">
+                        @string.Format(cultureMx, "{0:C}", Model.Iva)
+                    </td>
+                </tr>
+                <tr>
+                    <td class="fw-bold text-end">Total:</td>
+                    <td class="text-end">
+                        @string.Format(cultureMx, "{0:C}", Model.Total)
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- CONDICIONES -->
+
+    <div class="row mt-4">
+        <div class="col-12">
+            <span class="fw-bold"><strong>Términos y condiciones</strong></span>
+            <ul>
+                <li>Existencias sujetas a disponibilidad.</li>
+                <li>Sólo se comprometen existencias con orden de compra y transferencia en firme.</li>
+                <li>Para entregas el mismo día, el límite para recepción de orden de compra es 10:30 am.</li>
+                <li>El precio cotizado contempla el costo total del envío (entrega ocurre).</li>
+            </ul>
+
+        </div>
     </div>
 </div>
 
-<!-- CONDICIONES -->
 
 <footer>
-
-
     <div class="footer mt-4">
-
-        <span class="fw-bold"><strong>Términos y condiciones</strong></span>
-        <ul>
-            <li>Existencias sujetas a disponibilidad.</li>
-            <li>Sólo se comprometen existencias con orden de compra y transferencia en firme.</li>
-            <li>Para entregas el mismo día, el límite para recepción de orden de compra es 10:30 am.</li>
-            <li>El precio cotizado contempla el costo total del envío (entrega ocurre).</li>
-        </ul>
-
 
         <!-- LOGO INFERIOR -->
         <div class="col-12">
-            <img src="/img/PiePagina.webp" class="logo-inferior" alt="Logo Pie" width="100%">
+            <img src="@UrlExtensions.Absolute("/img/PiePagina.webp")" class="logo-inferior" alt="Logo Pie" width="100%">
         </div>
     </div>
 </footer>

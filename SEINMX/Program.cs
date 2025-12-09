@@ -41,7 +41,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddAuthorization();
 
-
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<RazorViewToStringRenderer>();
 //builder.Services.AddSingleton<BlazorRenderer>();
 
@@ -66,6 +66,9 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+var httpContextAccessor = app.Services.GetRequiredService<IHttpContextAccessor>();
+SEINMX.Clases.Helpers.UrlExtensions.Configure(httpContextAccessor);
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
