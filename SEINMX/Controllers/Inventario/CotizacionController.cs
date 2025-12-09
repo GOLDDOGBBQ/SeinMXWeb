@@ -24,14 +24,13 @@ public class CotizacionController : ApplicationController
     }
 
 
-
     public async Task<IActionResult> Index(CotizacionBuscadorViewModel model)
     {
         var query = _db.VsCotizacions.OrderByDescending(x => x.IdCotizacion).AsQueryable();
 
         if (model.IdCotizacion != null)
         {
-            query = query.Where(x => x.IdCotizacion == model.IdCotizacion );
+            query = query.Where(x => x.IdCotizacion == model.IdCotizacion);
         }
         else
         {
@@ -57,10 +56,9 @@ public class CotizacionController : ApplicationController
         return RedirectToAction("Editar");
     }
 
-    [HttpGet("GenerarPdf/{idCotizacion}")]
-    public async Task<IActionResult> GenerarPdf(int? idCotizacion)
+    [HttpGet]
+    public async Task<IActionResult> GenerarPdf(int? idCotizacion, bool file = false)
     {
-
         var header = await _db.VsCotizacions
             .FirstOrDefaultAsync(x => x.IdCotizacion == idCotizacion);
 
@@ -96,15 +94,21 @@ public class CotizacionController : ApplicationController
             Telefono: header.Telefono
         );
 
-        /*
-        var pdf = await _razorRenderer.RenderViewToPdfAsync(
-            "~/Reportes/Inventario/Rp_Cotizacion.cshtml",
-            model
-        );
-        */
+
+        if (file)
+        {
+            var pdf = await _razorRenderer.RenderViewToPdfAsync(
+                "~/Views/Cotizacion/Rp_Cotizacion.cshtml",
+                model
+            );
 
 
-        return View("Rp_Cotizacion", model);
+            return File(pdf, "application/pdf", $"Cotizacion-{model.IdCotizacion}.pdf");
+        }
+        else
+        {
+            return View("Rp_Cotizacion", model);
+        }
     }
 
 
@@ -167,7 +171,7 @@ public class CotizacionController : ApplicationController
         };
 
 
-            ViewBag.UsuariosResponsables = await ObtenerUsuariosResponsablesAsync();
+        ViewBag.UsuariosResponsables = await ObtenerUsuariosResponsablesAsync();
 
         return View("Editar", model);
     }
@@ -237,7 +241,7 @@ public class CotizacionController : ApplicationController
             // Si el SP reporta error
             if (result.IdError != 0)
             {
-                TempData["toast-error"] = result.MensajeError + " "+ result.MensajeErrorDev;
+                TempData["toast-error"] = result.MensajeError + " " + result.MensajeErrorDev;
                 return View("Editar", model);
             }
 

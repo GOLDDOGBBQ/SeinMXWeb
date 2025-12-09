@@ -8,7 +8,8 @@
 
     <ItemGroup>
       <PackageReference Include="bootstrap" Version="5.3.7" />
-      <PackageReference Include="jQuery" Version="3.7.1" />
+      <PackageReference Include="Microsoft.AspNet.Web.Optimization" Version="1.1.3" />
+      <PackageReference Include="Microsoft.AspNet.Web.Optimization.es" Version="1.1.3" />
       <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
       <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
@@ -29,7 +30,6 @@
       <Folder Include="Models\Cuenta\" />
       <Folder Include="Models\DRO\" />
       <Folder Include="plugins\" />
-      <Folder Include="wwwroot\css\Interno\" />
     </ItemGroup>
 
     <ItemGroup>
@@ -124,6 +124,12 @@
       <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewImports.cshtml" />
       <_ContentIncludedByDefault Remove="Areas\Identity\Pages\_ViewStart.cshtml" />
       <_ContentIncludedByDefault Remove="wwwroot\lib\fontawesome\css\webfonts\fa-solid-900.woff2" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\jquery\dist\jquery.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\jquery\dist\jquery.min.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\jquery\dist\jquery.min.map" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\jquery-validation-unobtrusive\jquery.validate.unobtrusive.min.js" />
+      <_ContentIncludedByDefault Remove="wwwroot\lib\jquery-validation-unobtrusive\LICENSE.txt" />
     </ItemGroup>
 
 </Project>

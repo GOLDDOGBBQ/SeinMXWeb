@@ -127,13 +127,21 @@
                                 @string.Format(cultureMx, "{0:C}", item.Total)
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-primary"  onclick="location.href='@Url.Action("Editar", "Cotizacion",new {id = item.IdCotizacion })'">
-                                    <i class="fas fa-pen-to-square"></i>
+                                <button class="btn btn-sm btn-primary"
+                                        onclick="location.href='@Url.Action("Editar", "Cotizacion", new { id = item.IdCotizacion })'">
+                                    <i class="fas fa-pen-to-square"></i> Modificar
                                 </button>
 
-                                <button class="btn btn-sm btn-secondary" onclick="VerPdf(@item.IdCotizacion, this)">
-                                    <i class="fa-regular fa-file-pdf"></i>
-                                </button>
+                                <a class="OpenSideNav text-white btn btn-sm btn-secondary"
+                                   href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = item.IdCotizacion })"
+                                   target="frameCB"> <i class="fa-regular fa-file-pdf "></i> Ver</a>
+
+
+                                <a class="btn btn-sm btn-secondary"
+                                    href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = item.IdCotizacion, file = true })">
+                                    <i class="fa-solid fa-download"></i> Descargar
+                                </a>
+
 
                             </td>
                         </tr>
@@ -142,6 +150,15 @@
                 </table>
             </div>
 
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div id="SideframeCB" class="sidenav col-12 col-sm-12 col-md-10 col-lg-6 ">
+            <a class="closebtn CloseSideNav" data-itn-sidenav="SideframeCB"
+               data-itn-frame="frameCB">&times;Cerrar</a>
+            <iframe id="frameCB" name="frameCB" class="border-0 h-100 col-12 col-md-12 col-lg-12"></iframe>
         </div>
     </div>
 

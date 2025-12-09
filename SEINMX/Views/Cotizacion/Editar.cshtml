@@ -96,7 +96,6 @@
                         </div>
 
 
-
                         <div class="col-md-2">
                             <div class="form-group">
                                 <label class="form-label" for="Status">Status</label>
@@ -180,18 +179,6 @@
 
 
         <div class="row  mt-3">
-            <div class="col-md-3">
-                <div class="info-box">
-                    <span class="info-box-icon text-bg-success shadow-sm">
-                        <i class="fa-solid fa-hashtag"></i>
-                    </span>
-
-                    <div class="info-box-content">
-                        <span class="info-box-text">Cotizacion Numero</span>
-                        <span class="info-box-number">@Model.IdCotizacion</span>
-                    </div>
-                </div>
-            </div>
 
 
             <div class="col-md-3">
@@ -241,7 +228,27 @@
                         </span>
                     </div>
                 </div>
+            </div>
 
+            <div class="col-md-2">
+                <div class="info-box">
+                    <span class="info-box-icon text-bg-success shadow-sm">
+                        <i class="fa-regular fa-file-pdf"></i>
+                    </span>
+
+                    <div class="info-box-content">
+                        <a class="OpenSideNav text-white btn btn-sm btn-secondary" style="--bs-btn-padding-y: 0.25rem; --bs-btn-padding-x: 0.5rem; --bs-btn-font-size: 0.75rem; "
+                           href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = Model.IdCotizacion })"
+                           target="frameCB"> <i class="fa-solid fa-eye"></i> Ver</a>
+
+
+                        <a class="btn btn-secondary mt-1" style="--bs-btn-padding-y: 0.25rem; --bs-btn-padding-x: 0.5rem; --bs-btn-font-size: 0.75rem; "
+                           href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = Model.IdCotizacion, file = true })">
+                            <i class="fa-solid fa-download"></i> Descargar
+                        </a>
+
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -304,6 +311,14 @@
             </div>
         </div>
 
+
+        <div class="row">
+            <div id="SideframeCB" class="sidenav col-12 col-sm-12 col-md-10 col-lg-6 ">
+                <a class="closebtn CloseSideNav" data-itn-sidenav="SideframeCB"
+                   data-itn-frame="frameCB">&times;Cerrar</a>
+                <iframe id="frameCB" name="frameCB" class="border-0 h-100 col-12 col-md-12 col-lg-12"></iframe>
+            </div>
+        </div>
 
         <script type="module">
             import {ClientsDataProvider} from "../../dropdown-1.1.0/clientsDataProvider-1.1.1.js";
@@ -520,7 +535,6 @@
 
         </script>
     }
-
 
 
 </div>
