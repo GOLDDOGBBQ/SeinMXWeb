@@ -38,9 +38,15 @@
             color: #ffffff;
         }
 
+        .tableHeder {
+            min-width: 80%;
+        }
+
+
         .tableHeder, .tableHeder tr {
             border: 1px solid #ccc;
         }
+
 
         .tableDatos {
             border: 1px solid #ccc;
@@ -48,6 +54,7 @@
 
         .tableHeder tbody tr td {
             padding: 2px 3px;
+
         }
 
         .logo-superior {
@@ -143,28 +150,24 @@
     </div>
     <div class="row mb-4">
 
-        <div class="col-12 mt-3 tableDatos">
-            <table class=" ">
+        <div class="col-12 mt-3 px-0 tableDatos">
+            <table class="">
                 <tbody>
                 <tr>
                     <td class="fw-bold"><strong>Cliente:</strong></td>
-                    <td> @Model.Cliente</td>
+                    <td colspan="3"  class="text-start"> @Model.Cliente</td>
                 </tr>
                 <tr>
                     <td class="fw-bold"><strong>Contacto:</strong></td>
-                    <td> @Model.NombreContacto</td>
-                </tr>
-                <tr>
-                    <td class="fw-bold"><strong>Teléfono:</strong></td>
-                    <td> @Model.Telefono</td>
+                    <td class="text-start"> @Model.NombreContacto</td>
+                    <td colspan="2"><span class="fw-bold"><strong>Teléfono:</strong></span> @Model.Telefono</td>
 
-                <tr>
-                    <td class="fw-bold"><strong>Asesor:</strong></td>
-                    <td> @Model.UsuarioResponsable</td>
                 </tr>
                 <tr>
-                    <td class="fw-bold"><strong>Vigencia:</strong></td>
-                    <td class="fw-bold"> 15 días naturales a partir de la fecha de elaboración</td>
+                    <td class="fw-bold text-end" colspan="1"><strong>Vigencia:</strong></td>
+                    <td class="fw-bold text-end" colspan="3">
+                        <strong>15 días naturales a partir de la fecha de
+                            elaboración</strong></td>
                 </tr>
                 </tbody>
 
@@ -174,7 +177,8 @@
     </div>
 
     <!-- TABLA DETALLE -->
-    <table class="table table-bordered table-striped">
+    <div class="row mb-4">
+    <table class="table table-sm table-bordered table-striped ">
         <thead class="table-secondary ColorTablePrincipal">
         <tr>
             <th>#</th>
@@ -203,7 +207,7 @@
         }
         </tbody>
     </table>
-
+    </div>
     <!-- TOTALES -->
     <div class="row mt-4">
         <div class="col-6"></div>

@@ -397,7 +397,8 @@ public class ClienteController : ApplicationController
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            lista.Where(x => x.Nombre.Contains(search));
+            var pattern = $"%{search.Trim()}%";
+            lista = lista.Where(x => EF.Functions.Like(x.Nombre, pattern));
         }
 
         if (id.HasValue)
@@ -426,7 +427,8 @@ public class ClienteController : ApplicationController
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            lista.Where(x => x.Nombre.Contains(search));
+            var pattern = $"%{search.Trim()}%";
+            lista = lista.Where(x => EF.Functions.Like(x.Nombre, pattern));
         }
 
         if (id.HasValue)

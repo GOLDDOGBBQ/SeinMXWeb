@@ -26,6 +26,8 @@ public class CotizacionController : ApplicationController
 
     public async Task<IActionResult> Index(CotizacionBuscadorViewModel model)
     {
+        model.Status ??= 1;
+
         var query = _db.VsCotizacions.OrderByDescending(x => x.IdCotizacion).AsQueryable();
 
         if (model.IdCotizacion != null)
@@ -38,7 +40,7 @@ public class CotizacionController : ApplicationController
                 query = query.Where(x => x.Cliente!.Contains(model.Cliente));
 
 
-            if (model.Status != null)
+            if (model.Status != 0)
                 query = query.Where(x => x.Status == model.Status);
         }
 
@@ -49,11 +51,6 @@ public class CotizacionController : ApplicationController
         model.Cotizaciones = lista;
 
         return View(model);
-    }
-
-    public IActionResult Nueva()
-    {
-        return RedirectToAction("Editar");
     }
 
     [HttpGet]
@@ -246,7 +243,8 @@ public class CotizacionController : ApplicationController
             }
 
             TempData["toast-success"] = "Los datos fueron guardados correctamente.";
-            return RedirectToAction("Editar", new { id = result.IdCotizacion });
+
+            return View("Editar", model);
         }
         catch (Exception ex)
         {
@@ -262,7 +260,9 @@ public class CotizacionController : ApplicationController
 
         if (!string.IsNullOrWhiteSpace(search))
         {
-            lista.Where(x => x.Descripcion.Contains(search));
+            var pattern = $"%{search.Trim()}%";
+            lista = lista.Where(x => EF.Functions.Like(x.Descripcion, pattern)||  EF.Functions.Like(x.Codigo, pattern) );
+
         }
 
         if (id.HasValue)
@@ -272,7 +272,7 @@ public class CotizacionController : ApplicationController
 
         var count = await lista.CountAsync();
         var data = await lista.Skip(page * pageSize).Take(pageSize)
-            .Select(drmCliente => new { display = drmCliente.Descripcion, value = drmCliente.IdProducto.ToString() })
+            .Select(drmCliente => new { display = $"{drmCliente.Codigo} - {drmCliente.Descripcion}"  ,  value = drmCliente.IdProducto.ToString() })
             .ToListAsync();
         var remaining = Math.Max(count - (page * pageSize) - data.Count, 0);
 

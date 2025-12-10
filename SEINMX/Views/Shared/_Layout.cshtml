@@ -139,33 +139,11 @@
 
 
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
+                            <a href="/Cotizacion/Index" class="nav-link">
                                 <i class="nav-icon fa-solid fa-file-invoice"></i>
-                                <p>Cotizaciones
-                                    <i class="nav-arrow fa-solid fa-angle-right"></i></p>
-
+                                <p>Cotizaciones</p>
                             </a>
-
-
-                            <ul class="nav nav-treeview">
-
-                                <li class="nav-item">
-                                    <a href="/Cotizacion/Nueva" class="nav-link">
-                                        <i class="nav-icon fa-solid fa-plus"></i>
-                                        <p>Crear Cotizacion</p>
-                                    </a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a href="/Cotizacion/Index" class="nav-link">
-                                        <i class="fa-solid fa-eye nav-icon"></i>
-                                        <p>Ver Cotizacion</p>
-                                    </a>
-                                </li>
-
-                            </ul>
                         </li>
-
 
 
                         <li class="nav-item">
@@ -182,31 +160,14 @@
                             </a>
                         </li>
 
-                        <!-- SUBMENÚ -->
-                        <li class="nav-item has-treeview">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fa-solid fa-box"></i>
-                                <p>Catálogo <i class="right fa-solid fa-angle-left"></i></p>
+                        <li class="nav-item">
+                            <a href="/Producto/Index" class="nav-link">
+                                <i class="nav-icon fa-solid fa-dolly"></i>
+                                <p>Productos</p>
                             </a>
-
-                            <ul class="nav nav-treeview">
-
-                                <li class="nav-item">
-                                    <a href="/Directorio/Catalogo" class="nav-link">
-                                        <i class="fa-regular fa-circle nav-icon"></i>
-                                        <p>Catálogo General</p>
-                                    </a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a href="/Directorio/Productos" class="nav-link">
-                                        <i class="fa-regular fa-circle nav-icon"></i>
-                                        <p>Productos</p>
-                                    </a>
-                                </li>
-
-                            </ul>
                         </li>
+
+
 
                     </ul>
                 </nav>
@@ -247,26 +208,6 @@
 <script src="~/AdminLTE-4/js/adminlte.js"></script>
 
 
-@await RenderSectionAsync("Scripts", required: false)
-
-
-@section Scripts
-{
-
-    @if (TempData["toast-success"] != null)
-    {
-        <script>
-        showToast("Éxito", "@TempData["toast-success"]", "success");
-    </script>
-    }
-
-    @if (TempData["toast-error"] != null)
-    {
-        <script>
-        showToast("Error", "@TempData["toast-error"]", "error");
-    </script>
-    }
-}
 
 <script>
     function showToast(titulo, mensaje, tipo = "success") {
@@ -304,6 +245,33 @@
         bsToast.show();
     }
 </script>
+
+
+@await RenderSectionAsync("Scripts", required: false)
+
+
+
+
+@if (TempData["toast-success"] != null)
+{
+    <script>
+            $(document).ready(function () {
+                showToast("Éxito", "@TempData["toast-success"]", "success");
+            });
+        </script>
+}
+
+@if (TempData["toast-error"] != null)
+{
+    <script>
+            $(document).ready(function () {
+                showToast("Error", "@TempData["toast-error"]", "error");
+            });
+
+        </script>
+}
+
+
 
 <script>
     function cambiarTema(tema) {

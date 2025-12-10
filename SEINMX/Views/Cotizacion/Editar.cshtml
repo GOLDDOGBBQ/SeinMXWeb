@@ -1,24 +1,14 @@
 ﻿
 @{
-    ViewBag.Title = "Editar";
+    ViewBag.Title = "Editar Cotizacion";
     CultureInfo cultureMx = new CultureInfo("es-MX");
 }
 
 @using System.Globalization
+@using SEINMX.Clases.Helpers
 @model SEINMX.Models.Inventario.CotizacionViewModel
 
 <div class="container-fluid mt-4">
-
-    @if (Model.IdCotizacion == 0)
-    {
-        <button class="btn btn-primary"
-                onclick="location.href='@Url.Action("Crear", "Cotizacion")'">
-            Crear Cotización
-        </button>
-        <hr/>
-    }
-    else
-    {
         @if (!ViewData.ModelState.IsValid)
         {
             <div class="alert alert-danger">
@@ -321,12 +311,20 @@
         </div>
 
         <script type="module">
-            import {ClientsDataProvider} from "../../dropdown-1.1.0/clientsDataProvider-1.1.1.js";
+                    import {ClientsDataProvider} from "@UrlExtensions.Absolute("/dropdown-1.1.0/clientsDataProvider-1.1.1.js ")";
+
+                    const ProductDropdown = document.querySelector("#IdProducto");
+                    ProductDropdown.dataProvider = new ClientsDataProvider( '/Cotizacion/DropdownProducto','Buscar Producto...');
+
+                </script>
+
+        <script type="module">
+            import {ClientsDataProvider} from "@UrlExtensions.Absolute("/dropdown-1.1.0/clientsDataProvider-1.1.1.js ")";
 
             const clientesDropdown = document.querySelector("#IdCliente");
             const contactoDropdown = document.querySelector("#IdClienteContacto");
             const razonDropdown = document.querySelector("#IdClienteRazonSolcial");
-            const ProductDropdown = document.querySelector("#IdProducto");
+           // const ProductDropdown = document.querySelector("#IdProducto");
 
             clientesDropdown.dataProvider = new ClientsDataProvider(
                 '/Cliente/DropdownClientes',
@@ -343,10 +341,10 @@
                 'Buscar razón social...'
             );
 
-            ProductDropdown.dataProvider = new ClientsDataProvider(
+           /* ProductDropdown.dataProvider = new ClientsDataProvider(
                 '/Cotizacion/DropdownProducto',
                 'Buscar Producto...'
-            );
+            );*/
 
 
             clientesDropdown.setAttribute('selected', '@(Model is { IdCliente: > 0 } ? Model.IdCliente.ToString() : "")');
@@ -529,12 +527,10 @@
                 infoIva.textContent = json.iva?.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
 
             }
-
             // Inicial
             cargarTabla();
 
         </script>
-    }
 
 
 </div>

@@ -1,0 +1,136 @@
+﻿@{
+    ViewBag.Title = "Editar Producto";
+    CultureInfo cultureMx = new CultureInfo("es-MX");
+}
+
+@using System.Globalization
+@using SEINMX.Clases.Helpers
+@model SEINMX.Models.Inventario.ProductoViewModel
+
+<div class="container-fluid mt-4">
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @TempData["toast-error"]
+            @Html.ValidationSummary()
+        </div>
+    }
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="info-box">
+                    <span class="info-box-icon text-bg-success shadow-sm">
+                        <i class="fa-solid fa-hashtag"></i>
+                    </span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">Producto</span>
+                    <span class="info-box-number">
+                        @Model.IdProducto
+                        @if (Model.IdProducto is null)
+                        {
+                            @Html.Raw("Nuevo")
+                            ;
+                        }
+                    </span>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+    <form id="formProducto" method="post" action="@Url.Action("Guardar", "Producto")">
+        @Html.HiddenFor(m => m.IdProducto)
+
+        <div class="card card-secondary mt-3">
+            <div class="card-header">
+                <h3 class="card-title">Datos generales</h3>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-md-3 mt-2">
+                        <label class="form-label" for="Codigo">Codigo</label>
+                        @Html.EditorFor(model => model.Codigo, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+
+                    <div class="col-md-9 mt-2">
+                        <label class="form-label" for="Descripcion">Descripcion</label>
+                        @Html.EditorFor(model => model.Descripcion, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+
+                    <div class="col-md-2 mt-2">
+                        <label class="form-label" for="PrecioLista">Precio Lista</label>
+                        @Html.EditorFor(model => model.PrecioLista, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+
+                    <div class="col-md-2 mt-2">
+                        <div class="form-group">
+                            <label class="form-label" for="IdMoneda">Moneda</label>
+                            @Html.DropDownListFor(
+                                m => m.IdMoneda,
+                                Model.GetComboMoneda(),
+                                new { @class = "form-select", id = "IdMoneda", name = "IdMoneda" }
+                            )
+                        </div>
+                    </div>
+
+                    <div class="col-md-8 mt-2">
+                        <label class="form-label">Proveedor</label>
+                        <cb-dropdown id="IdProveedor" name="IdProveedor">
+                        </cb-dropdown>
+                    </div>
+
+
+                </div>
+
+                <div class="row mt-3">
+                    <div class="col-md-3 mt-2">
+                        <label class="form-label" for="ClaveUnidadSAT">Clave Unidad SAT</label>
+                        @Html.EditorFor(model => model.ClaveUnidadSAT, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label" for="Observaciones">Observaciones</label>
+                        @Html.EditorFor(model => model.Observaciones, new { htmlAttributes = new { @class = "form-control" } })
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card-footer text-end">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+
+<script type="module">
+    import {ClientsDataProvider} from "@UrlExtensions.Absolute("/dropdown-1.1.0/clientsDataProvider-1.1.1.js ")";
+
+    const proveedorDropdown = document.querySelector("#IdProveedor");
+
+    proveedorDropdown.dataProvider = new ClientsDataProvider(
+        '/Cliente/DropdownClientes',
+        'Buscar Proveedor...'
+    );
+    proveedorDropdown.setAttribute('selected', '@(Model is { IdProveedor : > 0 } ? Model.IdProveedor.ToString() : "")');
+
+</script>
+
+
+@if (TempData["toast-success"] != null)
+{
+    <script>
+            $(document).ready(function () {
+                setTimeout(() => {
+                    location.href='@Url.Action("Index", "Producto")'
+                }, 1500);
+
+            });
+    </script>
+}
