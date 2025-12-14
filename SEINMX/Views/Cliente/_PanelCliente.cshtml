@@ -1,17 +1,33 @@
-﻿@model SEINMX.Context.Database.Cliente
+﻿@model SEINMX.Models.Directorio.ClienteViewModel
+
+
+@{
+    var labelAtt = new
+    {
+        @@class = "form-label"
+    };
+    var buscadorAtt = new
+    {
+        htmlAttributes = new
+        {
+            @@class = "form-control", placeholder = "Buscar..."
+        }
+    };
+}
+
 
 <div class="card shadow-sm">
 
-    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+    <div class="card-header bg-secondary text-white d-flex align-items-center">
         <div>
             <i class="fas fa-user"></i> Cliente: @Model.Nombre
         </div>
-        <div>
+        <div class="ms-auto">
             <button class="btn btn-light btn-sm me-2" onclick="cancelarCliente()">
                 <i class="fas fa-times"></i> Cancelar
             </button>
 
-            <button  id="btnGuardarCliente"  class="btn btn-success btn-sm" onclick="guardarCliente()">
+            <button id="btnGuardarCliente" class="btn btn-success btn-sm" onclick="guardarCliente()">
                 <i class="fas fa-save"></i> Guardar
             </button>
         </div>
@@ -26,14 +42,34 @@
                 <input id="cliNombre" class="form-control" value="@Model.Nombre"/>
             </div>
 
-            <div class="col-md-6 mb-2">
+            <div class="col-md-2 mb-2">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.IdTipo, labelAtt)
+                    @Html.DropDownListFor(
+                        m => m.IdTipo,
+                        Model.GetComboTipoCliente(),
+                        new { @class = "form-select", id = "IdTipo", name = "IdTipo" }
+                    )
+                </div>
+            </div>
+
+
+            <div class="col-md-2 mb-2">
                 <label class="form-label">Tarifa</label>
                 <input id="cliTarifa" type="number" step="0.01" class="form-control" value="@Model.Tarifa"/>
             </div>
 
+            <div class="col-md-2 mb-2">
+                @Html.LabelFor(model => model.TarifaGanancia, labelAtt)
+                @Html.EditorFor(model => model.TarifaGanancia, buscadorAtt)
+            </div>
+
+
             <div class="col-md-12 mb-2">
-                <label class="form-label">Dirección</label>
-                <textarea id="cliDireccion" class="form-control">@Model.Direccion</textarea>
+
+                @Html.LabelFor(model => model.Direccion, labelAtt)
+                @Html.EditorFor(model => model.Direccion, buscadorAtt)
+                @*<textarea id="cliDireccion" class="form-control">@Model</textarea>*@
             </div>
 
             <div class="col-md-12 mb-2">
@@ -220,7 +256,6 @@
             }
 
 
-
             // ========================
             // 📌 Construir CONTACTOS
             // ========================
@@ -265,7 +300,7 @@
 
             const res = await fetch('/Cliente/GuardarClienteCompleto', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload)
             });
 
@@ -275,7 +310,8 @@
 
                 try {
                     serverMsg = await res.text() || serverMsg;
-                } catch { }
+                } catch {
+                }
 
                 throw new Error(serverMsg);
             }

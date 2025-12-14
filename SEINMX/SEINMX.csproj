@@ -28,7 +28,6 @@
 
     <ItemGroup>
       <Folder Include="Models\Cuenta\" />
-      <Folder Include="Models\DRO\" />
       <Folder Include="plugins\" />
     </ItemGroup>
 

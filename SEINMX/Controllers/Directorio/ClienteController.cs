@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using SEINMX.Clases;
 using SEINMX.Context;
 using SEINMX.Context.Database;
+using SEINMX.Models.Directorio;
 
 [Authorize]
 public class ClienteController : ApplicationController
@@ -18,35 +19,40 @@ public class ClienteController : ApplicationController
     // =====================================================
     // INDEX (LISTA + BUSCADOR MANUAL)
     // =====================================================
-    public async Task<IActionResult> Index(int? idCliente, string? nombre, int? idTipo)
+    public async Task<IActionResult> Index(ClienteBuscadorViewModel model)
     {
         var query = _db.Clientes
             .Where(x => !x.Eliminado)
             .AsQueryable();
 
-        // FILTRO # CLIENTE
-        if (idCliente != null)
-            query = query.Where(x => x.IdCliente == idCliente);
 
-        // FILTRO NOMBRE
-        if (!string.IsNullOrWhiteSpace(nombre))
-            query = query.Where(x => x.Nombre.Contains(nombre));
+        if (model.IdCliente != null)
+        {
+            query = query.Where(x => x.IdCliente == model.IdCliente);
+        }
+        else
+        {
+            if (!string.IsNullOrWhiteSpace(model.Nombre))
+                query = query.Where(x => x.Nombre.Contains(model.Nombre));
 
-        // FILTRO TIPO (0 cliente, 1 proveedor)
-        if (idTipo != null)
-            query = query.Where(x => x.IdTipo == idTipo);
+
+            if ((model.IdTipo ?? 0) > 0)
+                query = query.Where(x => x.IdTipo == model.IdTipo);
+        }
 
         var lista = await query
-            .OrderBy(x => x.Nombre)
+            .OrderByDescending(x => x.IdCliente)
             .ToListAsync();
 
-        return View(lista);
+        model.Clientes = lista;
+
+        return View(model);
     }
 
 
     public async Task<IActionResult> Crear()
     {
-        var model = new Cliente(); // modelo vacío
+        var model = new ClienteViewModel(); // modelo vacío
         return PartialView("_PanelCliente", model);
     }
 
@@ -63,7 +69,20 @@ public class ClienteController : ApplicationController
         if (cliente == null)
             return NotFound();
 
-        return PartialView("_PanelCliente", cliente);
+        var model = new ClienteViewModel
+        {
+            IdCliente = cliente.IdCliente,
+            Nombre = cliente.Nombre,
+            Direccion = cliente.Direccion,
+            Observaciones = cliente.Observaciones,
+            Tarifa = cliente.Tarifa,
+            IdTipo = cliente.IdTipo,
+            TarifaGanancia = cliente.TarifaGanancia,
+            ClienteContactos =  cliente.ClienteContactos,
+            ClienteRazonSolcials =  cliente.ClienteRazonSolcials
+        };
+
+        return PartialView("_PanelCliente", model);
     }
 
 

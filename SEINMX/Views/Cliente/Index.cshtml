@@ -1,13 +1,21 @@
-﻿@model IEnumerable<SEINMX.Context.Database.Cliente>
+﻿
+
+@using System.Globalization
+@model SEINMX.Models.Directorio.ClienteBuscadorViewModel
+
+
 @{
     ViewData["Title"] = "Clientes / Proveedores";
+
+    var labelAtt = new  { @@class = "form-label" };
+    var buscadorAtt = new { htmlAttributes = new { @@class = "form-control", placeholder = "Buscar..." } };
 }
 
 
-<div class="content-wrapper p-3">
+<div class="container-fluid  mt-4">
 
     <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
+        <div class="card-header bg-secondary text-white">
             <h3 class="card-title">
                 <i class="fas fa-users"></i> Lista de Clientes y Proveedores
             </h3>
@@ -18,28 +26,33 @@
             <!-- FILTROS -->
             <form method="get" class="row g-3">
 
-                <div class="col-md-3">
-                    <label class="form-label"># Cliente</label>
-                    <input type="text" name="idCliente" class="form-control" placeholder="ID...">
+                <div class="col-md-3 mt-2">
+                    @Html.LabelFor(model => model.IdCliente,labelAtt )
+                    @Html.EditorFor(model => model.IdCliente, buscadorAtt)
                 </div>
 
-                <div class="col-md-3">
-                    <label class="form-label">Nombre </label>
-                    <input type="text" name="nombre" class="form-control" placeholder="Buscar...">
+                <div class="col-md-4 mt-2">
+                    @Html.LabelFor(model => model.Nombre,labelAtt )
+                    @Html.EditorFor(model => model.Nombre, buscadorAtt)
                 </div>
+
 
                 <!-- FILTRO DE IDTIPO -->
-                <div class="col-md-3">
-                    <label class="form-label">Tipo</label>
-                    <select name="idTipo" class="form-select">
-                        <option value="">Todos</option>
-                        <option value="0">Cliente</option>
-                        <option value="1">Proveedor</option>
-                    </select>
+                <div class="col-md-2 mt-2">
+
+
+                        @Html.LabelFor(model => model.IdTipo,labelAtt )
+                        @Html.DropDownListFor(
+                            m => m.IdTipo,
+                            Model.GetComboTipoCliente(),
+                            new { @class = "form-select", id = "IdTipo", name = "IdTipo" }
+                        )
+
                 </div>
 
+
                 <!-- BOTÓN DE BÚSQUEDA -->
-                <div class="col-md-3 d-flex align-items-end">
+                <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary w-100">
                         <i class="fas fa-search"></i> Buscar
                     </button>
@@ -51,7 +64,7 @@
 
             <!-- BOTÓN AGREGAR CLIENTE -->
             <div class="mb-3">
-                <button class="btn btn-success" id="btnNuevoCliente">
+                <button class="btn btn-primary" id="btnNuevoCliente">
                     <i class="fas fa-user-plus"></i> Agregar Cliente
                 </button>
             </div>
@@ -67,30 +80,43 @@
                         <th><i class="fas fa-id-card"></i> Nombre</th>
                         <th><i class="fas fa-tag"></i> Tipo</th>
                         <th><i class="fas fa-tag"></i> Tarifa</th>
+                        @if (Model.IdTipo == 1)
+                        {
+                            <th><i class="fas fa-tag"></i> Ganancia</th>
+                        }
+
                         <th><i class="fas fa-gear"></i> Opciones</th>
                     </tr>
                     </thead>
                     <tbody>
                     @* Aquí iteras los datos que envíes desde el controlador *@
-                    @foreach (var item in Model)
+                    @foreach (var item in Model.Clientes)
                     {
                         <tr id="row-@item.IdCliente">
 
                             <td>@item.IdCliente</td>
                             <td>@item.Nombre</td>
                             <td>
-                                @if (item.IdTipo == 0)
+                                @if (item.IdTipo == 1)
                                 {
-                                    <span class="badge bg-primary">Cliente</span>
+                                    <span class="badge bg-warning">Proveedor</span>
+
                                 }
                                 else
                                 {
-                                    <span class="badge bg-warning">Proveedor</span>
+                                    <span class="badge bg-primary">Cliente</span>
                                 }
                             </td>
                             <td>
                                 @item.Tarifa
                             </td>
+
+                            @if (Model.IdTipo == 1)
+                            {
+                                <td>
+                                    @item.TarifaGanancia
+                                </td>
+                            }
                             <td>
                                 <button class="btn btn-sm btn-warning" onclick="editarCliente(@item.IdCliente)">
                                     <i class="fas fa-pen-to-square"></i>

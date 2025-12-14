@@ -36,4 +36,19 @@ public static class CombosFijos
 
         return lista;
     }
+
+    public static List<SelectListItem> GetComboTipoCliente(int? idTipo, bool isFilter)
+    {
+        var lista = new List<SelectListItem>
+        {
+            new SelectListItem("Proveedor", "1", idTipo == 1),
+            new SelectListItem("Cliente", "2", idTipo == 2)
+        };
+
+        if (isFilter)
+            lista.Insert(0, new SelectListItem("Todos", "0", idTipo is null or 0));
+
+        return lista;
+    }
+
 }
