@@ -129,17 +129,21 @@
                             <td>
                                 <button class="btn btn-sm btn-primary"
                                         onclick="location.href='@Url.Action("Editar", "Cotizacion", new { id = item.IdCotizacion })'">
-                                    <i class="fas fa-pen-to-square"></i> Modificar
+                                    <i class="fas fa-pen-to-square"></i>
                                 </button>
 
                                 <a class="OpenSideNav text-white btn btn-sm btn-secondary"
                                    href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = item.IdCotizacion })"
-                                   target="frameCB"> <i class="fa-regular fa-file-pdf "></i> Ver</a>
+                                   target="frameCB"> <i class="fa-regular fa-eye "></i></a>
 
 
                                 <a class="btn btn-sm btn-secondary"
                                     href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = item.IdCotizacion, file = true })">
-                                    <i class="fa-solid fa-download"></i> Descargar
+                                    <i class="fa-regular fa-file-pdf"></i>
+                                </a>
+                                <a class="btn btn-sm btn-secondary"
+                                   href="@Url.Action("OrdenCompra", "Cotizacion", new { idCotizacion = item.IdCotizacion})">
+                                    <i class="fa-solid fa-bag-shopping"></i>
                                 </a>
 
 

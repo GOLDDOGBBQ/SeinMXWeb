@@ -3,7 +3,6 @@
 @using SEINMX.Clases.Helpers
 
 
-
 @{
     Layout = null;
     CultureInfo cultureMx = new CultureInfo("es-MX");
@@ -14,14 +13,10 @@
 <head>
     <meta charset="utf-8">
     <title>Cotización @Model.IdCotizacion</title>
-
-    <!-- Bootstrap 5 -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 12px;
+            font-size: 10px;
             padding: 30px;
         }
 
@@ -30,7 +25,15 @@
         }
 
         .ColorSubHeader {
-            background-color: #c5c5c5;
+            border: 1px solid #e3e3e3;
+            background: #fafafa;
+        }
+
+        .summary-box {
+            border: 1px solid #e3e3e3;
+            padding: 10px;
+            border-radius: 6px;
+            background: #fafafa;
         }
 
         .ColorTablePrincipal tr th {
@@ -65,6 +68,7 @@
 
         .table td, .table th {
             vertical-align: middle;
+            font-size: 12px;
         }
 
         .totales td {
@@ -86,16 +90,17 @@
             flex-direction: column;
         }
 
-        .footer {
+        .page-footer {
             margin-top: auto; /* empuja el footer al fondo */
+            padding-top: 10px;
             font-size: 11px;
             border-top: 1px solid #ccc;
-            padding-top: 10px;
+
         }
 
         /* Para PuppeteerSharp y PDF: footer fijo */
         @@media print {
-            .footer {
+            .page-footer {
                 position: fixed;
                 bottom: 0;
                 left: 0;
@@ -103,6 +108,9 @@
             }
         }
     </style>
+
+    <!-- Bootstrap 5 -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css"/>
 </head>
 
 <body>
@@ -113,6 +121,8 @@
         <div class="col-6 ps-1 pt-3">
             <img src="@UrlExtensions.Absolute("/img/Sein-logo-letras.webp")" alt="Logo Empresa" class="logo-superior">
         </div>
+
+
 
         <div class="col-5 offset-1 p-0">
             <table class="tableHeder ms-auto">
@@ -125,19 +135,19 @@
 
                 <tbody>
                 <tr>
-                    <td class="ColorSubHeader fw-bold"><strong>Fecha:</strong></td>
+                    <td class="ColorSubHeader"><strong>Fecha:</strong></td>
                     <td> @Model.Fecha.ToString("dd De MMMM Del yyyy")</td>
                 </tr>
                 <tr>
-                    <td class="ColorSubHeader fw-bold"><strong>Moneda:</strong></td>
+                    <td class="ColorSubHeader "><strong>Moneda:</strong></td>
                     <td> MXN</td>
                 </tr>
                 <tr>
-                    <td class="ColorSubHeader fw-bold"><strong>Sucursal:</strong></td>
-                    <td> Guadalajara</td>
+                <td class="ColorSubHeader "><strong>Sucursal:</strong></td>
+                <td> Guadalajara</td>
 
                 <tr>
-                    <td class="ColorSubHeader fw-bold"><strong>Asesor:</strong></td>
+                    <td class="ColorSubHeader "><strong>Asesor:</strong></td>
                     <td> @Model.UsuarioResponsable</td>
                 </tr>
                 </tbody>
@@ -148,24 +158,27 @@
 
 
     </div>
+
+
+    <!-- DATOS DEl CLIENTE -->
     <div class="row mb-4">
 
-        <div class="col-12 mt-3 px-0 tableDatos">
+        <div class="col-12 mt-3 px-0 tableDatos summary-box">
             <table class="">
                 <tbody>
                 <tr>
-                    <td class="fw-bold"><strong>Cliente:</strong></td>
-                    <td colspan="3"  class="text-start"> @Model.Cliente</td>
+                    <td ><strong>Cliente:</strong></td>
+                    <td colspan="3" class="text-start"> @Model.Cliente</td>
                 </tr>
                 <tr>
-                    <td class="fw-bold"><strong>Contacto:</strong></td>
+                    <td><strong>Contacto:</strong></td>
                     <td class="text-start"> @Model.NombreContacto</td>
-                    <td colspan="2"><span class="fw-bold"><strong>Teléfono:</strong></span> @Model.Telefono</td>
+                    <td colspan="2"><span><strong>Teléfono:</strong></span> @Model.Telefono</td>
 
                 </tr>
                 <tr>
-                    <td class="fw-bold text-end" colspan="1"><strong>Vigencia:</strong></td>
-                    <td class="fw-bold text-end" colspan="3">
+                    <td class="text-end" colspan="1"><strong>Vigencia:</strong></td>
+                    <td class="text-end" colspan="3">
                         <strong>15 días naturales a partir de la fecha de
                             elaboración</strong></td>
                 </tr>
@@ -178,35 +191,35 @@
 
     <!-- TABLA DETALLE -->
     <div class="row mb-4">
-    <table class="table table-sm table-bordered table-striped ">
-        <thead class="table-secondary ColorTablePrincipal">
-        <tr>
-            <th>#</th>
-            <th>Código</th>
-            <th>Descripción</th>
-            <th class="text-end">Cantidad</th>
-            <th class="text-end">Precio</th>
-            <th class="text-end">Importe</th>
-            <th>Observaciones</th>
-        </tr>
-        </thead>
-        <tbody>
-        @{ int RowNumber = 1; }
-        @foreach (var item in Model.Detalles)
-        {
+        <table class="table table-sm table-bordered table-striped ">
+            <thead class="table-secondary ColorTablePrincipal">
             <tr>
-                <td>@RowNumber</td>
-                <td>@item.Codigo</td>
-                <td>@item.Descripcion</td>
-                <td class="text-end">@item.Cantidad</td>
-                <td class="text-end">@item.PrecioCliente.ToString("C2")</td>
-                <td class="text-end">@item.Total.ToString("C2")</td>
-                <td>@item.Observaciones</td>
+                <th>#</th>
+                <th>Código</th>
+                <th>Descripción</th>
+                <th class="text-end">Cantidad</th>
+                <th class="text-end">Precio</th>
+                <th class="text-end">Importe</th>
+                <th>Observaciones</th>
             </tr>
-            RowNumber += 1;
-        }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+            @{ int RowNumber = 1; }
+            @foreach (var item in Model.Detalles)
+            {
+                <tr>
+                    <td>@RowNumber</td>
+                    <td>@item.Codigo</td>
+                    <td>@item.Descripcion</td>
+                    <td class="text-end">@item.Cantidad</td>
+                    <td class="text-end">@item.PrecioCliente.ToString("C2")</td>
+                    <td class="text-end">@item.Total.ToString("C2")</td>
+                    <td>@item.Observaciones</td>
+                </tr>
+                RowNumber += 1;
+            }
+            </tbody>
+        </table>
     </div>
     <!-- TOTALES -->
     <div class="row mt-4">
@@ -253,7 +266,7 @@
 
 
 <footer>
-    <div class="footer mt-4">
+    <div class="page-footer mt-4">
 
         <!-- LOGO INFERIOR -->
         <div class="col-12">

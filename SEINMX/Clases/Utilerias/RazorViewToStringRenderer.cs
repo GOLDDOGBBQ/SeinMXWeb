@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
-
 using PuppeteerSharp;
 
 
@@ -134,6 +133,15 @@ public class RazorViewToStringRenderer
 
         var page = await browser.NewPageAsync();
 
+        string workingDirectory = Environment.CurrentDirectory;
+
+        var bootstrapCss = await System.IO.File.ReadAllTextAsync(
+            Path.Combine(workingDirectory, "wwwroot/lib/bootstrap/dist/css/bootstrap.min.css")
+        );
+
+        htmlContent = htmlContent.Replace("</head>", $"<style>{bootstrapCss}</style> </head>");
+
+
         await page.SetContentAsync(htmlContent, new NavigationOptions
         {
             WaitUntil = new[] { WaitUntilNavigation.Networkidle0 }
@@ -151,6 +159,7 @@ public class RazorViewToStringRenderer
             pdfOptions.HeaderTemplate = "<div></div>";
             pdfOptions.FooterTemplate = footerTemplate;
         }
+
 
         var pdfBytes = await page.PdfDataAsync(pdfOptions);
 
