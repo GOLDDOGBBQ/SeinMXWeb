@@ -41,8 +41,9 @@ public static class CombosFijos
     {
         var lista = new List<SelectListItem>
         {
-            new SelectListItem("Proveedor", "1", idTipo == 1),
-            new SelectListItem("Cliente", "2", idTipo == 2)
+            new SelectListItem("Cliente", "2", idTipo == 2),
+            new SelectListItem("Proveedor", "1", idTipo == 1)
+
         };
 
         if (isFilter)

@@ -1,14 +1,21 @@
 ﻿
-
-@using System.Globalization
 @model SEINMX.Models.Directorio.ClienteBuscadorViewModel
 
 
 @{
     ViewData["Title"] = "Clientes / Proveedores";
 
-    var labelAtt = new  { @@class = "form-label" };
-    var buscadorAtt = new { htmlAttributes = new { @@class = "form-control", placeholder = "Buscar..." } };
+    var labelAtt = new
+    {
+        @@class = "form-label"
+    };
+    var buscadorAtt = new
+    {
+        htmlAttributes = new
+        {
+            @@class = "form-control", placeholder = "Buscar..."
+        }
+    };
 }
 
 
@@ -27,12 +34,12 @@
             <form method="get" class="row g-3">
 
                 <div class="col-md-3 mt-2">
-                    @Html.LabelFor(model => model.IdCliente,labelAtt )
+                    @Html.LabelFor(model => model.IdCliente, labelAtt)
                     @Html.EditorFor(model => model.IdCliente, buscadorAtt)
                 </div>
 
                 <div class="col-md-4 mt-2">
-                    @Html.LabelFor(model => model.Nombre,labelAtt )
+                    @Html.LabelFor(model => model.Nombre, labelAtt)
                     @Html.EditorFor(model => model.Nombre, buscadorAtt)
                 </div>
 
@@ -41,12 +48,12 @@
                 <div class="col-md-2 mt-2">
 
 
-                        @Html.LabelFor(model => model.IdTipo,labelAtt )
-                        @Html.DropDownListFor(
-                            m => m.IdTipo,
-                            Model.GetComboTipoCliente(),
-                            new { @class = "form-select", id = "IdTipo", name = "IdTipo" }
-                        )
+                    @Html.LabelFor(model => model.IdTipo, labelAtt)
+                    @Html.DropDownListFor(
+                        m => m.IdTipo,
+                        Model.GetComboTipoCliente(),
+                        new { @class = "form-select", id = "IdTipo", name = "IdTipo" }
+                    )
 
                 </div>
 
@@ -64,11 +71,12 @@
 
             <!-- BOTÓN AGREGAR CLIENTE -->
             <div class="mb-3">
-                <button class="btn btn-primary" id="btnNuevoCliente">
+                <button class="btn btn-primary"
+                        onclick="location.href='@Url.Action("Crear", "Cliente")'">
+
                     <i class="fas fa-user-plus"></i> Agregar Cliente
                 </button>
             </div>
-
 
             <!-- TABLA -->
             <div class="table-responsive">
@@ -100,7 +108,6 @@
                                 @if (item.IdTipo == 1)
                                 {
                                     <span class="badge bg-warning">Proveedor</span>
-
                                 }
                                 else
                                 {
@@ -118,7 +125,8 @@
                                 </td>
                             }
                             <td>
-                                <button class="btn btn-sm btn-warning" onclick="editarCliente(@item.IdCliente)">
+                                <button class="btn btn-sm btn-primary"
+                                        onclick="location.href='@Url.Action("Editar", "Cliente", new { id = item.IdCliente })'">
                                     <i class="fas fa-pen-to-square"></i>
                                 </button>
 
@@ -152,119 +160,6 @@
 
 
 <script>
-
-    // CLICK NUEVO CLIENTE
-
-    $("#btnNuevoCliente").on("click", function () {
-        $("#modalClienteBody").html(`
-        <div class="text-center p-5">
-            <i class='fas fa-spinner fa-spin fa-2x'></i><br>
-            Cargando formulario...
-        </div>`);
-
-        $("#modalCliente").modal("show");
-
-        $.get("/Cliente/Crear")
-            .done(function (data) {
-                $("#modalClienteBody").html(data);
-            })
-            .fail(function (xhr) {
-                $("#modalClienteBody").html(`
-                <div class="p-4">
-                    <div class="alert alert-danger">
-                        <i class="fas fa-circle-exclamation"></i>
-                        Error al cargar el formulario de nuevo cliente.<br>
-                        <strong>Detalle:</strong> ${xhr.status} - ${xhr.statusText}
-                    </div>
-                </div>
-            `);
-            });
-    });
-
-
-    // FUNCION PARA EDITAR
-    function editarCliente(id) {
-        abrirPanelCliente(id);
-    }
-
-    // CARGA DEL PANEL CLIENTE
-    function abrirPanelCliente(id) {
-
-        $("#modalClienteBody").html(`
-        <div class="text-center p-5">
-            <i class='fas fa-spinner fa-spin fa-2x'></i><br>
-            Cargando información...
-        </div>`);
-
-        $("#modalCliente").modal("show");
-
-        $.get(`/Cliente/Detalle/${id}`)
-            .done(function (html) {
-                $("#modalClienteBody").html(html);
-            })
-            .fail(function (xhr) {
-
-                $("#modalClienteBody").html(`
-                <div class="p-4">
-                    <div class="alert alert-danger">
-                        <i class="fas fa-triangle-exclamation"></i>
-                        No se pudo cargar la información del cliente.<br>
-                        <strong>Error:</strong> ${xhr.status} - ${xhr.statusText}
-                    </div>
-
-                    <div class="text-end">
-                        <button class="btn btn-secondary" data-bs-dismiss="modal">
-                            <i class="fas fa-xmark"></i> Cerrar
-                        </button>
-                    </div>
-                </div>
-            `);
-            });
-    }
-
-    // RECIBIR EVENTO DE _PanelCliente AL GUARDAR
-    function onClienteGuardado(data) {
-
-        // CERRAR MODAL
-        $("#modalCliente").modal("hide");
-
-        // AGREGAR O ACTUALIZAR EN TABLA
-        agregarClienteATabla(data.cliente);
-    }
-
-    // INSERTAR O ACTUALIZAR FILA
-    function agregarClienteATabla(c) {
-
-        let tipo = c.idTipo == 0
-            ? `<span class="badge bg-primary">Cliente</span>`
-            : `<span class="badge bg-warning">Proveedor</span>`;
-
-        let fila = `
-        <tr id="row-${c.idCliente}">
-            <td>${c.idCliente}</td>
-            <td>${c.nombre}</td>
-            <td>${tipo}</td>
-            <td>${c.tarifa ?? ""}</td>
-            <td>
-                <button class="btn btn-sm btn-warning" onclick="editarCliente(${c.idCliente})">
-                      <i class="fas fa-pen-to-square"></i>
-                </button>
-
-               <button class="btn btn-sm btn-danger" onclick="eliminarCliente(${c.idCliente}, this)">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        </tr>
-    `;
-
-        // SI EXISTE → REEMPLAZAR
-        if ($("#row-" + c.idCliente).length)
-            $("#row-" + c.idCliente).replaceWith(fila);
-        else
-            $("table tbody").prepend(fila); // INICIO DE TABLA
-    }
-
-
     function eliminarCliente(id, btn) {
 
         // Cambiar icono a cargando

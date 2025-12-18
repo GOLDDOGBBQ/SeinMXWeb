@@ -2,15 +2,16 @@
 
 
 @{
+    ViewBag.Title = "Editar Cliente";
     var labelAtt = new
     {
         @@class = "form-label"
     };
-    var buscadorAtt = new
+    var editformAtt = new
     {
         htmlAttributes = new
         {
-            @@class = "form-control", placeholder = "Buscar..."
+            @@class = "form-control"
         }
     };
 }
@@ -23,11 +24,12 @@
             <i class="fas fa-user"></i> Cliente: @Model.Nombre
         </div>
         <div class="ms-auto">
-            <button class="btn btn-light btn-sm me-2" onclick="cancelarCliente()">
+            <button type="button" class="btn btn-light btn-sm me-2"
+                    onclick="location.href='@Url.Action("Index", "Cliente")'">
                 <i class="fas fa-times"></i> Cancelar
             </button>
 
-            <button id="btnGuardarCliente" class="btn btn-success btn-sm" onclick="guardarCliente()">
+            <button type="button" id="btnGuardarCliente" class="btn btn-success btn-sm" onclick="guardarCliente()">
                 <i class="fas fa-save"></i> Guardar
             </button>
         </div>
@@ -38,8 +40,8 @@
         <!-- FORM CLIENTE -->
         <div class="row">
             <div class="col-md-6 mb-2">
-                <label class="form-label">Nombre</label>
-                <input id="cliNombre" class="form-control" value="@Model.Nombre"/>
+                @Html.LabelFor(model => model.Nombre, labelAtt)
+                @Html.EditorFor(model => model.Nombre, editformAtt)
             </div>
 
             <div class="col-md-2 mb-2">
@@ -55,29 +57,27 @@
 
 
             <div class="col-md-2 mb-2">
-                <label class="form-label">Tarifa</label>
-                <input id="cliTarifa" type="number" step="0.01" class="form-control" value="@Model.Tarifa"/>
+                @Html.LabelFor(model => model.Tarifa, labelAtt)
+                @Html.EditorFor(model => model.Tarifa, editformAtt)
+
             </div>
 
             <div class="col-md-2 mb-2">
                 @Html.LabelFor(model => model.TarifaGanancia, labelAtt)
-                @Html.EditorFor(model => model.TarifaGanancia, buscadorAtt)
+                @Html.EditorFor(model => model.TarifaGanancia, editformAtt)
             </div>
 
-
             <div class="col-md-12 mb-2">
-
                 @Html.LabelFor(model => model.Direccion, labelAtt)
-                @Html.EditorFor(model => model.Direccion, buscadorAtt)
-                @*<textarea id="cliDireccion" class="form-control">@Model</textarea>*@
+                @Html.EditorFor(model => model.Direccion, editformAtt)
             </div>
 
             <div class="col-md-12 mb-2">
-                <label class="form-label">Observaciones</label>
-                <textarea id="cliObs" class="form-control">@Model.Observaciones</textarea>
+                @Html.LabelFor(model => model.Observaciones, labelAtt)
+                @Html.EditorFor(model => model.Observaciones, editformAtt)
             </div>
+            @Html.HiddenFor(model => model.IdCliente)
 
-            <input type="hidden" id="cliId" value="@Model.IdCliente"/>
         </div>
 
         <hr/>
@@ -99,6 +99,7 @@
         <table class="table table-sm table-striped">
             <thead class="table-light">
             <tr>
+                <th>ID</th>
                 <th>Nombre</th>
                 <th>Teléfono</th>
                 <th>Correo</th>
@@ -109,9 +110,10 @@
             @foreach (var c in Model.ClienteContactos)
             {
                 <tr data-id="@c.IdClienteContacto">
-                    <td>@c.Nombre</td>
-                    <td>@c.Telefono</td>
-                    <td>@c.Correo</td>
+                    <td>@c.IdClienteContacto</td>
+                    <td><input class="form-control txt_ct_Nombre" value="@c.Nombre"></td>
+                    <td><input class="form-control txt_ct_Telefono" value="@c.Telefono"></td>
+                    <td><input class="form-control txt_ct_Correo" value="@c.Correo"></td>
                     <td class="text-end">
                         <button class="btn btn-danger btn-sm" onclick="quitarContactoTemp(this)">
                             <i class="fas fa-trash"></i>
@@ -131,6 +133,7 @@
             <div class="col-md-3"><input id="rzRFC" class="form-control" placeholder="RFC"/></div>
             <div class="col-md-3"><input id="rzRazon" class="form-control" placeholder="Razón Social"/></div>
             <div class="col-md-3"><input id="rzDom" class="form-control" placeholder="Domicilio"/></div>
+            <div class="col-md-3"><input id="rzObs" class="form-control" placeholder="Observaciones"/></div>
             <div class="col-md-3 d-grid">
                 <button class="btn btn-primary" onclick="agregarRazonTemp()">
                     <i class="fas fa-plus"></i> Agregar
@@ -141,9 +144,11 @@
         <table class="table table-sm table-striped">
             <thead class="table-light">
             <tr>
+                <th>ID</th>
                 <th>RFC</th>
                 <th>Razón Social</th>
                 <th>Domicilio</th>
+                <th>Observaciones</th>
                 <th class="text-end">Opciones</th>
             </tr>
             </thead>
@@ -151,9 +156,11 @@
             @foreach (var r in Model.ClienteRazonSolcials)
             {
                 <tr data-id="@r.IdClienteRazonSolcial">
-                    <td>@r.Rfc</td>
-                    <td>@r.RazonSocial</td>
-                    <td>@r.Domicilio</td>
+                    <td>@r.IdClienteRazonSolcial</td>
+                    <td>@r.RFC</td>
+                    <td><input class="form-control txt_rs_RazonSocial" value="@r.RazonSocial"></td>
+                    <td><input class="form-control txt_rs_Domicilio" value="@r.Domicilio"></td>
+                    <td><input class="form-control txt_rs_Observaciones" value="@r.Observaciones"></td>
                     <td class="text-end">
                         <button class="btn btn-danger btn-sm" onclick="quitarRazonTemp(this)">
                             <i class="fas fa-trash"></i>
@@ -176,13 +183,14 @@
         let t = document.getElementById("ctTel").value;
         let c = document.getElementById("ctCorreo").value;
 
-        if (!n) return alert("Falta nombre del contacto");
+        if (!n) return showToast("Datos incompletos", "Falta nombre del contacto", "error");
 
         let tr = `
             <tr>
-                <td>${n}</td>
-                <td>${t}</td>
-                <td>${c}</td>
+                    <td></td>
+                <td><input class="form-control txt_ct_Nombre" value="${n}"></td>
+                <td><input class="form-control txt_ct_Telefono" value="${t}"></td>
+                <td><input class="form-control txt_ct_Correo" value="${c}"></td>
                 <td class="text-end">
                     <button class="btn btn-danger btn-sm" onclick="quitarContactoTemp(this)">
                         <i class="fas fa-trash"></i>
@@ -208,14 +216,17 @@
         let rfc = document.getElementById("rzRFC").value;
         let rz = document.getElementById("rzRazon").value;
         let dom = document.getElementById("rzDom").value;
+        let Obs = document.getElementById("rzObs").value;
 
         if (!rfc || !rz) return alert("RFC y Razón social son requeridos");
 
         let tr = `
             <tr>
+                <td></td>
                 <td>${rfc}</td>
-                <td>${rz}</td>
-                <td>${dom}</td>
+                <td><input class="form-control txt_rs_RazonSocial" value="${rz}"></td>
+                <td><input class="form-control txt_rs_Domicilio" value="${dom}"></td>
+                <td><input class="form-control txt_rs_Observaciones" value="${Obs}"></td>
                 <td class="text-end">
                     <button class="btn btn-danger btn-sm" onclick="quitarRazonTemp(this)">
                         <i class="fas fa-trash"></i>
@@ -228,6 +239,7 @@
         document.getElementById("rzRFC").value = "";
         document.getElementById("rzRazon").value = "";
         document.getElementById("rzDom").value = "";
+        document.getElementById("rzObs").value = "";
     }
 
     function quitarRazonTemp(btn) {
@@ -243,15 +255,17 @@
         btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Guardando...`;
 
         try {
-            const cliId = document.getElementById("cliId");
-            const cliNombre = document.getElementById("cliNombre");
-            const cliDireccion = document.getElementById("cliDireccion");
-            const cliObs = document.getElementById("cliObs");
-            const cliTarifa = document.getElementById("cliTarifa");
+            const cliId = document.getElementById("IdCliente");
+            const cliNombre = document.getElementById("Nombre");
+            const cliDireccion = document.getElementById("Direccion");
+            const cliObs = document.getElementById("Observaciones");
+            const cliTarifa = document.getElementById("Tarifa");
+            const cliTarifaGananacia = document.getElementById("TarifaGanancia");
+            const cliIdTipo = document.getElementById("IdTipo");
 
-            if (!cliId || !cliNombre || !cliDireccion || !cliObs || !cliTarifa) {
-                console.error("❌ ERROR: Falta uno o más elementos del formulario");
-                alert("Error interno: No se encontró un campo del formulario. Revisa el _PanelCliente.");
+            if (!cliId || !cliNombre || !cliDireccion || !cliObs || !cliTarifa || !cliTarifaGananacia || !cliIdTipo) {
+                showToast("Error interno", "No se encontró un campo del formulario. Revisa el Ed itar.", "error");
+
                 return;
             }
 
@@ -262,11 +276,16 @@
             let contactos = [];
             document.querySelectorAll("#listaContactos tr").forEach(tr => {
                 let tds = tr.querySelectorAll("td");
-                if (tds.length >= 3) {
+                if (tds.length >= 4) {
+                    const inputNom = tds[1].querySelector("input.txt_ct_Nombre");
+                    const inputTel = tds[2].querySelector("input.txt_ct_Telefono");
+                    const inputCorr = tds[3].querySelector("input.txt_ct_Correo");
+
                     contactos.push({
-                        nombre: tds[0].innerText.trim(),
-                        telefono: tds[1].innerText.trim(),
-                        correo: tds[2].innerText.trim()
+                        IdClienteContacto: parseInt(tds[0].innerText.trim()),
+                        Nombre: inputNom ? inputNom.value.trim() : "",
+                        Telefono: inputTel ? inputTel.value.trim() : "",
+                        Correo: inputCorr ? inputCorr.value.trim() : ""
                     });
                 }
             });
@@ -277,34 +296,41 @@
             let razones = [];
             document.querySelectorAll("#listaRazones tr").forEach(tr => {
                 let tds = tr.querySelectorAll("td");
-                if (tds.length >= 3) {
+                if (tds.length >= 5) {
+                    const inputRs = tds[2].querySelector("input.txt_rs_RazonSocial");
+                    const inputDom = tds[3].querySelector("input.txt_rs_Domicilio");
+                    const inputObs = tds[4].querySelector("input.txt_rs_Observaciones");
+
+
                     razones.push({
-                        rfc: tds[0].innerText.trim(),
-                        razonSocial: tds[1].innerText.trim(),
-                        domicilio: tds[2].innerText.trim()
+                        IdClienteRazonSolcial: parseInt(tds[0].innerText.trim()),
+                        RFC: tds[1].innerText.trim(),
+                        RazonSocial: inputRs ? inputRs.value.trim() : "",
+                        Domicilio: inputDom ? inputDom.value.trim() : "",
+                        Observaciones: inputObs ? inputObs.value.trim() : ""
                     });
                 }
             });
 
             let payload = {
-                idCliente: parseInt(cliId.value),
-                nombre: cliNombre.value,
-                direccion: cliDireccion.value,
-                observaciones: cliObs.value,
-                tarifa: parseFloat(cliTarifa.value) || 0,
-                idTipo: 0,
+                IdCliente: parseInt(cliId.value),
+                Nombre: cliNombre.value,
+                Direccion: cliDireccion.value,
+                Observaciones: cliObs.value,
+                Tarifa: parseFloat(cliTarifa.value) || 0,
+                TarifaGanancia: parseFloat(cliTarifaGananacia.value) || 0,
+                IdTipo: parseInt(cliIdTipo.value),
                 ClienteContactos: contactos,
                 ClienteRazonSolcials: razones
             };
 
-
+            console.log(payload);
             const res = await fetch('/Cliente/GuardarClienteCompleto', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload)
             });
 
-            console.log(res);
             if (!res.ok) {
                 let serverMsg = "Error desconocido al guardar el cliente.";
 
@@ -312,46 +338,26 @@
                     serverMsg = await res.text() || serverMsg;
                 } catch {
                 }
-
                 throw new Error(serverMsg);
             }
 
             const data = await res.json();
-            console.log(data);
             if (!data.ok) {
+
                 throw new Error(data.message || "No se pudo guardar el cliente.");
             }
 
-            $("#modalCliente").modal("hide");
+            showToast("Correcto", "Cliente guardado correctamente", "success");
 
-
-            if (data.rowHtml) {
-                $("#tblClientes tbody").prepend(data.rowHtml);
-            }
+            location.href = '@Url.Action("Index", "Cliente")'
 
         } catch (err) {
-            mostrarErrorCliente(err.message);
+            showToast("Error inesperado", err.message, "error");
+
         }
 
         btn.disabled = false;
         btn.innerHTML = `<i class="fas fa-save"></i> Guardar`;
     }
-
-    function mostrarErrorCliente(mensaje) {
-        const div = document.getElementById("errorCliente");
-
-        if (div) {
-            div.innerHTML = `
-            <div class="alert alert-danger">
-                <i class="fas fa-circle-exclamation"></i> ${mensaje}
-            </div>`;
-            div.style.display = "block";
-        } else {
-            alert(mensaje); // fallback
-        }
-    }
-
-    function cancelarCliente() {
-        $("#modalCliente").modal("hide");
-    }
 </script>
+

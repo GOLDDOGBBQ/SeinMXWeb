@@ -13,9 +13,6 @@ public class ClienteBuscadorViewModel
     public int? IdCliente { get; set; }
     [Display(Name = "Tipo")]
     public int? IdTipo { get; set; }
-
-
-
     public string? Nombre { get; set; }
     public string? Codigo { get; set; }
 
@@ -26,13 +23,12 @@ public class ClienteBuscadorViewModel
     {
         return CombosFijos.GetComboTipoCliente(IdTipo, true);
     }
-
 }
 
 
 public class ClienteViewModel
     {
-        public int IdCliente { get; set; }
+        public int? IdCliente { get; set; }
 
         [Required(ErrorMessage = "El nombre es obligatorio")]
         [StringLength(250, ErrorMessage = "El nombre no puede exceder 250 caracteres")]
@@ -42,12 +38,12 @@ public class ClienteViewModel
         [DataType(DataType.MultilineText)]
         [StringLength(600, ErrorMessage = "La dirección no puede exceder 600 caracteres")]
         [Display(Name = "Dirección")]
-        public string Direccion { get; set; } = string.Empty;
+        public string? Direccion { get; set; } = string.Empty;
 
         [StringLength(600, ErrorMessage = "Las observaciones no pueden exceder 600 caracteres")]
         [DataType(DataType.MultilineText)]
         [Display(Name = "Observaciones")]
-        public string Observaciones { get; set; } = string.Empty;
+        public string? Observaciones { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La tarifa es obligatoria")]
         [Range(0, double.MaxValue, ErrorMessage = "La tarifa debe ser mayor o igual a 0")]
@@ -63,9 +59,9 @@ public class ClienteViewModel
         [Display(Name = "Tarifa de Ganancia")]
         public decimal TarifaGanancia { get; set; }
 
-        public virtual ICollection<ClienteContacto> ClienteContactos { get; set; } = new List<ClienteContacto>();
+        public virtual ICollection<ClienteContactoViewModel> ClienteContactos { get; set; } = new List<ClienteContactoViewModel>();
 
-        public virtual ICollection<ClienteRazonSolcial> ClienteRazonSolcials { get; set; } = new List<ClienteRazonSolcial>();
+        public virtual ICollection<ClienteRazonSolcialViewModel> ClienteRazonSolcials { get; set; } = new List<ClienteRazonSolcialViewModel>();
 
 
         public List<SelectListItem> GetComboTipoCliente()
@@ -74,3 +70,23 @@ public class ClienteViewModel
         }
 
     }
+
+public class ClienteContactoViewModel
+{
+    [Display(Name = "# Contacto")]
+    public int? IdClienteContacto { get; set; }
+    public string Nombre { get; set; }
+    public string? Telefono { get; set; }
+    public string? Correo { get; set; }
+}
+
+public class ClienteRazonSolcialViewModel
+{
+    [Display(Name = "# Razon Social")]
+    public int? IdClienteRazonSolcial { get; set; }
+    public string RFC { get; set; }
+    public string RazonSocial { get; set; }
+    public string? Domicilio { get; set; }
+    public bool? EsPublicoGeneral { get; set; }
+    public string? Observaciones { get; set; }
+}
