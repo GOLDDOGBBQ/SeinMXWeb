@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SEINMX.Clases;
 using SEINMX.Context;
@@ -21,9 +22,16 @@ public class ClienteController : ApplicationController
     // =====================================================
     public async Task<IActionResult> Index(ClienteBuscadorViewModel model)
     {
-        var query = _db.Clientes
+        var query = _db.VsClientes
             .Where(x => !x.Eliminado)
             .AsQueryable();
+
+
+        if (!GetIsAdmin())
+        {
+            var usr = GetUserId();
+            query = query.Where(x => x.UsrReg == usr);
+        }
 
 
         if (model.IdCliente != null)
@@ -34,10 +42,6 @@ public class ClienteController : ApplicationController
         {
             if (!string.IsNullOrWhiteSpace(model.Nombre))
                 query = query.Where(x => x.Nombre.Contains(model.Nombre));
-
-
-            if ((model.IdTipo ?? 0) > 0)
-                query = query.Where(x => x.IdTipo == model.IdTipo);
         }
 
         var lista = await query
@@ -46,6 +50,8 @@ public class ClienteController : ApplicationController
 
         model.Clientes = lista;
 
+        ViewBag.Perfiles = await ObtenerPerfilesAsync(true);
+
         return View(model);
     }
 
@@ -53,6 +59,8 @@ public class ClienteController : ApplicationController
     public async Task<IActionResult> Crear()
     {
         var model = new ClienteViewModel(); // modelo vacío
+
+        ViewBag.Perfiles = await ObtenerPerfilesAsync();
         return View("Editar", model);
     }
 
@@ -75,38 +83,48 @@ public class ClienteController : ApplicationController
             Nombre = cliente.Nombre,
             Direccion = cliente.Direccion,
             Observaciones = cliente.Observaciones,
-            Tarifa = cliente.Tarifa,
-            IdTipo = cliente.IdTipo,
-            TarifaGanancia = cliente.TarifaGanancia,
+            IdPerfil = cliente.IdPerfil,
             ClienteContactos = cliente.ClienteContactos.Select(m => new ClienteContactoViewModel
-                { IdClienteContacto = m.IdClienteContacto, Nombre = m.Nombre, Telefono = m.Telefono , Correo = m.Correo}).ToList(),
+            {
+                IdClienteContacto = m.IdClienteContacto, Nombre = m.Nombre, Telefono = m.Telefono, Correo = m.Correo
+            }).ToList(),
             ClienteRazonSolcials = cliente.ClienteRazonSolcials.Select(m => new ClienteRazonSolcialViewModel
-                { IdClienteRazonSolcial = m.IdClienteRazonSolcial, RFC = m.Rfc, RazonSocial = m.RazonSocial, Domicilio = m.Domicilio, EsPublicoGeneral = m.EsPublicoGeneral , Observaciones = m.Observaciones  }).ToList()
+            {
+                IdClienteRazonSolcial = m.IdClienteRazonSolcial, RFC = m.Rfc, RazonSocial = m.RazonSocial,
+                Domicilio = m.Domicilio, CodigoPostal = m.CodigoPostal, EsPublicoGeneral = m.EsPublicoGeneral, Observaciones = m.Observaciones
+            }).ToList()
         };
+
+        ViewBag.Perfiles = await ObtenerPerfilesAsync();
 
         return View("Editar", model);
     }
 
-
     // =====================================================
-// GUARDAR CLIENTE COMPLETO (Cliente + Contactos + Razones)
-// =====================================================
+    // GUARDAR CLIENTE COMPLETO (Cliente + Contactos + Razones)
+    // =====================================================
     [HttpPost]
-    public async Task<IActionResult> GuardarClienteCompleto([FromBody] ClienteViewModel model)
+    public async Task<IActionResult> GuardarCompleto([FromBody] ClienteViewModel? model)
     {
-        if (model == null)
+        if (model is null)
             return BadRequest("Modelo nulo");
 
-        /*if (!ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
+            var errores = ModelState
+                .Where(x => x.Value?.Errors.Count > 0)
+                .SelectMany(x => x.Value?.Errors)
+                .Select(e => e.ErrorMessage)
+                .Distinct();
+
+            string mensajeError = string.Join(" | ", errores);
+
             return BadRequest(new
             {
                 ok = false,
-                error = "El formulario no es valido",
-
+                error = mensajeError,
             });
-        }*/
-
+        }
 
         try
         {
@@ -122,9 +140,7 @@ public class ClienteController : ApplicationController
                     Nombre = model.Nombre,
                     Direccion = model.Direccion ?? "",
                     Observaciones = model.Observaciones ?? "",
-                    Tarifa = model.Tarifa,
-                    TarifaGanancia = model.TarifaGanancia,
-                    IdTipo = model.IdTipo,
+                    IdPerfil = model.IdPerfil,
                     FchReg = DateTime.Now,
                     CreadoPor = GetApiName(),
                     UsrReg = GetUserId()
@@ -141,15 +157,12 @@ public class ClienteController : ApplicationController
                 entity = await _db.Clientes
                     .Include(c => c.ClienteContactos)
                     .Include(c => c.ClienteRazonSolcials)
-                    .FirstOrDefaultAsync(c => c.IdCliente == model.IdCliente);
-
-                if (entity == null) return NotFound();
+                    .FirstOrDefaultAsync(c => c.IdCliente == model.IdCliente) ?? throw new InvalidOperationException();
 
                 entity.Nombre = model.Nombre;
                 entity.Direccion = model.Direccion ?? "";
                 entity.Observaciones = model.Observaciones ?? "";
-                entity.Tarifa = model.Tarifa;
-                entity.IdTipo = model.IdTipo;
+                entity.IdPerfil = model.IdPerfil;
                 entity.ModificadoPor = GetApiName();
                 entity.UsrAct = GetUserId();
                 entity.FchAct = DateTime.Now;
@@ -171,7 +184,6 @@ public class ClienteController : ApplicationController
                     item.UsrAct = GetUserId();
                     item.FchAct = DateTime.Now;
                 }
-
             }
 
             // AGREGAR / ACTUALIZAR CONTACTOS
@@ -239,8 +251,9 @@ public class ClienteController : ApplicationController
                     {
                         IdCliente = entity.IdCliente,
                         Rfc = r.RFC,
-                        RazonSocial = r.RazonSocial,
+                        RazonSocial = r.RazonSocial.ToUpper(),
                         Domicilio = r.Domicilio ?? "",
+                        CodigoPostal = r.CodigoPostal ?? "",
                         EsPublicoGeneral = r.EsPublicoGeneral ?? false,
                         Observaciones = r.Observaciones ?? "",
                         FchReg = DateTime.Now,
@@ -258,8 +271,9 @@ public class ClienteController : ApplicationController
 
                     if (rz != null)
                     {
-                        rz.RazonSocial = r.RazonSocial;
+                        rz.RazonSocial = r.RazonSocial.ToUpper();
                         rz.Domicilio = r.Domicilio ?? "";
+                        rz.CodigoPostal = r.CodigoPostal ?? "";
                         rz.EsPublicoGeneral = r.EsPublicoGeneral ?? false;
                         rz.Observaciones = r.Observaciones ?? "";
 
@@ -282,8 +296,7 @@ public class ClienteController : ApplicationController
                 {
                     idCliente = entity.IdCliente,
                     nombre = entity.Nombre,
-                    tarifa = entity.Tarifa,
-                    idTipo = entity.IdTipo
+                    idPerfil = entity.IdPerfil
                 }
             });
         }
@@ -298,86 +311,13 @@ public class ClienteController : ApplicationController
         }
     }
 
-    // =====================================================
-    // GUARDAR CLIENTE
-    // =====================================================
-    [HttpPost]
-    public async Task<IActionResult> GuardarCliente([FromBody] Cliente model)
-    {
-        if (model.IdCliente == 0)
-        {
-            model.FchReg = DateTime.Now;
-            model.CreadoPor = GetApiName();
-            model.UsrReg = GetUserId();
-            _db.Clientes.Add(model);
-        }
-        else
-        {
-            var item = await _db.Clientes.FindAsync(model.IdCliente);
-            if (item == null) return NotFound();
-
-            item.Nombre = model.Nombre;
-            item.Direccion = model.Direccion;
-            item.Observaciones = model.Observaciones;
-            item.Tarifa = model.Tarifa;
-            item.IdTipo = model.IdTipo;
-            item.ModificadoPor = GetApiName();
-            item.FchAct = DateTime.Now;
-            item.UsrAct = GetUserId();
-        }
-
-        await _db.SaveChangesAsync();
-        return Ok(new
-        {
-            ok = true,
-            cliente = new
-            {
-                idCliente = model.IdCliente,
-                nombre = model.Nombre,
-                tarifa = model.Tarifa,
-                idTipo = model.IdTipo
-            }
-        });
-    }
-
-    // =====================================================
-    // CONTACTOS
-    // =====================================================
-    [HttpPost]
-    public async Task<IActionResult> GuardarContacto([FromBody] ClienteContacto model)
-    {
-        if (model.IdClienteContacto == 0)
-        {
-            model.FchReg = DateTime.Now;
-            model.CreadoPor = GetApiName();
-            model.UsrReg = GetUserId();
-            _db.ClienteContactos.Add(model);
-        }
-        else
-        {
-            var item = await _db.ClienteContactos.FindAsync(model.IdClienteContacto);
-            if (item == null) return NotFound();
-
-            item.Nombre = model.Nombre;
-            item.Telefono = model.Telefono;
-            item.Correo = model.Correo;
-            item.ModificadoPor = GetApiName();
-            item.FchAct = DateTime.Now;
-            item.UsrAct = GetUserId();
-        }
-
-        await _db.SaveChangesAsync();
-        return Ok(new { ok = true });
-    }
-
-
     [HttpDelete]
     public async Task<IActionResult> Eliminar(int id)
     {
         try
         {
             var item = await _db.Clientes.FindAsync(id);
-            if (item == null) return Json(new { ok = false, mensaje = "Cliente no encontrado" });
+            if (item == null) return Json(new { ok = false, error = "Cliente no encontrado" });
 
             item.Eliminado = true;
             item.ModificadoPor = GetApiName();
@@ -388,68 +328,10 @@ public class ClienteController : ApplicationController
         }
         catch (Exception ex)
         {
-            return Json(new { ok = false, mensaje = ex.Message });
+            return Json(new { ok = false, error = ex.Message });
         }
     }
 
-
-    [HttpDelete]
-    public async Task<IActionResult> BorrarContacto(int id)
-    {
-        var item = await _db.ClienteContactos.FindAsync(id);
-        if (item == null) return NotFound();
-
-        item.Eliminado = true;
-        item.ModificadoPor = GetApiName();
-        item.UsrAct = GetUserId();
-        await _db.SaveChangesAsync();
-        return Ok();
-    }
-
-    // =====================================================
-    // RAZONES SOCIALES
-    // =====================================================
-    [HttpPost]
-    public async Task<IActionResult> GuardarRazon([FromBody] ClienteRazonSolcial model)
-    {
-        if (model.IdClienteRazonSolcial == 0)
-        {
-            model.FchReg = DateTime.Now;
-            model.CreadoPor = GetApiName();
-            model.UsrReg = GetUserId();
-            _db.ClienteRazonSolcials.Add(model);
-        }
-        else
-        {
-            var item = await _db.ClienteRazonSolcials.FindAsync(model.IdClienteRazonSolcial);
-            if (item == null) return NotFound();
-
-            item.Rfc = model.Rfc;
-            item.RazonSocial = model.RazonSocial;
-            item.EsPublicoGeneral = model.EsPublicoGeneral;
-            item.Domicilio = model.Domicilio;
-            item.Observaciones = model.Observaciones;
-            item.ModificadoPor = GetApiName();
-            item.FchAct = DateTime.Now;
-            item.UsrAct = GetUserId();
-        }
-
-        await _db.SaveChangesAsync();
-        return Ok(new { ok = true });
-    }
-
-    [HttpDelete]
-    public async Task<IActionResult> BorrarRazon(int id)
-    {
-        var item = await _db.ClienteRazonSolcials.FindAsync(id);
-        if (item == null) return NotFound();
-
-        item.Eliminado = true;
-        item.ModificadoPor = GetApiName();
-        item.UsrAct = GetUserId();
-        await _db.SaveChangesAsync();
-        return Ok();
-    }
 
     public async Task<JsonResult> DropdownClientes(int page = 0, int pageSize = 30, int? id = null, string search = "")
     {
@@ -520,10 +402,9 @@ public class ClienteController : ApplicationController
     {
         var lista = _db.ClienteRazonSolcials.Where(x => x.Eliminado == false);
 
-
         if (!string.IsNullOrWhiteSpace(search))
         {
-            lista.Where(x => x.RazonSocial.Contains(search));
+            lista = lista.Where(x => x.RazonSocial.Contains(search));
         }
 
         if (id.HasValue)
@@ -548,5 +429,23 @@ public class ClienteController : ApplicationController
             moreToLoad = remaining > 0,
             data
         });
+    }
+
+    private async Task<List<SelectListItem>> ObtenerPerfilesAsync(bool isFilter = false)
+    {
+        var lista = await _db.Perfils
+            .Where(p => p.Eliminado == false)
+            .Select(u => new SelectListItem
+            {
+                Value = u.IdPerfil.ToString(),
+                Text = u.Perfil1
+            })
+            .OrderBy(u => u.Text)
+            .ToListAsync();
+
+        if (isFilter)
+            lista.Insert(0, new SelectListItem("Todos", "0"));
+
+        return lista;
     }
 }

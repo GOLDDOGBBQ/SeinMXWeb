@@ -41,6 +41,10 @@ public partial class Cotizacion
 
     public string? UsrAct { get; set; }
 
+    public bool EsIncluirEnvio { get; set; }
+
+    public int? IdPerfil { get; set; }
+
     public virtual ICollection<CotizacionDetalle> CotizacionDetalles { get; set; } = new List<CotizacionDetalle>();
 
     public virtual ClienteContacto? IdClienteContactoNavigation { get; set; }
@@ -48,6 +52,8 @@ public partial class Cotizacion
     public virtual Cliente IdClienteNavigation { get; set; } = null!;
 
     public virtual ClienteRazonSolcial? IdClienteRazonSolcialNavigation { get; set; }
+
+    public virtual Perfil? IdPerfilNavigation { get; set; }
 
     public virtual Usuario? UsuarioResponsableNavigation { get; set; }
 }

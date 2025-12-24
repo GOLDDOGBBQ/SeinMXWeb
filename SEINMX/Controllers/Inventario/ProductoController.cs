@@ -112,7 +112,6 @@ public class ProductoController : ApplicationController
                     Observaciones = model.Observaciones ?? "",
                     ClaveUnidadSat = model.ClaveUnidadSAT ?? "",
                     PrecioLista = model.PrecioLista,
-                    Existencia = 0,
                     Eliminado = false,
 
                     FchReg = DateTime.Now,

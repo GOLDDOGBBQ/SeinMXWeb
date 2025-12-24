@@ -1,9 +1,9 @@
 ﻿
-@model SEINMX.Models.Directorio.ClienteBuscadorViewModel
+@model SEINMX.Models.Directorio.ProveedorBuscadorViewModel
 
 
 @{
-    ViewData["Title"] = "Clientes";
+    ViewData["Title"] = "Proveedores";
 
     var labelAtt = new
     {
@@ -24,7 +24,7 @@
     <div class="card shadow-sm">
         <div class="card-header bg-secondary text-white">
             <h3 class="card-title">
-                <i class="fas fa-users"></i> Lista de Clientes
+                <i class="fas fa-users"></i> Lista de Proveedores
             </h3>
         </div>
 
@@ -34,29 +34,14 @@
             <form method="get" class="row g-3">
 
                 <div class="col-md-3 mt-2">
-                    @Html.LabelFor(model => model.IdCliente, labelAtt)
-                    @Html.EditorFor(model => model.IdCliente, buscadorAtt)
+                    @Html.LabelFor(model => model.IdProveedor, labelAtt)
+                    @Html.EditorFor(model => model.IdProveedor, buscadorAtt)
                 </div>
 
                 <div class="col-md-4 mt-2">
                     @Html.LabelFor(model => model.Nombre, labelAtt)
                     @Html.EditorFor(model => model.Nombre, buscadorAtt)
                 </div>
-
-
-                <!-- FILTRO DE IDTIPO -->
-                <div class="col-md-2 mt-2">
-
-
-                    @Html.LabelFor(model => model.IdPerfil, labelAtt)
-                    @Html.DropDownListFor(
-                        m => m.IdPerfil,
-                        (List<SelectListItem>)ViewBag.Perfiles,
-                        new { @class = "form-select", id = "IdPerfil", name = "IdPerfil" }
-                    )
-
-                </div>
-
 
                 <!-- BOTÓN DE BÚSQUEDA -->
                 <div class="col-md-2 d-flex align-items-end">
@@ -69,12 +54,12 @@
             <hr/>
 
 
-            <!-- BOTÓN AGREGAR CLIENTE -->
+            <!-- BOTÓN AGREGAR Proveedor -->
             <div class="mb-3">
                 <button class="btn btn-primary"
-                        onclick="location.href='@Url.Action("Crear", "Cliente")'">
+                        onclick="location.href='@Url.Action("Crear", "Proveedor")'">
 
-                    <i class="fas fa-user-plus"></i> Agregar Cliente
+                    <i class="fas fa-user-plus"></i> Agregar Proveedor
                 </button>
             </div>
 
@@ -84,30 +69,34 @@
                     <thead class="table-dark">
                     <tr>
 
-                        <th><i class="fas fa-passport"></i> # Cliente</th>
+                        <th><i class="fas fa-passport"></i> # Proveedor</th>
                         <th><i class="fas fa-id-card"></i> Nombre</th>
-                        <th><i class="fas fa-tag"></i> Perfil</th>
+                        <th><i class="fas fa-tag"></i> Tarifa</th>
+                        <th><i class="fas fa-tag"></i> Ganancia</th>
                         <th><i class="fas fa-gear"></i> Opciones</th>
                     </tr>
                     </thead>
                     <tbody>
                     @* Aquí iteras los datos que envíes desde el controlador *@
-                    @foreach (var item in Model.Clientes)
+                    @foreach (var item in Model.Proveedors)
                     {
-                        <tr id="row-@item.IdCliente">
+                        <tr id="row-@item.IdProveedor">
 
-                            <td>@item.IdCliente</td>
+                            <td>@item.IdProveedor</td>
                             <td>@item.Nombre</td>
                             <td>
-                                @item.Perfil
+                                @item.Tarifa
+                            </td>
+                            <td>
+                                @item.TarifaGanancia
                             </td>
                             <td>
                                 <button class="btn btn-sm btn-primary"
-                                        onclick="location.href='@Url.Action("Editar", "Cliente", new { id = item.IdCliente })'">
+                                        onclick="location.href='@Url.Action("Editar", "Proveedor", new { id = item.IdProveedor })'">
                                     <i class="fas fa-pen-to-square"></i>
                                 </button>
 
-                                <button class="btn btn-sm btn-danger" onclick="eliminarCliente(@item.IdCliente, this)">
+                                <button class="btn btn-sm btn-danger" onclick="eliminarProveedor(@item.IdProveedor, this)">
                                     <i class="fas fa-trash"></i>
                                 </button>
 
@@ -124,8 +113,10 @@
 </div>
 
 
+
+
 <script>
-    function eliminarCliente(id, btn) {
+    function eliminarProveedor(id, btn) {
 
         // Cambiar icono a cargando
         let originalHtml = btn.innerHTML;
@@ -139,12 +130,12 @@
         }
 
         $.ajax({
-            url: `/Cliente/Eliminar/${id}`,
+            url: `/Proveedor/Eliminar/${id}`,
             type: "DELETE",
             success: function (resp) {
                 try {
                     if (!resp.ok) {
-                        let serverMsg = "Error desconocido al eliminar el Cliente.";
+                        let serverMsg = "Error desconocido al eliminar el Proveedor.";
                         try {
                             serverMsg = resp.error || serverText;
 
@@ -153,7 +144,7 @@
                         throw new Error(serverMsg);
                     }
 
-                    showToast("Correcto", "Cliente Eliminado", "success");
+                    showToast("Correcto", "Proveedor Eliminado", "success");
 
                     $(`#row-${id}`).fadeOut(300, function () {
                         $(this).remove();
@@ -163,10 +154,9 @@
                     btn.disabled = false;
                     showToast("Error al eliminar", err, "error");
                 }
-
             },
             error: function (xhr) {
-                showToast("Error inesperado", xhr.status + " - " + xhr.statusText, "error");
+                showToast("Error inesperado",  xhr.status + " - " + xhr.statusText, "error");
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;
             }

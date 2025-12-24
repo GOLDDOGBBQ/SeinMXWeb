@@ -12,6 +12,7 @@ public class ApplicationController  : Controller
 {
     private string  ApiName ;
     private string UserId ;
+    private bool Admin ;
 
 
     public string GetApiName()
@@ -23,12 +24,18 @@ public class ApplicationController  : Controller
         return UserId;
     }
 
+    public bool GetIsAdmin()
+    {
+        return Admin;
+    }
+
 
     public override void OnActionExecuting(ActionExecutingContext context)
     {
         base.OnActionExecuting(context);
 
         string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        string? sAdmion = User.FindFirstValue("Admin");
 
         var serviceProvider = context.HttpContext.RequestServices;
 
@@ -39,6 +46,11 @@ public class ApplicationController  : Controller
 
         ApiName =    controller + "." + actionName;
         UserId = userId;
+
+        if (!bool.TryParse(sAdmion, out Admin))
+        {
+            Admin = false;
+        }
 
     }
 

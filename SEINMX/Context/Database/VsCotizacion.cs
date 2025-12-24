@@ -23,6 +23,12 @@ public partial class VsCotizacion
 
     public int? IdClienteRazonSolcial { get; set; }
 
+    public int? IdPerfil { get; set; }
+
+    public string? Perfil { get; set; }
+
+    public string? Identificador { get; set; }
+
     public decimal Tarifa { get; set; }
 
     public decimal TipoCambio { get; set; }
@@ -46,6 +52,8 @@ public partial class VsCotizacion
     public string? RazonSocial { get; set; }
 
     public decimal? SubTotal { get; set; }
+
+    public decimal? FactorDescuento { get; set; }
 
     public decimal? FactorIva { get; set; }
 

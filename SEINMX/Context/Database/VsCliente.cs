@@ -3,11 +3,15 @@ using System.Collections.Generic;
 
 namespace SEINMX.Context.Database;
 
-public partial class Cliente
+public partial class VsCliente
 {
     public int IdCliente { get; set; }
 
     public string Nombre { get; set; } = null!;
+
+    public bool Eliminado { get; set; }
+
+    public int IdPerfil { get; set; }
 
     public string Direccion { get; set; } = null!;
 
@@ -25,15 +29,9 @@ public partial class Cliente
 
     public string? UsrAct { get; set; }
 
-    public bool Eliminado { get; set; }
+    public string? Perfil { get; set; }
 
-    public int IdPerfil { get; set; }
+    public decimal? Tarifa { get; set; }
 
-    public virtual ICollection<ClienteContacto> ClienteContactos { get; set; } = new List<ClienteContacto>();
-
-    public virtual ICollection<ClienteRazonSolcial> ClienteRazonSolcials { get; set; } = new List<ClienteRazonSolcial>();
-
-    public virtual ICollection<Cotizacion> Cotizacions { get; set; } = new List<Cotizacion>();
-
-    public virtual Perfil IdPerfilNavigation { get; set; } = null!;
+    public string? Identificador { get; set; }
 }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using SEINMX.Context.Database;
 using SEINMX.Models.Inventario;
 
 namespace SEINMX.Models.Directorio;
@@ -11,18 +10,14 @@ public class ClienteBuscadorViewModel
 {
     [Display(Name = "# Cliente")]
     public int? IdCliente { get; set; }
-    [Display(Name = "Tipo")]
-    public int? IdTipo { get; set; }
+    [Display(Name = "Perfil")]
+    public int? IdPerfil { get; set; }
     public string? Nombre { get; set; }
     public string? Codigo { get; set; }
 
 
-    public IEnumerable<SEINMX.Context.Database.Cliente> Clientes { get; set; }
+    public IEnumerable<Context.Database.VsCliente> Clientes { get; set; }
 
-    public List<SelectListItem> GetComboTipoCliente()
-    {
-        return CombosFijos.GetComboTipoCliente(IdTipo, true);
-    }
 }
 
 
@@ -31,7 +26,7 @@ public class ClienteViewModel
         public int? IdCliente { get; set; }
 
         [Required(ErrorMessage = "El nombre es obligatorio")]
-        [StringLength(250, ErrorMessage = "El nombre no puede exceder 250 caracteres")]
+        [StringLength(250, MinimumLength = 1, ErrorMessage = "El nombre no puede exceder 250 caracteres ni estar vacio")]
         [Display(Name = "Nombre")]
         public string Nombre { get; set; } = string.Empty;
 
@@ -45,29 +40,15 @@ public class ClienteViewModel
         [Display(Name = "Observaciones")]
         public string? Observaciones { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "La tarifa es obligatoria")]
-        [Range(0, double.MaxValue, ErrorMessage = "La tarifa debe ser mayor o igual a 0")]
-        [Display(Name = "Tarifa")]
-        public decimal Tarifa { get; set; }
-
-        [Required(ErrorMessage = "El tipo de cliente es obligatorio")]
-        [Range(1, 2, ErrorMessage = "Seleccione un tipo válido")]
-        [Display(Name = "Tipo de Cliente")]
-        public int IdTipo { get; set; }
-
-        [Range(0, double.MaxValue, ErrorMessage = "La tarifa de ganancia debe ser mayor o igual a 0")]
-        [Display(Name = "Tarifa de Ganancia")]
-        public decimal TarifaGanancia { get; set; }
+        [Required(ErrorMessage = "El Perfil de cliente es obligatorio")]
+        [Display(Name = "Perfil del Cliente")]
+        public int IdPerfil { get; set; }
 
         public virtual ICollection<ClienteContactoViewModel> ClienteContactos { get; set; } = new List<ClienteContactoViewModel>();
 
         public virtual ICollection<ClienteRazonSolcialViewModel> ClienteRazonSolcials { get; set; } = new List<ClienteRazonSolcialViewModel>();
 
 
-        public List<SelectListItem> GetComboTipoCliente()
-        {
-            return CombosFijos.GetComboTipoCliente(IdTipo, false);
-        }
 
     }
 
@@ -87,6 +68,7 @@ public class ClienteRazonSolcialViewModel
     public string RFC { get; set; }
     public string RazonSocial { get; set; }
     public string? Domicilio { get; set; }
+    public string? CodigoPostal { get; set; }
     public bool? EsPublicoGeneral { get; set; }
     public string? Observaciones { get; set; }
 }

@@ -17,8 +17,6 @@ public partial class Producto
 
     public decimal PrecioLista { get; set; }
 
-    public decimal Existencia { get; set; }
-
     public string ClaveUnidadSat { get; set; } = null!;
 
     public string Observaciones { get; set; } = null!;
@@ -39,5 +37,5 @@ public partial class Producto
 
     public virtual ICollection<CotizacionDetalle> CotizacionDetalles { get; set; } = new List<CotizacionDetalle>();
 
-    public virtual Cliente IdProveedorNavigation { get; set; } = null!;
+    public virtual Proveedor IdProveedorNavigation { get; set; } = null!;
 }

@@ -24,9 +24,17 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<CotizacionDetalle> CotizacionDetalles { get; set; }
 
+    public virtual DbSet<Perfil> Perfils { get; set; }
+
     public virtual DbSet<Producto> Productos { get; set; }
 
+    public virtual DbSet<ProductosImport> ProductosImports { get; set; }
+
+    public virtual DbSet<Proveedor> Proveedors { get; set; }
+
     public virtual DbSet<Usuario> Usuarios { get; set; }
+
+    public virtual DbSet<VsCliente> VsClientes { get; set; }
 
     public virtual DbSet<VsCotizacion> VsCotizacions { get; set; }
 
@@ -89,10 +97,13 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Observaciones)
                 .HasMaxLength(600)
                 .HasDefaultValue("");
-            entity.Property(e => e.Tarifa).HasColumnType("numeric(18, 4)");
-            entity.Property(e => e.TarifaGanancia).HasColumnType("numeric(18, 4)");
             entity.Property(e => e.UsrAct).HasMaxLength(50);
             entity.Property(e => e.UsrReg).HasMaxLength(50);
+
+            entity.HasOne(d => d.IdPerfilNavigation).WithMany(p => p.Clientes)
+                .HasForeignKey(d => d.IdPerfil)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Cliente__IdClien__5D95E53A");
         });
 
         modelBuilder.Entity<ClienteContacto>(entity =>
@@ -129,6 +140,9 @@ public partial class AppDbContext : DbContext
 
             entity.ToTable("ClienteRazonSolcial", "DRO");
 
+            entity.Property(e => e.CodigoPostal)
+                .HasMaxLength(50)
+                .HasDefaultValue("");
             entity.Property(e => e.CreadoPor).HasMaxLength(100);
             entity.Property(e => e.Domicilio)
                 .IsUnicode(false)
@@ -193,6 +207,10 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.IdClienteRazonSolcial)
                 .HasConstraintName("FK__Cotizacio__IdCli__31B762FC");
 
+            entity.HasOne(d => d.IdPerfilNavigation).WithMany(p => p.Cotizacions)
+                .HasForeignKey(d => d.IdPerfil)
+                .HasConstraintName("FK__Cotizacio__IdPer__607251E5");
+
             entity.HasOne(d => d.UsuarioResponsableNavigation).WithMany(p => p.Cotizacions)
                 .HasPrincipalKey(p => p.Usuario1)
                 .HasForeignKey(d => d.UsuarioResponsable)
@@ -237,6 +255,25 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK__Cotizacio__IdPro__3A4CA8FD");
         });
 
+        modelBuilder.Entity<Perfil>(entity =>
+        {
+            entity.HasKey(e => e.IdPerfil).HasName("PK__ClienteP__E77B83756ED191C2");
+
+            entity.ToTable("Perfil", "DRO");
+
+            entity.Property(e => e.CreadoPor).HasMaxLength(100);
+            entity.Property(e => e.FchAct).HasColumnType("datetime");
+            entity.Property(e => e.FchReg).HasColumnType("datetime");
+            entity.Property(e => e.Identificador).HasMaxLength(50);
+            entity.Property(e => e.ModificadoPor).HasMaxLength(100);
+            entity.Property(e => e.Perfil1)
+                .HasMaxLength(100)
+                .HasColumnName("Perfil");
+            entity.Property(e => e.Tarifa).HasColumnType("numeric(18, 4)");
+            entity.Property(e => e.UsrAct).HasMaxLength(50);
+            entity.Property(e => e.UsrReg).HasMaxLength(50);
+        });
+
         modelBuilder.Entity<Producto>(entity =>
         {
             entity.HasKey(e => e.IdProducto).HasName("PK__Producto__098892101B14BE63");
@@ -250,7 +287,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Codigo).HasMaxLength(50);
             entity.Property(e => e.CreadoPor).HasMaxLength(100);
             entity.Property(e => e.Descripcion).HasMaxLength(500);
-            entity.Property(e => e.Existencia).HasColumnType("decimal(18, 4)");
             entity.Property(e => e.FchAct).HasColumnType("datetime");
             entity.Property(e => e.FchReg).HasColumnType("datetime");
             entity.Property(e => e.ModificadoPor).HasMaxLength(100);
@@ -264,7 +300,52 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.IdProveedorNavigation).WithMany(p => p.Productos)
                 .HasForeignKey(d => d.IdProveedor)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Producto__IdProv__17F790F9");
+                .HasConstraintName("Producto___fkIdProveedor");
+        });
+
+        modelBuilder.Entity<ProductosImport>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("ProductosImport", "INV");
+
+            entity.Property(e => e.Descripción)
+                .HasMaxLength(500)
+                .HasColumnName("DESCRIPCIÓN");
+            entity.Property(e => e.Item)
+                .HasMaxLength(200)
+                .HasColumnName("ITEM");
+            entity.Property(e => e.MonedaRaiz)
+                .HasMaxLength(50)
+                .HasColumnName("MONEDA RAIZ");
+            entity.Property(e => e.PrecioDeLista)
+                .HasColumnType("numeric(18, 4)")
+                .HasColumnName("PRECIO DE LISTA");
+        });
+
+        modelBuilder.Entity<Proveedor>(entity =>
+        {
+            entity.HasKey(e => e.IdProveedor).HasName("PK__Proveedo__E8B631AF02A17107");
+
+            entity.ToTable("Proveedor", "DRO");
+
+            entity.Property(e => e.CreadoPor).HasMaxLength(100);
+            entity.Property(e => e.Direccion)
+                .HasMaxLength(600)
+                .HasDefaultValue("");
+            entity.Property(e => e.FchAct).HasColumnType("datetime");
+            entity.Property(e => e.FchReg).HasColumnType("datetime");
+            entity.Property(e => e.ModificadoPor).HasMaxLength(100);
+            entity.Property(e => e.Nombre)
+                .HasMaxLength(250)
+                .HasDefaultValue("");
+            entity.Property(e => e.Observaciones)
+                .HasMaxLength(600)
+                .HasDefaultValue("");
+            entity.Property(e => e.Tarifa).HasColumnType("numeric(18, 4)");
+            entity.Property(e => e.TarifaGanancia).HasColumnType("numeric(18, 4)");
+            entity.Property(e => e.UsrAct).HasMaxLength(50);
+            entity.Property(e => e.UsrReg).HasMaxLength(50);
         });
 
         modelBuilder.Entity<Usuario>(entity =>
@@ -301,6 +382,26 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("Usuario");
         });
 
+        modelBuilder.Entity<VsCliente>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToView("vsCliente", "DRO");
+
+            entity.Property(e => e.CreadoPor).HasMaxLength(100);
+            entity.Property(e => e.Direccion).HasMaxLength(600);
+            entity.Property(e => e.FchAct).HasColumnType("datetime");
+            entity.Property(e => e.FchReg).HasColumnType("datetime");
+            entity.Property(e => e.Identificador).HasMaxLength(50);
+            entity.Property(e => e.ModificadoPor).HasMaxLength(100);
+            entity.Property(e => e.Nombre).HasMaxLength(250);
+            entity.Property(e => e.Observaciones).HasMaxLength(600);
+            entity.Property(e => e.Perfil).HasMaxLength(100);
+            entity.Property(e => e.Tarifa).HasColumnType("numeric(18, 4)");
+            entity.Property(e => e.UsrAct).HasMaxLength(50);
+            entity.Property(e => e.UsrReg).HasMaxLength(50);
+        });
+
         modelBuilder.Entity<VsCotizacion>(entity =>
         {
             entity
@@ -310,14 +411,17 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Cliente).HasMaxLength(250);
             entity.Property(e => e.Correo).HasMaxLength(250);
             entity.Property(e => e.Descuento).HasColumnType("numeric(18, 4)");
+            entity.Property(e => e.FactorDescuento).HasColumnType("numeric(22, 8)");
             entity.Property(e => e.FactorIva)
-                .HasColumnType("numeric(19, 4)")
+                .HasColumnType("numeric(22, 8)")
                 .HasColumnName("FactorIVA");
+            entity.Property(e => e.Identificador).HasMaxLength(50);
             entity.Property(e => e.Iva)
                 .HasColumnType("numeric(38, 6)")
                 .HasColumnName("IVA");
             entity.Property(e => e.NombreContacto).HasMaxLength(250);
             entity.Property(e => e.Observaciones).HasMaxLength(600);
+            entity.Property(e => e.Perfil).HasMaxLength(100);
             entity.Property(e => e.PorcentajeIva)
                 .HasColumnType("numeric(18, 4)")
                 .HasColumnName("PorcentajeIVA");
@@ -332,11 +436,11 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.StatusDesc)
                 .HasMaxLength(14)
                 .IsUnicode(false);
-            entity.Property(e => e.SubTotal).HasColumnType("numeric(38, 4)");
+            entity.Property(e => e.SubTotal).HasColumnType("numeric(38, 6)");
             entity.Property(e => e.Tarifa).HasColumnType("numeric(18, 4)");
             entity.Property(e => e.Telefono).HasMaxLength(250);
             entity.Property(e => e.TipoCambio).HasColumnType("numeric(18, 4)");
-            entity.Property(e => e.Total).HasColumnType("numeric(38, 4)");
+            entity.Property(e => e.Total).HasColumnType("numeric(38, 6)");
             entity.Property(e => e.UsuarioResponsable).HasMaxLength(25);
         });
 
