@@ -70,6 +70,7 @@ public class CotizacionController : ApplicationController
 
         var model = new CotizacionPdfModel(
             IdCotizacion: header.IdCotizacion,
+            Cotizacion: header.Cotizacion,
             Fecha: header.Fecha ?? DateOnly.FromDateTime(DateTime.Now),
             TipoCambio: header.TipoCambio,
             Tarifa: header.Tarifa,
@@ -83,6 +84,9 @@ public class CotizacionController : ApplicationController
             SubTotal: header.SubTotal,
             Iva: header.Iva,
             Total: header.Total,
+            DescuentoTotal: header.DescuentoTotal,
+
+            EsIncluirEnvio: header.EsIncluirEnvio,
             Detalles: detalles,
 
             // Campos para PDF
@@ -154,19 +158,43 @@ public class CotizacionController : ApplicationController
 
 
         return File(pdf, "application/pdf", $"Orden Compra - {model.IdCotizacion}.pdf");
-
     }
 
 
-
-    public async Task<IActionResult> Crear()
+    public IActionResult Nueva()
     {
+        return View();
+    }
+
+    public async Task<IActionResult> Crear(int? idCliente)
+    {
+        VsCliente? cliente;
+        if (idCliente is not null)
+        {
+            cliente = await _db.VsClientes.Where(m => m.IdCliente == idCliente).FirstOrDefaultAsync();
+        }
+        else
+        {
+            cliente = await _db.VsClientes.Where(m => m.IdCliente == 1).FirstOrDefaultAsync();
+        }
+
+        if (cliente is null)
+        {
+            return NotFound();
+        }
+
+
+        if (cliente.Tarifa is null)
+        {
+            return NotFound();
+        }
+
         var nueva = new Cotizacion
         {
             Fecha = DateOnly.FromDateTime(DateTime.Now),
             Status = 1, // CREADA
-            IdCliente = 1,
-            Tarifa = 20,
+            IdCliente = cliente.IdCliente,
+            Tarifa = (decimal)cliente.Tarifa,
             TipoCambio = 1,
             PorcentajeIva = 16,
             UsuarioResponsable = GetUserId(),
@@ -190,37 +218,53 @@ public class CotizacionController : ApplicationController
             return View("Editar", modelEmpy);
         }
 
-        var entity = await _db.VsCotizacions
-            .FirstOrDefaultAsync(x => x.IdCotizacion == id);
-
-        if (entity == null)
-            return NotFound();
-
-        var model = new CotizacionViewModel
-        {
-            IdCotizacion = entity.IdCotizacion,
-            Fecha = entity.Fecha,
-            TipoCambio = entity.TipoCambio,
-            Tarifa = entity.Tarifa,
-            PorcentajeIVA = entity.PorcentajeIva,
-            Descuento = entity.Descuento,
-            UsuarioResponsable = entity.UsuarioResponsable,
-            IdCliente = entity.IdCliente,
-            IdClienteContacto = entity.IdClienteContacto,
-            IdClienteRazonSolcial = entity.IdClienteRazonSolcial,
-            Status = entity.Status ?? 1,
-            Observaciones = entity.Observaciones,
-            SubTotal = entity.SubTotal,
-            Iva = entity.Iva,
-            Total = entity.Total,
-
-            // Agrega todos los campos adicionales que tenga tu modelo
-        };
-
+        var model = await buscarCotizacion(id);
 
         ViewBag.UsuariosResponsables = await ObtenerUsuariosResponsablesAsync();
 
         return View("Editar", model);
+    }
+
+    private async Task<CotizacionViewModel> buscarCotizacion(int? id, CotizacionViewModel? refresh = null)
+    {
+        var entity = await _db.VsCotizacions
+            .FirstOrDefaultAsync(x => x.IdCotizacion == id);
+
+        if (entity == null)
+            throw new Exception("Cotización no encontrada");
+
+        if (refresh is null)
+        {
+            var model = new CotizacionViewModel
+            {
+                Cotizacion = entity.Cotizacion,
+                IdCotizacion = entity.IdCotizacion,
+                Fecha = entity.Fecha,
+                TipoCambio = entity.TipoCambio,
+                Perfil = entity.Perfil,
+                PorcentajeIVA = entity.PorcentajeIva,
+                Descuento = entity.Descuento,
+                UsuarioResponsable = entity.UsuarioResponsable,
+                IdCliente = entity.IdCliente,
+                IdClienteContacto = entity.IdClienteContacto,
+                IdClienteRazonSolcial = entity.IdClienteRazonSolcial,
+                Status = entity.Status ?? 1,
+                Observaciones = entity.Observaciones,
+                EsIncluirEnvio = entity.EsIncluirEnvio,
+                SubTotal = entity.SubTotal,
+                Iva = entity.Iva,
+                Total = entity.Total,
+            };
+
+            return model;
+        }
+        else
+        {
+            refresh.SubTotal = entity.SubTotal;
+            refresh.Iva = entity.Iva;
+            refresh.Total = entity.Total;
+            return refresh;
+        }
     }
 
     private async Task<List<SelectListItem>> ObtenerUsuariosResponsablesAsync()
@@ -258,10 +302,12 @@ public class CotizacionController : ApplicationController
     {
         ViewBag.UsuariosResponsables = await ObtenerUsuariosResponsablesAsync();
 
+        model.Descuento ??= 0;
+
         if (!ModelState.IsValid)
         {
             TempData["toast-error"] = "Revise los campos marcados.";
-            return View("Editar", model);
+            return View("Editar", await buscarCotizacion(model.IdCotizacion, model));
         }
 
 
@@ -282,24 +328,26 @@ public class CotizacionController : ApplicationController
             if (result == null)
             {
                 TempData["toast-error"] = "No se recibió respuesta del servidor.";
-                return View("Editar", model);
+                ModelState.Clear();
+                return View("Editar", await buscarCotizacion(model.IdCotizacion, model));
             }
 
             // Si el SP reporta error
             if (result.IdError != 0)
             {
                 TempData["toast-error"] = result.MensajeError + " " + result.MensajeErrorDev;
-                return View("Editar", model);
+                ModelState.Clear();
+                return View("Editar", await buscarCotizacion(model.IdCotizacion, model));
             }
 
             TempData["toast-success"] = "Los datos fueron guardados correctamente.";
-
-            return View("Editar", model);
+            ModelState.Clear();
+            return View("Editar", await buscarCotizacion(result.IdCotizacion));
         }
         catch (Exception ex)
         {
             TempData["toast-error"] = "Error del servidor." + ex.Message;
-            return View("Editar", model);
+            return View("Editar", await buscarCotizacion(model.IdCotizacion, model));
         }
     }
 
@@ -311,8 +359,7 @@ public class CotizacionController : ApplicationController
         if (!string.IsNullOrWhiteSpace(search))
         {
             var pattern = $"%{search.Trim()}%";
-            lista = lista.Where(x => EF.Functions.Like(x.Descripcion, pattern)||  EF.Functions.Like(x.Codigo, pattern) );
-
+            lista = lista.Where(x => EF.Functions.Like(x.Descripcion, pattern) || EF.Functions.Like(x.Codigo, pattern));
         }
 
         if (id.HasValue)
@@ -322,7 +369,10 @@ public class CotizacionController : ApplicationController
 
         var count = await lista.CountAsync();
         var data = await lista.Skip(page * pageSize).Take(pageSize)
-            .Select(drmCliente => new { display = $"{drmCliente.Codigo} - {drmCliente.Descripcion}"  ,  value = drmCliente.IdProducto.ToString() })
+            .Select(drmCliente => new
+            {
+                display = $"{drmCliente.Codigo} - {drmCliente.Descripcion}", value = drmCliente.IdProducto.ToString()
+            })
             .ToListAsync();
         var remaining = Math.Max(count - (page * pageSize) - data.Count, 0);
 

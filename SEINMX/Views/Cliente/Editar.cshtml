@@ -7,6 +7,11 @@
     {
         @@class = "form-label"
     };
+
+    var labelValidation = new
+    {
+        @@class = "text-danger"
+    };
     var editformAtt = new
     {
         htmlAttributes = new
@@ -42,7 +47,7 @@
             <div class="col-md-6 mb-2">
                 @Html.LabelFor(model => model.Nombre, labelAtt)
                 @Html.EditorFor(model => model.Nombre, editformAtt)
-                @Html.ValidationMessageFor(model => model.Nombre)
+                @Html.ValidationMessageFor(model => model.Nombre,"", labelValidation)
             </div>
 
             <div class="col-md-2 mb-2">
@@ -53,19 +58,20 @@
                         (List<SelectListItem>)ViewBag.Perfiles,
                         new { @class = "form-select", id = "IdPerfil", name = "IdPerfil" }
                     )
-                    @Html.ValidationMessageFor(model => model.IdPerfil)
+                    @Html.ValidationMessageFor(model => model.IdPerfil,"", labelValidation)
                 </div>
             </div>
 
             <div class="col-md-12 mb-2">
                 @Html.LabelFor(model => model.Direccion, labelAtt)
                 @Html.EditorFor(model => model.Direccion, editformAtt)
-                @Html.ValidationMessageFor(model => model.Direccion)
+                @Html.ValidationMessageFor(model => model.Direccion,"", labelValidation)
             </div>
 
             <div class="col-md-12 mb-2">
                 @Html.LabelFor(model => model.Observaciones, labelAtt)
                 @Html.EditorFor(model => model.Observaciones, editformAtt)
+                @Html.ValidationMessageFor(model => model.Observaciones,"", labelValidation)
             </div>
             @Html.HiddenFor(model => model.IdCliente)
 

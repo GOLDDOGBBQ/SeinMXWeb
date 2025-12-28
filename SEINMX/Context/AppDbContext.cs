@@ -410,8 +410,10 @@ public partial class AppDbContext : DbContext
 
             entity.Property(e => e.Cliente).HasMaxLength(250);
             entity.Property(e => e.Correo).HasMaxLength(250);
+            entity.Property(e => e.Cotizacion).HasMaxLength(63);
             entity.Property(e => e.Descuento).HasColumnType("numeric(18, 4)");
-            entity.Property(e => e.FactorDescuento).HasColumnType("numeric(22, 8)");
+            entity.Property(e => e.DescuentoTotal).HasColumnType("numeric(38, 6)");
+            entity.Property(e => e.FactorDescuento).HasColumnType("numeric(23, 8)");
             entity.Property(e => e.FactorIva)
                 .HasColumnType("numeric(22, 8)")
                 .HasColumnName("FactorIVA");
@@ -436,7 +438,7 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.StatusDesc)
                 .HasMaxLength(14)
                 .IsUnicode(false);
-            entity.Property(e => e.SubTotal).HasColumnType("numeric(38, 6)");
+            entity.Property(e => e.SubTotal).HasColumnType("numeric(38, 4)");
             entity.Property(e => e.Tarifa).HasColumnType("numeric(18, 4)");
             entity.Property(e => e.Telefono).HasMaxLength(250);
             entity.Property(e => e.TipoCambio).HasColumnType("numeric(18, 4)");

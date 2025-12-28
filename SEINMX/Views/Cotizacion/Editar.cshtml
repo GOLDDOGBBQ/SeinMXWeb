@@ -2,6 +2,23 @@
 @{
     ViewBag.Title = "Editar Cotizacion";
     CultureInfo cultureMx = new CultureInfo("es-MX");
+
+    var labelAtt = new
+    {
+        @@class = "form-label"
+    };
+
+    var labelValidation = new
+    {
+        @@class = "text-danger"
+    };
+    var editformAtt = new
+    {
+        htmlAttributes = new
+        {
+            @@class = "form-control"
+        }
+    };
 }
 
 @using System.Globalization
@@ -9,99 +26,143 @@
 @model SEINMX.Models.Inventario.CotizacionViewModel
 
 <div class="container-fluid mt-4">
-        @if (!ViewData.ModelState.IsValid)
-        {
-            <div class="alert alert-danger">
-                @ViewBag.Error
-                @TempData["toast-error"]
-                @Html.ValidationSummary()
-            </div>
-        }
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger">
+            @ViewBag.Error
+            @TempData["toast-error"]
+            @Html.ValidationSummary()
+        </div>
+    }
 
-        <div class="row">
-            <div class="col-md-3">
-                <div class="info-box">
-                    <span class="info-box-icon text-bg-success shadow-sm">
-                        <i class="fa-solid fa-hashtag"></i>
-                    </span>
+    <!-- INFO Cotizacion -->
+    <div class="row">
+        <div class="col-md-3">
+            <div class="info-box">
+                <span class="info-box-icon text-bg-success shadow-sm">
+                    <i class="fa-solid fa-hashtag"></i>
+                </span>
 
-                    <div class="info-box-content">
-                        <span class="info-box-text">Cotizacion Numero</span>
-                        <span class="info-box-number">@Model.IdCotizacion</span>
-                    </div>
+                <div class="info-box-content">
+                    <span class="info-box-text">@Html.DisplayNameFor(model => model.Cotizacion)</span>
+                    <span class="info-box-number">@Model.Cotizacion</span>
                 </div>
             </div>
-
         </div>
 
-        <form id="formCotizacion" method="post" action="@Url.Action("Guardar", "Cotizacion")">
-            @Html.HiddenFor(m => m.IdCotizacion)
+        <div class="col-md-3">
+            <div class="info-box">
+                <span class="info-box-icon text-bg-success shadow-sm">
+                    <i class="fa-solid fa-layer-group"></i>
+                </span>
 
-            <div class="card card-secondary mt-3">
-                <div class="card-header">
-                    <h3 class="card-title">Datos generales</h3>
+                <div class="info-box-content">
+                    <span class="info-box-text">@Html.DisplayNameFor(model => model.Perfil)</span>
+                    <span class="info-box-number">@Model.Perfil</span>
                 </div>
-
-                <div class="card-body">
-
-                    <div class="row">
-
-                        <!-- Fecha -->
-                        <div class="col-md-2">
-                            <label class="form-label">Fecha</label>
-                            <input type="date" name="Fecha" class="form-control"
-                                   value="@Model.Fecha?.ToString("yyyy-MM-dd")">
-                        </div>
-
-                        <!-- Tipo de Cambio -->
-                        <div class="col-md-2">
-                            <label class="form-label">Tipo Cambio</label>
-                            <input type="number" step="0.0001" name="TipoCambio"
-                                   class="form-control"
-                                   value="@Model.TipoCambio">
-                        </div>
-
-                        <!-- Tarifa -->
-                        <div class="col-md-2">
-                            <label class="form-label">Tarifa (%)</label>
-                            <input type="number" step=".01" name="Tarifa"
-                                   class="form-control"
-                                   value="@Model.Tarifa">
-                        </div>
-
-                        <!-- IVA -->
-                        <div class="col-md-2">
-                            <label class="form-label">IVA (%)</label>
-                            <input type="number" step="0.01" name="PorcentajeIVA"
-                                   class="form-control"
-                                   value="@Model.PorcentajeIVA">
-                        </div>
-
-                        <!-- Descuento -->
-                        <div class="col-md-2">
-                            <label class="form-label">Descuento ($)</label>
-                            <input type="number" step="0.0001" name="Descuento"
-                                   class="form-control"
-                                   value="@Model.Descuento">
-                        </div>
+            </div>
+        </div>
+    </div>
 
 
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label class="form-label" for="Status">Status</label>
-                                @Html.DropDownListFor(
-                                    m => m.Status,
-                                    Model.GetComboStatus(),
-                                    new { @class = "form-select", id = "Status", name = "Status" }
-                                )
-                            </div>
+
+    <!-- FORM Cotizacion -->
+
+
+    @using (Html.BeginForm("Guardar", "Cotizacion", FormMethod.Post))
+    {
+        @Html.HiddenFor(m => m.IdCotizacion)
+        @Html.HiddenFor(m => m.Cotizacion)
+        @Html.HiddenFor(m => m.Perfil)
+
+
+        <div class="card card-secondary mt-3">
+            <div class="card-header">
+                <h3 class="card-title">Datos generales</h3>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-md-2">
+                        <div class="form-group">
+                            @Html.LabelFor(model => model.Status, labelAtt)
+                            @Html.DropDownListFor(
+                                m => m.Status,
+                                Model.GetComboStatus(),
+                                new { @class = "form-select", id = "Status", name = "Status" }
+                            )
+                            @Html.ValidationMessageFor(model => model.Status, "", labelValidation)
                         </div>
                     </div>
 
-                    <div class="row mt-3">
-                        <!-- Usuario Responsable -->
-                        <div class="col-md-3">
-                            <label class="form-label">Usuario Responsable</label>
+                    <!-- Fecha -->
+                    <div class="col-md-2">
+                        @Html.LabelFor(model => model.Fecha, labelAtt)
+                        @Html.EditorFor(model => model.Fecha, editformAtt)
+                        @Html.ValidationMessageFor(model => model.Fecha, "", labelValidation)
+
+                    </div>
+
+                    <!-- Tipo de Cambio -->
+                    <div class="col-md-2">
+                        @Html.LabelFor(model => model.TipoCambio, labelAtt)
+                        @Html.EditorFor(model => model.TipoCambio, editformAtt)
+                        @Html.ValidationMessageFor(model => model.TipoCambio, "", labelValidation)
+                    </div>
+
+                    <!-- Descuento -->
+                    <div class="col-md-2">
+                        @Html.LabelFor(model => model.Descuento, labelAtt)
+                        @Html.EditorFor(model => model.Descuento, editformAtt)
+                        @Html.ValidationMessageFor(model => model.Descuento, "", labelValidation)
+
+                    </div>
+
+                    <!-- IVA -->
+                    <div class="col-md-2">
+                        @Html.LabelFor(model => model.PorcentajeIVA, labelAtt)
+                        @Html.EditorFor(model => model.PorcentajeIVA, editformAtt)
+                        @Html.ValidationMessageFor(model => model.PorcentajeIVA, "", labelValidation)
+
+                    </div>
+
+                    <!-- Incluir Envio -->
+                    <div class="col-md-2">
+                        <label class="form-label">Términos y Condiciones</label>
+                        <div class="form-check">
+                            @Html.EditorFor(model => model.EsIncluirEnvio, new
+                            {
+                                htmlAttributes = new
+                                {
+                                    @class = "form-check-input"
+                                }
+                            })
+                            @Html.LabelFor(model => model.EsIncluirEnvio, new
+                            {
+                                @class = "form-check-label"
+                            })
+                        </div>
+
+
+                        @Html.ValidationMessageFor(model => model.EsIncluirEnvio, "", labelValidation)
+
+                    </div>
+
+                </div>
+
+                <div class="row mt-3">
+                    <!-- Usuario Responsable -->
+                    <div class="col-md-3">
+                        @Html.LabelFor(model => model.UsuarioResponsable, labelAtt)
+                        @Html.DropDownListFor(
+                            m => m.UsuarioResponsable,
+                            (List<SelectListItem>)ViewBag.UsuariosResponsables,
+                            new { @class = "form-select", id = "UsuarioResponsable", name = "UsuarioResponsable" }
+                        )
+                        @Html.ValidationMessageFor(model => model.UsuarioResponsable, "", labelValidation)
+
+                        @*<label class="form-label">Usuario Responsable</label>
 
                             <select asp-for="UsuarioResponsable"
                                     asp-items="ViewBag.UsuariosResponsables"
@@ -109,296 +170,296 @@
                                 <option value="">Seleccione un responsable</option>
                             </select>
 
-                            <span asp-validation-for="UsuarioResponsable" class="text-danger"></span>
-                        </div>
-
-
-                        <!-- Cliente -->
-                        <div class="col-md-9">
-                            <label class="form-label">Cliente</label>
-                            <cb-dropdown
-                                id="IdCliente"
-                                name="IdCliente"
-                            >
-                            </cb-dropdown>
-                        </div>
-
-                        <!-- Contacto -->
-
-                        <div class="col-md-6">
-                            <label class="form-label">Contacto</label>
-                            <cb-dropdown
-                                id="IdClienteContacto"
-                                name="IdClienteContacto"
-                            >
-                            </cb-dropdown>
-                        </div>
-
-
-                        <!-- Razón Social -->
-                        <div class="col-md-6">
-                            <label class="form-label">Razón Social</label>
-                            <cb-dropdown
-                                id="IdClienteRazonSolcial"
-                                name="IdClienteRazonSolcial"
-                            >
-                            </cb-dropdown>
-
-                        </div>
-
-
+                            <span asp-validation-for="UsuarioResponsable" class="text-danger"></span>*@
                     </div>
 
-                    <div class="row mt-3">
-                        <div class="col-md-12">
-                            <label class="form-label">Observaciones</label>
-                            <textarea name="Observaciones" class="form-control"
-                                      rows="3">@Model.Observaciones</textarea>
-                        </div>
+
+                    <!-- Cliente -->
+                    <div class="col-md-9">
+                        @Html.LabelFor(model => model.IdCliente, labelAtt)
+                        <cb-dropdown
+                            id="IdCliente"
+                            name="IdCliente">
+                        </cb-dropdown>
+                        @Html.ValidationMessageFor(model => model.IdCliente, "", labelValidation)
                     </div>
+
+                    <!-- Contacto -->
+
+                    <div class="col-md-6">
+                        @Html.LabelFor(model => model.IdClienteContacto, labelAtt)
+                        <cb-dropdown
+                            id="IdClienteContacto"
+                            name="IdClienteContacto">
+                        </cb-dropdown>
+                        @Html.ValidationMessageFor(model => model.IdClienteContacto, "", labelValidation)
+                    </div>
+
+
+                    <!-- Razón Social -->
+                    <div class="col-md-6">
+                        @Html.LabelFor(model => model.IdClienteRazonSolcial, labelAtt)
+                        <cb-dropdown
+                            id="IdClienteRazonSolcial"
+                            name="IdClienteRazonSolcial">
+                        </cb-dropdown>
+                        @Html.ValidationMessageFor(model => model.IdClienteRazonSolcial, "", labelValidation)
+                    </div>
+
 
                 </div>
 
-                <div class="card-footer text-end">
-                    <button type="submit" class="btn btn-success">
-                        <i class="fas fa-save"></i> Guardar
-                    </button>
+                <div class="row mt-3">
+                    <div class="col-md-12">
+                        @Html.LabelFor(model => model.Observaciones, labelAtt)
+                        @Html.EditorFor(model => model.Observaciones, editformAtt)
+                        @Html.ValidationMessageFor(model => model.Observaciones, "", labelValidation)
+
+                        @*<label class="form-label">Observaciones</label>
+                            <textarea name="Observaciones" class="form-control"
+                                      rows="3">@Model.Observaciones</textarea>*@
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="card-footer text-end">
+                <button type="submit" class="btn btn-success">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+            </div>
+        </div>
+    }
+
+    <!-- Agregar Productos FORM -->
+    <div class="card card-secondary mt-3">
+        <div class="card-header">
+            <h3 class="card-title">Agregar Producto</h3>
+        </div>
+        <div class="card-body">
+
+            <!-- Combo cb-dropdown -->
+            <cb-dropdown id="IdProducto" name="IdProducto"></cb-dropdown>
+
+            <div class="row mt-3">
+                <div class="col-md-2">
+                    <label>Cantidad</label>
+                    <input type="number" id="txtCantidad" class="form-control" value="1" step="0.0001">
+                </div>
+                <div class="col-md-10">
+                    <label>Observaciones</label>
+                    <input type="text" id="txtObsProd" class="form-control">
                 </div>
             </div>
-        </form>
 
+        </div>
+        <div class="card-footer text-end">
+            <button id="btnAgregarProducto" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Agregar
+            </button>
+        </div>
+    </div>
 
-        <div class="row  mt-3">
+    <!-- Agregar Productos TABLA-->
+    <div class="card mt-3">
+        <div class="card-header">
+            <b>Productos</b>
+        </div>
+        <div class="card-body">
+            <table class="table table-bordered table-hover mt-4 " id="tablaDetalle">
+                <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Descripción</th>
+                    <th>Precio Lista</th>
+                    <th>% Prov</th>
+                    <th>Precio Prov</th>
+                    <th>% Gan</th>
+                    <th>Ganancia</th>
+                    <th>Precio Sein</th>
+                    <th>Precio Cliente</th>
+                    <th>Cantidad</th>
+                    <th>Total</th>
+                    <th>Observaciones</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
 
+        </div>
+    </div>
 
-            <div class="col-md-3">
-                <div class="info-box">
+    <!-- TOTALES -->
+    <div class="row  mt-3">
+        <div class="col-md-3">
+            <div class="info-box">
                     <span class="info-box-icon text-bg-success shadow-sm">
                         <i class="fa-solid fa-filter-circle-dollar"></i>
                     </span>
 
-                    <div class="info-box-content">
-                        <span class="info-box-text">Sub total</span>
-                        <span class="info-box-number" id="infoSubTotal"
-                              name="infoSubTotal">
+                <div class="info-box-content">
+                    <span class="info-box-text">Sub total</span>
+                    <span class="info-box-number" id="infoSubTotal"
+                          name="infoSubTotal">
                             @string.Format(cultureMx, "{0:C}", Model.SubTotal)
                         </span>
-                    </div>
                 </div>
-
             </div>
 
+        </div>
 
-            <div class="col-md-3">
-                <div class="info-box">
+
+        <div class="col-md-3">
+            <div class="info-box">
                     <span class="info-box-icon text-bg-success shadow-sm">
                         <i class="fa-solid fa-building-columns"></i>
                     </span>
 
-                    <div class="info-box-content">
-                        <span class="info-box-text">IVA</span>
-                        <span class="info-box-number" id="infoIva" name="infoIva">
+                <div class="info-box-content">
+                    <span class="info-box-text">IVA</span>
+                    <span class="info-box-number" id="infoIva" name="infoIva">
                             @string.Format(cultureMx, "{0:C}", Model.Iva)
                         </span>
-                    </div>
                 </div>
-
             </div>
 
-            <div class="col-md-3">
-                <div class="info-box">
+        </div>
+
+        <div class="col-md-3">
+            <div class="info-box">
                     <span class="info-box-icon text-bg-success shadow-sm">
                         <i class="fa-solid fa-sack-dollar"></i>
                     </span>
 
-                    <div class="info-box-content">
-                        <span class="info-box-text">Total</span>
-                        <span class="info-box-number" id="infoTotal" name="infoTotal">
+                <div class="info-box-content">
+                    <span class="info-box-text">Total</span>
+                    <span class="info-box-number" id="infoTotal" name="infoTotal">
                             @string.Format(cultureMx, "{0:C}", Model.Total)
                         </span>
-                    </div>
                 </div>
             </div>
+        </div>
 
-            <div class="col-md-2">
-                <div class="info-box">
+        <div class="col-md-2">
+            <div class="info-box">
                     <span class="info-box-icon text-bg-success shadow-sm">
                         <i class="fa-regular fa-file-pdf"></i>
                     </span>
 
-                    <div class="info-box-content">
-                        <a class="OpenSideNav text-white btn btn-sm btn-secondary" style="--bs-btn-padding-y: 0.25rem; --bs-btn-padding-x: 0.5rem; --bs-btn-font-size: 0.75rem; "
-                           href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = Model.IdCotizacion })"
-                           target="frameCB"> <i class="fa-solid fa-eye"></i> Ver</a>
+                <div class="info-box-content">
+                    <a class="OpenSideNav text-white btn btn-sm btn-secondary"
+                       style="--bs-btn-padding-y: 0.25rem; --bs-btn-padding-x: 0.5rem; --bs-btn-font-size: 0.75rem; "
+                       href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = Model.IdCotizacion })"
+                       target="frameCB"> <i class="fa-solid fa-eye"></i> Ver</a>
 
 
-                        <a class="btn btn-secondary mt-1" style="--bs-btn-padding-y: 0.25rem; --bs-btn-padding-x: 0.5rem; --bs-btn-font-size: 0.75rem; "
-                           href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = Model.IdCotizacion, file = true })">
-                            <i class="fa-solid fa-download"></i> Descargar
-                        </a>
+                    <a class="btn btn-secondary mt-1"
+                       style="--bs-btn-padding-y: 0.25rem; --bs-btn-padding-x: 0.5rem; --bs-btn-font-size: 0.75rem; "
+                       href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = Model.IdCotizacion, file = true })">
+                        <i class="fa-solid fa-download"></i> Descargar
+                    </a>
 
-                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-
-        <div class="card card-secondary mt-3">
-            <div class="card-header">
-                <h3 class="card-title">Agregar Producto</h3>
-            </div>
-            <div class="card-body">
-
-                <!-- Combo cb-dropdown -->
-                <cb-dropdown id="IdProducto" name="IdProducto"></cb-dropdown>
-
-                <div class="row mt-3">
-                    <div class="col-md-2">
-                        <label>Cantidad</label>
-                        <input type="number" id="txtCantidad" class="form-control" value="1" step="0.0001">
-                    </div>
-                    <div class="col-md-10">
-                        <label>Observaciones</label>
-                        <input type="text" id="txtObsProd" class="form-control">
-                    </div>
-                </div>
-
-            </div>
-            <div class="card-footer text-end">
-                <button id="btnAgregarProducto" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Agregar
-                </button>
-            </div>
+    <!-- PREVIEW PDF -->
+    <div class="row">
+        <div id="SideframeCB" class="sidenav col-12 col-sm-12 col-md-10 col-lg-6 ">
+            <a class="closebtn CloseSideNav" data-itn-sidenav="SideframeCB"
+               data-itn-frame="frameCB">&times;Cerrar</a>
+            <iframe id="frameCB" name="frameCB" class="border-0 h-100 col-12 col-md-12 col-lg-12"></iframe>
         </div>
+    </div>
 
 
-        <div class="card mt-3">
-            <div class="card-header">
-                <b>Productos</b>
-            </div>
-            <div class="card-body">
-                <table class="table table-bordered table-hover mt-4 " id="tablaDetalle">
-                    <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Descripción</th>
-                        <th>Precio Lista</th>
-                        <th>% Prov</th>
-                        <th>Precio Prov</th>
-                        <th>% Gan</th>
-                        <th>Ganancia</th>
-                        <th>Precio Sein</th>
-                        <th>Precio Cliente</th>
-                        <th>Cantidad</th>
-                        <th>Total</th>
-                        <th>Observaciones</th>
-                        <th></th>
-                    </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-
-            </div>
-        </div>
 
 
-        <div class="row">
-            <div id="SideframeCB" class="sidenav col-12 col-sm-12 col-md-10 col-lg-6 ">
-                <a class="closebtn CloseSideNav" data-itn-sidenav="SideframeCB"
-                   data-itn-frame="frameCB">&times;Cerrar</a>
-                <iframe id="frameCB" name="frameCB" class="border-0 h-100 col-12 col-md-12 col-lg-12"></iframe>
-            </div>
-        </div>
 
-        <script type="module">
-                    import {ClientsDataProvider} from "@UrlExtensions.Absolute("/dropdown-1.1.0/clientsDataProvider-1.1.1.js ")";
+    <script type="module">
+        import {ClientsDataProvider} from "@UrlExtensions.Absolute("/dropdown-1.1.0/clientsDataProvider-1.1.1.js ")";
 
-                    const ProductDropdown = document.querySelector("#IdProducto");
-                    ProductDropdown.dataProvider = new ClientsDataProvider( '/Cotizacion/DropdownProducto','Buscar Producto...');
+        const ProductDropdown = document.querySelector("#IdProducto");
+        ProductDropdown.dataProvider = new ClientsDataProvider('/Cotizacion/DropdownProducto', 'Buscar Producto...');
 
-                </script>
+    </script>
 
-        <script type="module">
-            import {ClientsDataProvider} from "@UrlExtensions.Absolute("/dropdown-1.1.0/clientsDataProvider-1.1.1.js ")";
+    <script type="module">
+        import {ClientsDataProvider} from "@UrlExtensions.Absolute("/dropdown-1.1.0/clientsDataProvider-1.1.1.js ")";
 
-            const clientesDropdown = document.querySelector("#IdCliente");
-            const contactoDropdown = document.querySelector("#IdClienteContacto");
-            const razonDropdown = document.querySelector("#IdClienteRazonSolcial");
-           // const ProductDropdown = document.querySelector("#IdProducto");
+        const clientesDropdown = document.querySelector("#IdCliente");
+        const contactoDropdown = document.querySelector("#IdClienteContacto");
+        const razonDropdown = document.querySelector("#IdClienteRazonSolcial");
 
-            clientesDropdown.dataProvider = new ClientsDataProvider(
-                '/Cliente/DropdownClientes',
-                'Buscar Cliente...'
-            );
+        clientesDropdown.dataProvider = new ClientsDataProvider(
+            '/Cliente/DropdownClientes',
+            'Buscar Cliente...'
+        );
 
-            contactoDropdown.dataProvider = new ClientsDataProvider(
-                '/Cliente/DropdownClienteContacto',
-                'Buscar contacto...'
-            );
+        contactoDropdown.dataProvider = new ClientsDataProvider(
+            '/Cliente/DropdownClienteContacto',
+            'Buscar contacto...'
+        );
 
-            razonDropdown.dataProvider = new ClientsDataProvider(
-                '/Cliente/DropdownClienteRazonSolcial',
-                'Buscar razón social...'
-            );
+        razonDropdown.dataProvider = new ClientsDataProvider(
+            '/Cliente/DropdownClienteRazonSolcial',
+            'Buscar razón social...'
+        );
 
-           /* ProductDropdown.dataProvider = new ClientsDataProvider(
-                '/Cotizacion/DropdownProducto',
-                'Buscar Producto...'
-            );*/
+        clientesDropdown.setAttribute('selected', '@(Model is { IdCliente: > 0 } ? Model.IdCliente.ToString() : "")');
+        contactoDropdown.setAttribute('selected', '@((Model.IdClienteContacto ?? 0) > 0 ? Model.IdClienteContacto.ToString() : "")');
+        razonDropdown.setAttribute('selected', '@((Model.IdClienteRazonSolcial ?? 0) > 0 ? Model.IdClienteRazonSolcial.ToString() : "")');
 
 
-            clientesDropdown.setAttribute('selected', '@(Model is { IdCliente: > 0 } ? Model.IdCliente.ToString() : "")');
-            contactoDropdown.setAttribute('selected', '@((Model.IdClienteContacto ?? 0) > 0 ? Model.IdClienteContacto.ToString() : "")');
-            razonDropdown.setAttribute('selected', '@((Model.IdClienteRazonSolcial ?? 0) > 0 ? Model.IdClienteRazonSolcial.ToString() : "")');
+        clientesDropdown.addEventListener("change", () => {
+            const idCliente = clientesDropdown.selected;
 
-
-            clientesDropdown.addEventListener("change", () => {
-                const idCliente = clientesDropdown.selected;
-
-                contactoDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
-                    const encodedSearch = encodeURIComponent(search);
-                    return await fetch(`/Cliente/DropdownClienteContacto?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
-                        .then(r => r.json());
-                }
-
-                razonDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
-                    const encodedSearch = encodeURIComponent(search);
-                    return await fetch(`/Cliente/DropdownClienteRazonSolcial?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
-                        .then(r => r.json());
-                }
-
-                contactoDropdown.dataProvider.reset();
-                razonDropdown.dataProvider.reset()
-
-                contactoDropdown.setAttribute("selected", "");
-                razonDropdown.setAttribute("selected", "")
-
-            });
-        </script>
-        <script>
-
-            function isError(json) {
-                if (!json.ok) {
-                    //  alert(json.msg);
-                    showToast("Error", json.msg ?? "Ocurrió un error", "error");
-                    return true;
-                }
-                return false;
-
+            contactoDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
+                const encodedSearch = encodeURIComponent(search);
+                return await fetch(`@Url.Action("DropdownClienteContacto", "Cliente")?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
+                    .then(r => r.json());
             }
 
+            razonDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
+                const encodedSearch = encodeURIComponent(search);
+                return await fetch(`@Url.Action("DropdownClienteRazonSolcial", "Cliente")?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
+                    .then(r => r.json());
+            }
 
-            const idCotizacion = @Model.IdCotizacion;
+            contactoDropdown.dataProvider.reset();
+            razonDropdown.dataProvider.reset()
 
-            async function cargarTabla() {
-                const res = await fetch(`/Cotizacion/GetDetalles?idCotizacion=${idCotizacion}`);
-                const data = await res.json();
+            contactoDropdown.setAttribute("selected", "");
+            razonDropdown.setAttribute("selected", "")
 
-                const tbody = document.querySelector("#tablaDetalle tbody");
-                tbody.innerHTML = "";
+        });
+    </script>
+    <script>
 
-                data.forEach(d => {
-                    tbody.innerHTML += `
+        function isError(json) {
+            if (!json.ok) {
+                //  alert(json.msg);
+                showToast("Error", json.msg ?? "Ocurrió un error", "error");
+                return true;
+            }
+            return false;
+
+        }
+
+
+        const idCotizacion = @Model.IdCotizacion;
+
+        async function cargarTabla() {
+            const res = await fetch(`@Url.Action("GetDetalles", "Cotizacion", new { idCotizacion = @Model.IdCotizacion })`);
+            const data = await res.json();
+
+            const tbody = document.querySelector("#tablaDetalle tbody");
+            tbody.innerHTML = "";
+
+            data.forEach(d => {
+                tbody.innerHTML += `
             <tr data-id="${d.idCotizacionDetalle}">
 
                 <td>${d.codigo}</td>
@@ -419,118 +480,119 @@
                     </button>
                 </td>
             </tr>`;
-                });
-            }
+            });
+        }
 
-            // Agregar producto
-            document.querySelector("#btnAgregarProducto").addEventListener("click", async () => {
-                const Comboprod = document.querySelector("#IdProducto");
-                let prod = Comboprod.selected;
-                let cant = document.querySelector("#txtCantidad").value;
-                let obs = document.querySelector("#txtObsProd").value;
+        // Agregar producto
+        document.querySelector("#btnAgregarProducto").addEventListener("click", async () => {
+            const Comboprod = document.querySelector("#IdProducto");
+            let prod = Comboprod.selected;
+            let cant = document.querySelector("#txtCantidad").value;
+            let obs = document.querySelector("#txtObsProd").value;
+
+            let payload = {
+                IdCotizacion: parseInt(idCotizacion),
+                IdProducto: parseInt(prod),
+                Cantidad: cant,
+                Observaciones: obs,
+            };
+
+            const res = await fetch('@Url.Action("AgregarProducto", "Cotizacion")', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+
+            const json = await res.json();
+
+            if (isError(json)) {
+                return;
+            }
+            Comboprod.setAttribute("selected", "")
+
+            await recargarTotales();
+            await cargarTabla();
+            showToast("Producto agregado", "Se agregó el producto correctamente");
+
+
+        });
+
+        // Editar producto
+        document.addEventListener("change", async (e) => {
+            if (e.target.classList.contains("txtCantidad") ||
+                e.target.classList.contains("txtObs")) {
+
+                let row = e.target.closest("tr");
+                let idDetalle = row.dataset.id;
+
 
                 let payload = {
-                    IdCotizacion: parseInt(idCotizacion),
-                    IdProducto: parseInt(prod),
-                    Cantidad: cant,
-                    Observaciones: obs,
+                    IdCotizacionDetalle: parseInt(idDetalle),
+                    Cantidad: row.querySelector(".txtCantidad").value,
+                    Observaciones: row.querySelector(".txtObs").value
                 };
 
-                const res = await fetch('/Cotizacion/AgregarProducto', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
+                const res = await fetch(`@Url.Action("AgregarProducto", "Cotizacion")`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
                     body: JSON.stringify(payload)
                 });
 
-                const json = await res.json();
 
+                const json = await res.json();
                 if (isError(json)) {
                     return;
                 }
-                Comboprod.setAttribute("selected", "")
-
                 await recargarTotales();
                 await cargarTabla();
-                showToast("Producto agregado", "Se agregó el producto correctamente");
-
-
-            });
-
-            // Editar producto
-            document.addEventListener("change", async (e) => {
-                if (e.target.classList.contains("txtCantidad") ||
-                    e.target.classList.contains("txtObs")) {
-
-                    let row = e.target.closest("tr");
-                    let idDetalle = row.dataset.id;
-
-
-                    let payload = {
-                        IdCotizacionDetalle: parseInt(idDetalle),
-                        Cantidad: row.querySelector(".txtCantidad").value,
-                        Observaciones: row.querySelector(".txtObs").value
-                    };
-
-                    const res = await fetch(`/Cotizacion/AgregarProducto`, {
-                        method: "POST",
-                        headers: {"Content-Type": "application/json"},
-                        body: JSON.stringify(payload)
-                    });
-
-
-                    const json = await res.json();
-                    if (isError(json)) {
-                        return;
-                    }
-                    await recargarTotales();
-                    await cargarTabla();
-                    showToast("Producto actualizado", "Se modificó correctamente");
-
-                }
-            });
-
-            // Eliminar producto
-            document.addEventListener("click", async (e) => {
-                if (e.target.closest(".btnEliminar")) {
-                    let row = e.target.closest("tr");
-                    let idDetalle = row.dataset.id;
-
-                    const res = await fetch(`/Cotizacion/DeleteProducto?idDetalle=${idDetalle}`, {
-                        method: "DELETE",
-                    });
-
-                    const json = await res.json();
-                    if (isError(json)) {
-                        return;
-                    }
-
-                    await cargarTabla();
-                    await recargarTotales();
-                    showToast("Producto eliminado", "Se eliminó el producto correctamente");
-
-                }
-            });
-
-            async function recargarTotales() {
-                const res = await fetch(`/Cotizacion/GetTotales?idCotizacion=${idCotizacion}`);
-                const json = await res.json();
-                if (isError(json)) {
-                    location.reload();
-                }
-
-                const infoTotal = document.getElementById("infoTotal");
-                const infoSubTotal = document.getElementById("infoSubTotal");
-                const infoIva = document.getElementById("infoIva");
-
-                infoTotal.textContent = json.total?.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
-                infoSubTotal.textContent = json.subTotal?.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
-                infoIva.textContent = json.iva?.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
+                showToast("Producto actualizado", "Se modificó correctamente");
 
             }
-            // Inicial
-            cargarTabla();
+        });
 
-        </script>
+        // Eliminar producto
+        document.addEventListener("click", async (e) => {
+            if (e.target.closest(".btnEliminar")) {
+                let row = e.target.closest("tr");
+                let idDetalle = row.dataset.id;
+
+                const res = await fetch(`@Url.Action("DeleteProducto", "Cotizacion")?idDetalle=${idDetalle}`, {
+                    method: "DELETE",
+                });
+
+                const json = await res.json();
+                if (isError(json)) {
+                    return;
+                }
+
+                await cargarTabla();
+                await recargarTotales();
+                showToast("Producto eliminado", "Se eliminó el producto correctamente");
+
+            }
+        });
+
+        async function recargarTotales() {
+            const res = await fetch(`@Url.Action("GetTotales", "Cotizacion", new { idCotizacion = Model.IdCotizacion })`);
+            const json = await res.json();
+            if (isError(json)) {
+                location.reload();
+            }
+
+            const infoTotal = document.getElementById("infoTotal");
+            const infoSubTotal = document.getElementById("infoSubTotal");
+            const infoIva = document.getElementById("infoIva");
+
+            infoTotal.textContent = json.total?.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
+            infoSubTotal.textContent = json.subTotal?.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
+            infoIva.textContent = json.iva?.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
+
+        }
+
+        // Inicial
+        cargarTabla();
+
+    </script>
 
 
 </div>

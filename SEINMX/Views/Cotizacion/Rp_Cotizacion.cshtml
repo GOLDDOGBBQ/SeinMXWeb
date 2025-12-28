@@ -12,7 +12,7 @@
 <html lang="es">
 <head>
     <meta charset="utf-8">
-    <title>Cotización @Model.IdCotizacion</title>
+    <title>Cotización @Model.Cotizacion</title>
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -123,12 +123,11 @@
         </div>
 
 
-
         <div class="col-5 offset-1 p-0">
             <table class="tableHeder ms-auto">
                 <thead class="ColorHeader ">
                 <tr>
-                    <th colspan="2" class="fw-bold text-center"><strong>COTIZACIÓN # @Model.IdCotizacion</strong></th>
+                    <th colspan="2" class="fw-bold text-center"><strong>COTIZACIÓN @Model.Cotizacion</strong></th>
 
                 </tr>
                 </thead>
@@ -143,8 +142,8 @@
                     <td> MXN</td>
                 </tr>
                 <tr>
-                <td class="ColorSubHeader "><strong>Sucursal:</strong></td>
-                <td> Guadalajara</td>
+                    <td class="ColorSubHeader "><strong>Sucursal:</strong></td>
+                    <td> Guadalajara</td>
 
                 <tr>
                     <td class="ColorSubHeader "><strong>Asesor:</strong></td>
@@ -167,7 +166,7 @@
             <table class="">
                 <tbody>
                 <tr>
-                    <td ><strong>Cliente:</strong></td>
+                    <td><strong>Cliente:</strong></td>
                     <td colspan="3" class="text-start"> @Model.Cliente</td>
                 </tr>
                 <tr>
@@ -232,6 +231,15 @@
                         @string.Format(cultureMx, "{0:C}", Model.SubTotal)
                     </td>
                 </tr>
+                @if (Model.DescuentoTotal > 0)
+                {
+                    <tr>
+                        <td class="fw-bold text-end">Descuento:</td>
+                        <td class="text-end">
+                            @string.Format(cultureMx, "{0:C}", Model.DescuentoTotal)
+                        </td>
+                    </tr>
+                }
                 <tr>
                     <td class="fw-bold text-end">IVA:</td>
                     <td class="text-end">
@@ -257,7 +265,10 @@
                 <li>Existencias sujetas a disponibilidad.</li>
                 <li>Sólo se comprometen existencias con orden de compra y transferencia en firme.</li>
                 <li>Para entregas el mismo día, el límite para recepción de orden de compra es 10:30 am.</li>
-                <li>El precio cotizado contempla el costo total del envío (entrega ocurre).</li>
+                @if (Model.EsIncluirEnvio == true)
+                {
+                    <li>El precio cotizado contempla el costo total del envío (entrega ocurre).</li>
+                }
             </ul>
 
         </div>

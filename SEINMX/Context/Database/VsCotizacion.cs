@@ -5,6 +5,8 @@ namespace SEINMX.Context.Database;
 
 public partial class VsCotizacion
 {
+    public string Cotizacion { get; set; } = null!;
+
     public int IdCotizacion { get; set; }
 
     public DateOnly? Fecha { get; set; }
@@ -22,6 +24,8 @@ public partial class VsCotizacion
     public int? IdClienteContacto { get; set; }
 
     public int? IdClienteRazonSolcial { get; set; }
+
+    public bool EsIncluirEnvio { get; set; }
 
     public int? IdPerfil { get; set; }
 
@@ -51,7 +55,7 @@ public partial class VsCotizacion
 
     public string? RazonSocial { get; set; }
 
-    public decimal? SubTotal { get; set; }
+    public decimal SubTotal { get; set; }
 
     public decimal? FactorDescuento { get; set; }
 
@@ -60,4 +64,6 @@ public partial class VsCotizacion
     public decimal? Iva { get; set; }
 
     public decimal? Total { get; set; }
+
+    public decimal? DescuentoTotal { get; set; }
 }

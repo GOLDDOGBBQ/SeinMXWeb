@@ -3,6 +3,7 @@
 namespace SEINMX.Models.Inventario;
 
 public record CotizacionPdfModel(
+    string Cotizacion,
     int IdCotizacion,
     DateOnly Fecha,
     decimal? TipoCambio,
@@ -17,6 +18,8 @@ public record CotizacionPdfModel(
     decimal? SubTotal,
     decimal? Iva,
     decimal? Total,
+    decimal? DescuentoTotal,
+    bool?  EsIncluirEnvio,
     List<VsCotizacionDetalle> Detalles,
 
     string?  Cliente,
