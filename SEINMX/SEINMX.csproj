@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <PackageReference Include="bootstrap" Version="5.3.7" />
+      <PackageReference Include="CargoBajaLib" Version="1.17.0" />
       <PackageReference Include="Microsoft.AspNet.Web.Optimization" Version="1.1.3" />
       <PackageReference Include="Microsoft.AspNet.Web.Optimization.es" Version="1.1.3" />
       <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />

@@ -1,4 +1,6 @@
-﻿namespace SEINMX.Models.Inventario;
+﻿using SEINMX.Clases.Generales;
+
+namespace SEINMX.Models.Inventario;
 
 public class SpCotizacionDetalleNuevoResult : RequestGenericStoreProcedure
 {
@@ -10,3 +12,10 @@ public class SpCotizacionNuevoResult : RequestGenericStoreProcedure
 {
     public int? IdCotizacion { get; set; }
 }
+
+public class SpGenericResult : RequestGenericStoreProcedure
+{
+    public int? Id { get; set; }
+}
+
+

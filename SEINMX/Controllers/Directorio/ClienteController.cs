@@ -6,6 +6,7 @@ using SEINMX.Clases;
 using SEINMX.Context;
 using SEINMX.Context.Database;
 using SEINMX.Models.Directorio;
+using SEINMX.Models.Inventario;
 
 [Authorize]
 public class ClienteController : ApplicationController
@@ -55,10 +56,13 @@ public class ClienteController : ApplicationController
         return View(model);
     }
 
-
-    public async Task<IActionResult> Crear()
+    [HttpGet]
+    public async Task<IActionResult> Crear([FromQuery] bool? esCotizable)
     {
-        var model = new ClienteViewModel(); // modelo vacío
+        var model = new ClienteViewModel
+        {
+            esCotizable = esCotizable ?? false
+        };
 
         ViewBag.Perfiles = await ObtenerPerfilesAsync();
         return View("Editar", model);
@@ -125,6 +129,8 @@ public class ClienteController : ApplicationController
                 error = mensajeError,
             });
         }
+
+        bool esCotizable = model.esCotizable;
 
         try
         {
@@ -295,6 +301,7 @@ public class ClienteController : ApplicationController
                 cliente = new
                 {
                     idCliente = entity.IdCliente,
+                    esCotizable = esCotizable,
                     nombre = entity.Nombre,
                     idPerfil = entity.IdPerfil
                 }

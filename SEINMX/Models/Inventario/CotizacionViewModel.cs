@@ -48,8 +48,8 @@ public class CotizacionViewModel
     public string? UsuarioResponsable { get; set; }
 
     [Display(Name = "Cliente")]
-    [Required(ErrorMessage = "Debe seleccionar un cliente.")]
     public int? IdCliente { get; set; }
+    public string? Cliente { get; set; }
 
     [Display(Name = "Contacto")]
     public int? IdClienteContacto { get; set; }
@@ -111,11 +111,15 @@ public class CotizacionNuevaViewModel
 {
 
 
-    [Required(ErrorMessage = "Debe seleccionar un cliente.")]
-    public int? IdCliente { get; set; }
 
+    [Display(Name = "Cliente")]
+    [Required(ErrorMessage = "Debe seleccionar un cliente.")]
+    public int IdCliente { get; set; }
+
+    [Display(Name = "Contacto")]
     public int? IdClienteContacto { get; set; }
 
+    [Display(Name = "Razón Social")]
     public int? IdClienteRazonSolcial { get; set; }
 
 }

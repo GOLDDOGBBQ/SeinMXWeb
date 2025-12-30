@@ -162,26 +162,14 @@
                         )
                         @Html.ValidationMessageFor(model => model.UsuarioResponsable, "", labelValidation)
 
-                        @*<label class="form-label">Usuario Responsable</label>
-
-                            <select asp-for="UsuarioResponsable"
-                                    asp-items="ViewBag.UsuariosResponsables"
-                                    class="form-select">
-                                <option value="">Seleccione un responsable</option>
-                            </select>
-
-                            <span asp-validation-for="UsuarioResponsable" class="text-danger"></span>*@
                     </div>
 
 
                     <!-- Cliente -->
                     <div class="col-md-9">
-                        @Html.LabelFor(model => model.IdCliente, labelAtt)
-                        <cb-dropdown
-                            id="IdCliente"
-                            name="IdCliente">
-                        </cb-dropdown>
-                        @Html.ValidationMessageFor(model => model.IdCliente, "", labelValidation)
+                        @Html.HiddenFor(model => model.IdCliente)
+                        @Html.LabelFor(model => model.Cliente, labelAtt)
+                        @Html.EditorFor(model => model.Cliente,  new  { htmlAttributes = new  { @class = "form-control", disabled = "disabled"   }})
                     </div>
 
                     <!-- Contacto -->
@@ -214,10 +202,6 @@
                         @Html.LabelFor(model => model.Observaciones, labelAtt)
                         @Html.EditorFor(model => model.Observaciones, editformAtt)
                         @Html.ValidationMessageFor(model => model.Observaciones, "", labelValidation)
-
-                        @*<label class="form-label">Observaciones</label>
-                            <textarea name="Observaciones" class="form-control"
-                                      rows="3">@Model.Observaciones</textarea>*@
                     </div>
                 </div>
 
@@ -389,52 +373,36 @@
     <script type="module">
         import {ClientsDataProvider} from "@UrlExtensions.Absolute("/dropdown-1.1.0/clientsDataProvider-1.1.1.js ")";
 
-        const clientesDropdown = document.querySelector("#IdCliente");
         const contactoDropdown = document.querySelector("#IdClienteContacto");
         const razonDropdown = document.querySelector("#IdClienteRazonSolcial");
 
-        clientesDropdown.dataProvider = new ClientsDataProvider(
-            '/Cliente/DropdownClientes',
-            'Buscar Cliente...'
-        );
-
         contactoDropdown.dataProvider = new ClientsDataProvider(
-            '/Cliente/DropdownClienteContacto',
+            '@Url.Action("DropdownClienteContacto", "Cliente")',
             'Buscar contacto...'
         );
 
         razonDropdown.dataProvider = new ClientsDataProvider(
-            '/Cliente/DropdownClienteRazonSolcial',
+            '@Url.Action("DropdownClienteRazonSolcial", "Cliente")',
             'Buscar razón social...'
         );
 
-        clientesDropdown.setAttribute('selected', '@(Model is { IdCliente: > 0 } ? Model.IdCliente.ToString() : "")');
+
+        contactoDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
+            const encodedSearch = encodeURIComponent(search);
+            return await fetch(`@Url.Action("DropdownClienteContacto", "Cliente")?idCliente=${@Model.IdCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
+                .then(r => r.json());
+        }
+
+        razonDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
+            const encodedSearch = encodeURIComponent(search);
+            return await fetch(`@Url.Action("DropdownClienteRazonSolcial", "Cliente")?idCliente=${@Model.IdCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
+                .then(r => r.json());
+        }
+
+
+
         contactoDropdown.setAttribute('selected', '@((Model.IdClienteContacto ?? 0) > 0 ? Model.IdClienteContacto.ToString() : "")');
         razonDropdown.setAttribute('selected', '@((Model.IdClienteRazonSolcial ?? 0) > 0 ? Model.IdClienteRazonSolcial.ToString() : "")');
-
-
-        clientesDropdown.addEventListener("change", () => {
-            const idCliente = clientesDropdown.selected;
-
-            contactoDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
-                const encodedSearch = encodeURIComponent(search);
-                return await fetch(`@Url.Action("DropdownClienteContacto", "Cliente")?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
-                    .then(r => r.json());
-            }
-
-            razonDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
-                const encodedSearch = encodeURIComponent(search);
-                return await fetch(`@Url.Action("DropdownClienteRazonSolcial", "Cliente")?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
-                    .then(r => r.json());
-            }
-
-            contactoDropdown.dataProvider.reset();
-            razonDropdown.dataProvider.reset()
-
-            contactoDropdown.setAttribute("selected", "");
-            razonDropdown.setAttribute("selected", "")
-
-        });
     </script>
     <script>
 

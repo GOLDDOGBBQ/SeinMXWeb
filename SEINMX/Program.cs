@@ -1,7 +1,10 @@
+using CargoBajaLib.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using SEINMX.Clases.Tools;
 using SEINMX.Clases.Utilerias;
+using SEINMX.Config;
 using SEINMX.Context;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,6 +47,12 @@ builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<RazorViewToStringRenderer>();
 //builder.Services.AddSingleton<BlazorRenderer>();
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.AddSingleton<CronConfigServiceProvider>();
+    builder.Services.AddHttpClient<ExchangeRateService>();
+    builder.ConfigureBackgroundServices();
+}
 
 // =======================
 // MVC

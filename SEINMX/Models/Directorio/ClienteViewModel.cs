@@ -47,7 +47,7 @@ public class ClienteViewModel
         public virtual ICollection<ClienteContactoViewModel> ClienteContactos { get; set; } = new List<ClienteContactoViewModel>();
 
         public virtual ICollection<ClienteRazonSolcialViewModel> ClienteRazonSolcials { get; set; } = new List<ClienteRazonSolcialViewModel>();
-
+        public bool esCotizable { get; set; } = false;
 
 
     }

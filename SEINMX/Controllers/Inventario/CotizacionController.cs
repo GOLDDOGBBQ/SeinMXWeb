@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SEINMX.Clases;
 using SEINMX.Context;
-using SEINMX.Context.Database;
 using SEINMX.Models.Inventario;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,13 +12,13 @@ using SEINMX.Clases.Utilerias;
 public class CotizacionController : ApplicationController
 {
     private readonly AppDbContext _db;
-    private readonly AppClassContext _ClasContext;
+    private readonly AppClassContext _clasContext;
     private readonly RazorViewToStringRenderer _razorRenderer;
 
     public CotizacionController(AppDbContext db, AppClassContext clasContext, RazorViewToStringRenderer razorRenderer)
     {
         _db = db;
-        _ClasContext = clasContext;
+        _clasContext = clasContext;
         _razorRenderer = razorRenderer;
     }
 
@@ -85,7 +84,6 @@ public class CotizacionController : ApplicationController
             Iva: header.Iva,
             Total: header.Total,
             DescuentoTotal: header.DescuentoTotal,
-
             EsIncluirEnvio: header.EsIncluirEnvio,
             Detalles: detalles,
 
@@ -161,52 +159,76 @@ public class CotizacionController : ApplicationController
     }
 
 
-    public IActionResult Nueva()
+    public IActionResult Nueva(int? idCliente = null)
     {
-        return View();
+        var model = new CotizacionNuevaViewModel
+        {
+           IdCliente = idCliente ?? 0
+        };
+
+        return View(model);
     }
 
-    public async Task<IActionResult> Crear(int? idCliente)
+    [HttpPost]
+    public IActionResult Crear(CotizacionNuevaViewModel model)
     {
-        VsCliente? cliente;
-        if (idCliente is not null)
+        if (!ModelState.IsValid)
         {
-            cliente = await _db.VsClientes.Where(m => m.IdCliente == idCliente).FirstOrDefaultAsync();
-        }
-        else
-        {
-            cliente = await _db.VsClientes.Where(m => m.IdCliente == 1).FirstOrDefaultAsync();
+            TempData["toast-error"] = "Revise los campos marcados.";
+            return View("Editar", model);
         }
 
-        if (cliente is null)
-        {
-            return NotFound();
-        }
-
-
-        if (cliente.Tarifa is null)
-        {
-            return NotFound();
-        }
-
-        var nueva = new Cotizacion
+        var nueva = new CotizacionViewModel
         {
             Fecha = DateOnly.FromDateTime(DateTime.Now),
             Status = 1, // CREADA
-            IdCliente = cliente.IdCliente,
-            Tarifa = (decimal)cliente.Tarifa,
-            TipoCambio = 1,
-            PorcentajeIva = 16,
+            IdCliente = model.IdCliente,
+            IdClienteContacto = model.IdClienteContacto,
+            IdClienteRazonSolcial = model.IdClienteRazonSolcial,
+            TipoCambio = _db.TipoCambioDofs.OrderByDescending(x => x.Fecha).FirstOrDefault()?.TipoCambio ?? 1,
+            PorcentajeIVA = 16,
+            Descuento = 0,
             UsuarioResponsable = GetUserId(),
-            CreadoPor = GetApiName(),
-            FchReg = DateTime.Now,
-            UsrReg = GetUserId()
         };
 
-        _db.Cotizacions.Add(nueva);
-        await _db.SaveChangesAsync();
+        try
+        {
+            var result = _clasContext
+                .SpCotizacionNuevoResults
+                .FromSqlInterpolated($@"
+                EXEC [INV].[GP_CotizacionNuevo]
+                     @json = {JsonSerializer.Serialize(nueva)},
+                     @UserId = {GetUserId()},
+                     @ProgName = {GetApiName()}
+            ")
+                .AsEnumerable()
+                .FirstOrDefault();
 
-        return RedirectToAction("Editar", new { id = nueva.IdCotizacion });
+            // Si el SP no regresó nada (caso muy raro)
+            if (result is not { IdError: 0 })
+            {
+                if (result is null)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(result), "No se recibió respuesta del servidor.");
+                }
+                else
+                {
+                    throw new AggregateException(result.MensajeError + " " + result.MensajeErrorDev);
+                }
+            }
+
+            TempData["toast-success"] = $"se creo la cotizacion #{result.IdCotizacion} correctamente.";
+
+            return RedirectToAction("Editar", new { id = result.IdCotizacion });
+        }
+        catch (Exception ex)
+        {
+            TempData["toast-error"] = "Error del servidor." + ex.Message;
+        }
+
+
+        ModelState.Clear();
+        return View("Nueva", model);
     }
 
     [HttpGet("Editar/{id?}")]
@@ -218,14 +240,14 @@ public class CotizacionController : ApplicationController
             return View("Editar", modelEmpy);
         }
 
-        var model = await buscarCotizacion(id);
+        var model = await BuscarCotizacion(id);
 
         ViewBag.UsuariosResponsables = await ObtenerUsuariosResponsablesAsync();
 
         return View("Editar", model);
     }
 
-    private async Task<CotizacionViewModel> buscarCotizacion(int? id, CotizacionViewModel? refresh = null)
+    private async Task<CotizacionViewModel> BuscarCotizacion(int? id, CotizacionViewModel? refresh = null)
     {
         var entity = await _db.VsCotizacions
             .FirstOrDefaultAsync(x => x.IdCotizacion == id);
@@ -246,6 +268,7 @@ public class CotizacionController : ApplicationController
                 Descuento = entity.Descuento,
                 UsuarioResponsable = entity.UsuarioResponsable,
                 IdCliente = entity.IdCliente,
+                Cliente = entity.Cliente,
                 IdClienteContacto = entity.IdClienteContacto,
                 IdClienteRazonSolcial = entity.IdClienteRazonSolcial,
                 Status = entity.Status ?? 1,
@@ -291,9 +314,9 @@ public class CotizacionController : ApplicationController
         return Json(new
         {
             ok = true,
-            Iva = item.Iva,
-            SubTotal = item.SubTotal,
-            Total = item.Total,
+            item.Iva,
+            item.SubTotal,
+            item.Total,
         });
     }
 
@@ -307,13 +330,13 @@ public class CotizacionController : ApplicationController
         if (!ModelState.IsValid)
         {
             TempData["toast-error"] = "Revise los campos marcados.";
-            return View("Editar", await buscarCotizacion(model.IdCotizacion, model));
+            return View("Editar", await BuscarCotizacion(model.IdCotizacion, model));
         }
 
 
         try
         {
-            var result = _ClasContext
+            var result = _clasContext
                 .SpCotizacionNuevoResults
                 .FromSqlInterpolated($@"
                 EXEC [INV].[GP_CotizacionNuevo]
@@ -329,7 +352,7 @@ public class CotizacionController : ApplicationController
             {
                 TempData["toast-error"] = "No se recibió respuesta del servidor.";
                 ModelState.Clear();
-                return View("Editar", await buscarCotizacion(model.IdCotizacion, model));
+                return View("Editar", await BuscarCotizacion(model.IdCotizacion, model));
             }
 
             // Si el SP reporta error
@@ -337,17 +360,17 @@ public class CotizacionController : ApplicationController
             {
                 TempData["toast-error"] = result.MensajeError + " " + result.MensajeErrorDev;
                 ModelState.Clear();
-                return View("Editar", await buscarCotizacion(model.IdCotizacion, model));
+                return View("Editar", await BuscarCotizacion(model.IdCotizacion, model));
             }
 
             TempData["toast-success"] = "Los datos fueron guardados correctamente.";
             ModelState.Clear();
-            return View("Editar", await buscarCotizacion(result.IdCotizacion));
+            return View("Editar", await BuscarCotizacion(result.IdCotizacion));
         }
         catch (Exception ex)
         {
             TempData["toast-error"] = "Error del servidor." + ex.Message;
-            return View("Editar", await buscarCotizacion(model.IdCotizacion, model));
+            return View("Editar", await BuscarCotizacion(model.IdCotizacion, model));
         }
     }
 
@@ -388,7 +411,7 @@ public class CotizacionController : ApplicationController
     {
         try
         {
-            var result = _ClasContext
+            var result = _clasContext
                 .SpCotizacionDetalleNuevoResults
                 .FromSqlInterpolated($@"
                 EXEC [INV].[GP_CotizacionDetalleNuevo]

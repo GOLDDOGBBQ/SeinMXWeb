@@ -1,4 +1,4 @@
-﻿namespace SEINMX.Models;
+﻿namespace SEINMX.Clases.Generales;
 
 public class RequestGenericStoreProcedure
 {

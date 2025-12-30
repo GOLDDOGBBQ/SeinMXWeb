@@ -32,6 +32,10 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<Proveedor> Proveedors { get; set; }
 
+    public virtual DbSet<TareaProgramadum> TareaProgramada { get; set; }
+
+    public virtual DbSet<TipoCambioDof> TipoCambioDofs { get; set; }
+
     public virtual DbSet<Usuario> Usuarios { get; set; }
 
     public virtual DbSet<VsCliente> VsClientes { get; set; }
@@ -344,6 +348,49 @@ public partial class AppDbContext : DbContext
                 .HasDefaultValue("");
             entity.Property(e => e.Tarifa).HasColumnType("numeric(18, 4)");
             entity.Property(e => e.TarifaGanancia).HasColumnType("numeric(18, 4)");
+            entity.Property(e => e.UsrAct).HasMaxLength(50);
+            entity.Property(e => e.UsrReg).HasMaxLength(50);
+        });
+
+        modelBuilder.Entity<TareaProgramadum>(entity =>
+        {
+            entity.HasKey(e => e.IdTareaProgramada).HasName("PK__TareaPro__1A46D4A599EF4701");
+
+            entity.ToTable("TareaProgramada", "CFG");
+
+            entity.HasIndex(e => e.Nombre, "UQ__TareaPro__75E3EFCF97742EFE").IsUnique();
+
+            entity.Property(e => e.CreadoPor).HasMaxLength(100);
+            entity.Property(e => e.Descripcion).HasDefaultValue("");
+            entity.Property(e => e.ExpresionCron).HasMaxLength(50);
+            entity.Property(e => e.FchAct).HasColumnType("datetime");
+            entity.Property(e => e.FchReg).HasColumnType("datetime");
+            entity.Property(e => e.ModificadoPor)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Nombre).HasMaxLength(100);
+            entity.Property(e => e.UsrAct).HasMaxLength(50);
+            entity.Property(e => e.UsrReg).HasMaxLength(50);
+            entity.Property(e => e.ZonaHoraria).HasMaxLength(100);
+        });
+
+        modelBuilder.Entity<TipoCambioDof>(entity =>
+        {
+            entity.HasKey(e => e.IdTipoCambioDof).HasName("PK__TipoCamb__F4A39F4949D16E91");
+
+            entity.ToTable("TipoCambioDof", "CFG");
+
+            entity.HasIndex(e => e.Fecha, "TipoCambioDof_Fecha");
+
+            entity.Property(e => e.CreadoPor).HasMaxLength(100);
+            entity.Property(e => e.FchAct).HasColumnType("datetime");
+            entity.Property(e => e.FchReg).HasColumnType("datetime");
+            entity.Property(e => e.ModificadoPor)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.TipoCambio)
+                .HasDefaultValue(0m)
+                .HasColumnType("numeric(20, 4)");
             entity.Property(e => e.UsrAct).HasMaxLength(50);
             entity.Property(e => e.UsrReg).HasMaxLength(50);
         });

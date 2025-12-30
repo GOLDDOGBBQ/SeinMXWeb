@@ -1,0 +1,141 @@
+﻿@using SEINMX.Clases.Helpers
+
+@model SEINMX.Models.Inventario.CotizacionNuevaViewModel
+@{
+    ViewBag.Title = "Cotizacion Nueva";
+    var labelAtt = new
+    {
+        @@class = "form-label"
+    };
+
+    var labelValidation = new
+    {
+        @@class = "text-danger"
+    };
+    var editformAtt = new
+    {
+        htmlAttributes = new
+        {
+            @@class = "form-control"
+        }
+    };
+}
+<div class="card shadow-sm">
+
+@using (Html.BeginForm("Crear", "Cotizacion", FormMethod.Post))
+{
+
+    <div class="card-header bg-secondary text-white d-flex align-items-center">
+        <div>
+            <i class="fas fa-user"></i> Cotizacion Nueva
+        </div>
+        <div class="ms-auto">
+            <button type="submit"  class="btn btn-success" >
+                <i class="fas fa-save"></i> Guardar
+            </button>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <!-- FORM  -->
+        <div class="row">
+
+            <!-- Cliente -->
+            <div class="col-md-9">
+                @Html.LabelFor(model => model.IdCliente, labelAtt)
+                <cb-dropdown
+                    id="IdCliente"
+                    name="IdCliente">
+                </cb-dropdown>
+                @Html.ValidationMessageFor(model => model.IdCliente, "", labelValidation)
+            </div>
+
+            <div class="col-md-3">
+                <button class="btn btn-primary"
+                        type="button"
+                        onclick="location.href='@Url.Action("Crear", "Cliente",new { esCotizable = true })'">
+                    <i class="fas fa-user-plus"></i> Cliente Nuevo
+                </button>
+            </div>
+
+            <!-- Contacto -->
+
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.IdClienteContacto, labelAtt)
+                <cb-dropdown
+                    id="IdClienteContacto"
+                    name="IdClienteContacto">
+                </cb-dropdown>
+                @Html.ValidationMessageFor(model => model.IdClienteContacto, "", labelValidation)
+            </div>
+
+
+            <!-- Razón Social -->
+            <div class="col-md-6">
+                @Html.LabelFor(model => model.IdClienteRazonSolcial, labelAtt)
+                <cb-dropdown
+                    id="IdClienteRazonSolcial"
+                    name="IdClienteRazonSolcial">
+                </cb-dropdown>
+                @Html.ValidationMessageFor(model => model.IdClienteRazonSolcial, "", labelValidation)
+            </div>
+
+        </div>
+
+    </div>
+}
+</div>
+
+
+
+    <script type="module">
+        import {ClientsDataProvider} from "@UrlExtensions.Absolute("/dropdown-1.1.0/clientsDataProvider-1.1.1.js ")";
+
+        const clientesDropdown = document.querySelector("#IdCliente");
+        const contactoDropdown = document.querySelector("#IdClienteContacto");
+        const razonDropdown = document.querySelector("#IdClienteRazonSolcial");
+
+        clientesDropdown.dataProvider = new ClientsDataProvider(
+            '/Cliente/DropdownClientes',
+            'Buscar Cliente...'
+        );
+
+        contactoDropdown.dataProvider = new ClientsDataProvider(
+            '/Cliente/DropdownClienteContacto',
+            'Buscar contacto...'
+        );
+
+        razonDropdown.dataProvider = new ClientsDataProvider(
+            '/Cliente/DropdownClienteRazonSolcial',
+            'Buscar razón social...'
+        );
+
+        clientesDropdown.setAttribute('selected', '@(Model is { IdCliente: > 0 } ? Model.IdCliente.ToString() : "")');
+        contactoDropdown.setAttribute('selected', '@((Model.IdClienteContacto ?? 0) > 0 ? Model.IdClienteContacto.ToString() : "")');
+        razonDropdown.setAttribute('selected', '@((Model.IdClienteRazonSolcial ?? 0) > 0 ? Model.IdClienteRazonSolcial.ToString() : "")');
+
+
+        clientesDropdown.addEventListener("change", () => {
+            const idCliente = clientesDropdown.selected;
+
+            contactoDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
+                const encodedSearch = encodeURIComponent(search);
+                return await fetch(`@Url.Action("DropdownClienteContacto", "Cliente")?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
+                    .then(r => r.json());
+            }
+
+            razonDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
+                const encodedSearch = encodeURIComponent(search);
+                return await fetch(`@Url.Action("DropdownClienteRazonSolcial", "Cliente")?idCliente=${idCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
+                    .then(r => r.json());
+            }
+
+            contactoDropdown.dataProvider.reset();
+            razonDropdown.dataProvider.reset()
+
+            contactoDropdown.setAttribute("selected", "");
+            razonDropdown.setAttribute("selected", "")
+
+        });
+    </script>
