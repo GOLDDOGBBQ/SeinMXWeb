@@ -1,11 +1,299 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+	ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+@section Styles
+{
+	<link href="css/aos.css" rel="stylesheet"/>
+	<link rel="stylesheet" href="~/css/index.css"/>
+}
+
+
+
+@section ScriptsTop
+{
+	<script src="js/aos.js"></script>
+	<script src="js/typed.js"></script>
+}
+
+
+
+@*
+<div id="topbar" class="bg-dark text-light py-1 small fixed-top">
+	<div class="container d-flex flex-column flex-md-row
+                align-items-center align-items-md-center
+                justify-content-center justify-content-md-end
+                gap-2 gap-md-4">
+
+        <span class="d-flex align-items-center mx-md-2 mb-2 mb-md-0">
+            <a href="https://wa.me/5213323482809?text=Hola%2C%20quiero%20más%20información" target="_blank"
+               class="text-white">
+                <i class="fab fa-whatsapp text-white mr-1"></i>+52 133 2348 2809
+            </a>
+        </span>
+
+		<span class="d-flex align-items-center mx-md-2 mb-2 mb-md-0">
+            <a href="mailto:Atencionclientes@seinmx.com.mx" target="_blank" class="text-white">
+                <i class="fas fa-at mx-1"></i>atencionclientes@seinmx.com.mx
+            </a>
+        </span>
+
+		<span class="d-flex align-items-center mx-md-2 mb-2 mb-md-0">
+            <i class="fas fa-clock mx-1"></i>
+            De Lunes a Viernes 09:00 AM - 07:00 PM | Sábados 9:00 AM - 02:00 PM
+        </span>
+
+	</div>
+</div>
+*@
+
+
+<div class="container-fluid px-sm-0 mt-4">
+	<a id="section-1" class=" section-ancla"></a>
+	<section class="slice slice-xl pb-0 bg-section-secondary section-AltoMin d-flex mt-5"
+	         data-separator="rounded-continuous" data-separator-bg="dark">
+		<div class="container d-flex align-items-center  my-auto">
+
+			<div class="row align-items-center justify-content-center my-auto">
+				<div class="col-lg-12 my-5 mt-sm-0 mt-md-5 mt-lg-5 align-self-end">
+					<h1 class="d-none">SEINMX distribuidor de equipo de proteccion personal en mexico</h1>
+					<p class="d-none">En SEINMX nos enfocamos en garantizar que hombres y mujeres logren desarrollar
+						actividades en sus centros de trabajo con seguridad, mediante la comercialización de equipos
+						de protección personal fabricados por marcas con los más altos estándares normativos
+						nacionales e internacionales.</p>
+					<img src="img/Sein-logo.webp" height="210"
+					     alt="SeinMx equipo de proteccion personal en guadalajara" class="img-fluid"
+					     data-aos="zoom-in-right" data-aos-easing="ease-in-sine" data-aos-duration="1500"
+					     style="max-height: 210px;">
+				</div>
+				<div class="col-lg-12 text-center text-lg-left pr-0">
+					<p class="lead text-Rem3-Res text-action text-center" data-aos="fade-right"
+					   data-aos-easing="ease-in-sine" data-aos-duration="1500">TU ALIADO EN EQUIPO DE PROTECCIÓN
+						PERSONAL </p>
+				</div>
+				@*	<div class="col-lg-2 col-12 col-sm-12 text-center" data-aos="zoom-in-right"
+				     data-aos-easing="ease-in-sine" data-aos-duration="1500" data-aos-delay="1000">
+					<a href="Contacto.php"
+					   class="btn btn-warning btn-icon btn-Naranja rounded-pill hover-translate-y-n3">
+
+						<span class="btn-inner--text text-white">Contáctanos</span>
+						<span class="btn-inner--icon"><i
+								class="fas fa-arrow-alt-circle-right text-white"></i></span>
+					</a>
+				</div>
+*@
+			</div>
+
+		</div>
+	</section>
+
+	<a id="section-2" class=" section-ancla"></a>
+	<section class="py-7 py-lg-10 my-md-4 border-bottom section-2 section-AltoFull">
+		<span class="mask"></span>
+
+		<div class="container-fluid">
+
+			<div class="row">
+				<div class="col-12">
+					<h1 class="text-center my-5 fw-semibold text-white position-relative">Nuestros productos</h1>
+				</div>
+
+
+				<div class="col-12 col-sm-6 col-md-4" data-aos="fade-up" data-aos-anchor-placement="center-bottom">
+					<div class="card mb-5 zoom border-0 shadow-lg overflow-hidden rounded-4 product-card">
+						<div class="ratio ratio-16x9">
+							<img src="img/CARD1.webp" class="img-fluid object-fit-cover" alt="Protección contra caída">
+						</div>
+
+						<div class="position-absolute bottom-0 start-0 w-100 p-3  bg-dark bg-opacity-75">
+							<h5 class="text-white fw-semibold mb-0 text-center text-Rem2">
+								Protección contra caída
+							</h5>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 " data-aos="fade-up" data-aos-anchor-placement="center-bottom">
+					<div class="card mb-5 zoom border-0 shadow-lg overflow-hidden rounded-4 product-card">
+						<div class="ratio ratio-16x9">
+							<img src="img/CARD2.webp" class="img-fluid object-fit-cover" alt="Respiradores">
+						</div>
+
+						<div class="position-absolute bottom-0 start-0 w-100 p-3  bg-dark bg-opacity-75">
+							<h5 class="text-white fw-semibold mb-0 text-center text-Rem2">
+								Respiradores
+							</h5>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 " data-aos="fade-up" data-aos-anchor-placement="center-bottom">
+					<div class="card mb-5 zoom border-0 shadow-lg rounded-4 overflow-hidden product-card">
+						<div class="ratio ratio-16x9">
+							<img src="img/CARD3.webp" class="img-fluid object-fit-cover" alt="Calzado Industrial">
+						</div>
+
+						<div class="position-absolute bottom-0 start-0 w-100 p-3  bg-dark bg-opacity-75">
+							<h5 class="text-white fw-semibold mb-0 text-center text-Rem2">
+								Calzado Industrial
+							</h5>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 " data-aos="fade-up" data-aos-anchor-placement="center-bottom">
+					<div class="card mb-3 zoom border-0 shadow-lg rounded-4 overflow-hidden product-card">
+						<div class="ratio ratio-16x9">
+							<img src="img/CARD4.webp" class="img-fluid object-fit-cover" alt="Protección para manos">
+						</div>
+						<div class="position-absolute bottom-0 start-0 w-100 p-3  bg-dark bg-opacity-75">
+							<h5 class="text-white fw-semibold mb-0 text-center text-Rem2">
+								Protección para manos
+							</h5>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 " data-aos="fade-up" data-aos-anchor-placement="center-bottom">
+					<div class="card mb-3 zoom border-0 shadow-lg rounded-4 overflow-hidden product-card">
+						<div class="ratio ratio-16x9">
+							<img src="img/CARD5.webp" class="img-fluid object-fit-cover" alt="Protección para ojos">
+						</div>
+						<div class="position-absolute bottom-0 start-0 w-100 p-3  bg-dark bg-opacity-75">
+							<h5 class="text-white fw-semibold mb-0 text-center text-Rem2">
+								Protección para ojos
+							</h5>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-6 col-md-4 " data-aos="fade-up" data-aos-anchor-placement="center-bottom">
+					<div class="card mb-3 zoom border-0 shadow-lg rounded-4 overflow-hidden product-card">
+						<div class="ratio ratio-16x9">
+							<img src="img/CARD6.webp" class="img-fluid object-fit-cover" alt="Cascos">
+						</div>
+						<div class="position-absolute bottom-0 start-0 w-100 p-3  bg-dark bg-opacity-75">
+							<h5 class="text-white fw-semibold mb-0 text-center text-Rem2">
+								Cascos
+							</h5>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row justify-content-center my-2">
+				<div class="col-12 col-md-12 col-lg-12 text-center position-relative">
+					<p class="text-action text-Rem2">
+						<span id="typed2">CATEGORIAS DE PRODUCTOS SEINMX</span>
+					</p>
+					<p class="lead mb-7 mb-md-9 text-white text-Rem1-6">
+						Productos de protección personal de alta calidad.
+					</p>
+				</div>
+			</div>
+		</div>
+
+
+	</section>
+
+	<a id="section-4" class="section-ancla"></a>
+	<br/>
+	<section class="py-8 py-md-11">
+		<div class="container vh-50 d-flex align-items-center">
+			<div class="row d-flex justify-content-center">
+				<div class="col-12 text-center">
+					<h2 class="text-action text-uppercase">Nuestras marcas</h2>
+				</div>
+
+				<div class="col-12 col-sm-4 col-md-2  d-flex justify-content-center">
+					<div class="img-fluid img-fluid mb-2 mb-md-5 mb-md-8">
+						<img alt="KASK" src="img/M1.webp" class="img-fluid img-center" data-aos="zoom-in-left"
+						     data-aos-duration="1500">
+					</div>
+				</div>
+				<div class="col-12 col-sm-4 col-md-2  d-flex justify-content-center">
+					<div class="img-fluid img-fluid mb-2 mb-md-5 mb-md-8">
+						<img alt="RMK FALL PROTECTION" src="img/M2.webp" class="img-fluid img-center"
+						     data-aos="zoom-in-left" data-aos-duration="1000">
+					</div>
+
+				</div>
+				<div class="col-12 col-sm-4 col-md-2  d-flex justify-content-center">
+					<div class="img-fluid img-fluid mb-2 mb-md-5 mb-md-8">
+						<img alt="SINGING ROCK" src="img/M3.webp" class="img-fluid img-center"
+						     data-aos="zoom-in-left" data-aos-duration="1500">
+					</div>
+				</div>
+				<div class="col-12 col-sm-4 col-md-2  d-flex justify-content-center">
+					<div class="img-fluid img-fluid mb-2 mb-md-5 mb-md-8">
+						<img alt="PETZL" src="img/M4.webp" class="img-fluid img-center" data-aos="zoom-in-left"
+						     data-aos-duration="1000">
+					</div>
+				</div>
+
+				<div class="col-12 col-sm-4 col-md-2  d-flex justify-content-center">
+					<div class="img-fluid img-fluid mb-2 mb-md-5 mb-md-8">
+						<img alt="AP MASCARILLAS" src="img/M5.webp" class="img-fluid img-center"
+						     data-aos="zoom-in-right" data-aos-duration="1000">
+					</div>
+
+				</div>
+
+			</div>
+		</div>
+	</section>
 
 
 </div>
 
+
+@*
+<script>
+	document.addEventListener("DOMContentLoaded", function () {
+
+		const topbar = document.getElementById("topbar");
+		const navbar = document.getElementById("mainNavbar");
+
+		let lastScroll = 0;
+
+		// Medir altura real del topbar
+		function updateNavbarMargin() {
+			const topbarHeight = topbar.offsetHeight;
+			navbar.style.marginTop = topbarHeight + "px";
+		}
+
+		// Ajustar al cargar
+		updateNavbarMargin();
+
+		window.addEventListener("scroll", function () {
+			const currentScroll = window.scrollY;
+
+			if (currentScroll > lastScroll && currentScroll > 50) {
+				// Ocultar topbar
+				topbar.style.top = `-${topbar.offsetHeight}px`;
+				topbar.style.opacity = "0";
+
+				// El navbar sube
+				navbar.style.marginTop = "0px";
+			} else {
+				// Mostrar topbar
+				topbar.style.top = "0";
+				topbar.style.opacity = "1";
+
+				// Restaurar posición original del navbar
+				updateNavbarMargin();
+			}
+
+			lastScroll = currentScroll;
+		});
+
+	});
+</script>*@
+<script>
+	$(document).ready(function () {
+		var typed2 = new Typed('#typed2', {
+			strings: ['GUANTES', 'PUNTOS DE ANCLAJE', 'ARNES DE SEGURIDAD', 'LENTES DE SEGURIDAD'],
+			smartBackspace: true,
+			typeSpeed: 70,
+			loop: true
+		});
+	});
+</script>
+<script>
+	AOS.init();
+</script>

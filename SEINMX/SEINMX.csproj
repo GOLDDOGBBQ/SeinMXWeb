@@ -30,6 +30,7 @@
     <ItemGroup>
       <Folder Include="Models\Cuenta\" />
       <Folder Include="plugins\" />
+      <Folder Include="wwwroot\css\font\" />
     </ItemGroup>
 
     <ItemGroup>

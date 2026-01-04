@@ -1,0 +1,212 @@
+@font-face {
+    font-family: 'Univers';
+    src: url('font/univers_ssv/UniversLTStd.otf') format('Opentype');
+}
+
+body {
+    font-family: "Univers", Helvetica !important;
+    font-size: 14px;
+    color: #333333;
+    background-color: #ffffff;
+}
+
+.vh-50 {
+    height: 50vh;
+}
+
+.zoom {
+    transition: transform .2s;
+    /* Animation */
+}
+
+.zoom:hover {
+    transform: scale(0.9);
+    /* (150% zoom - Note: if the zoom is too large, it will go outside of the viewport) */
+}
+
+.section-ancla {
+    display: block;
+    content: " ";
+    margin-top: -45px;
+    height: 45px;
+    visibility: hidden;
+}
+
+.section-AltoMin {
+    min-height: 88vh;
+}
+
+.section-AltoMid {
+    min-height: 61vh;
+}
+
+.section-AltoFull {
+    min-height: 100vh;
+}
+
+
+.square::before {
+    padding-top: 100%;
+}
+
+.rectangle::before,
+.square::before {
+    display: block;
+    content: '';
+}
+
+.section-2 {
+
+    background-color: #fff;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-attachment: fixed;
+    position: relative;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    height: 100%;
+    width: 100%;
+
+}
+
+.bg-text {
+    background-color: rgba(15, 20, 11, 0.6) !important;
+    opacity: .7;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 1.5rem;
+}
+
+.mask2 {
+
+    background: url('../img/fondo/seinmx_Fondo.webp') no-repeat center center fixed !important;
+}
+
+.mask3 {
+
+    background: url('../img/fondo/seinmx_Fondo1.webp') no-repeat center center fixed !important;
+}
+
+.mask {
+
+    background: url('../img/fondo/fondo2.webp') no-repeat center center fixed;
+    opacity: .7;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    transition: all .2s ease;
+}
+
+.mask::before {
+    position: absolute;
+    background-color: rgba(15, 20, 11, 0.6) !important;
+    content: "";
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+.text-action {
+    color: #ffab00 !important;
+}
+
+
+
+.text-Rem0-9 {
+    font-size: 0.9rem !important;
+}
+
+.text-Rem-1 {
+    font-size: 1rem !important;
+}
+
+.text-Rem1-1 {
+    font-size: 1.1rem !important;
+}
+
+.text-Rem1-2 {
+    font-size: 1.2rem !important;
+}
+
+.text-Rem1-3 {
+    font-size: 1.3rem !important;
+}
+
+.text-Rem1-4 {
+    font-size: 1.4rem !important;
+}
+
+.text-Rem1-5 {
+    font-size: 1.5rem !important;
+}
+
+.text-Rem1-6 {
+    font-size: 1.6rem !important;
+}
+
+.text-Rem1-7 {
+    font-size: 1.7rem !important;
+}
+
+.text-Rem1-9 {
+    font-size: 1.9rem !important;
+}
+
+.text-Rem2 {
+    font-size: 2rem !important;
+}
+
+.text-Rem2-1 {
+    font-size: 2.1rem !important;
+}
+
+.text-Rem2-3 {
+    font-size: 2.3rem !important;
+}
+
+.text-Rem3 {
+    font-size: 3rem !important;
+}
+
+.text-Rem4 {
+    font-size: 4rem !important;
+}
+
+
+@media screen and (max-width: 600px) {
+    .text-Rem3-Res {
+        font-size: 1.5rem !important;
+    }
+
+    .text-Rem2-Res {
+        font-size: 1.2rem !important;
+    }
+
+    .text-Rem1-9-Res {
+        font-size: 1.1rem !important;
+    }
+
+
+}
+
+@media screen and (min-width: 601px) {
+    .text-Rem3-Res {
+        font-size: 3rem !important;
+    }
+
+    .text-Rem2-Res {
+        font-size: 2rem !important;
+    }
+
+    .text-Rem1-9-Res {
+        font-size: 1.9rem !important;
+    }
+}

@@ -34,10 +34,42 @@
             }
         }
 
+
+
+
+        public static string BadgeColor(int? id)
+        {
+            switch (id)
+            {
+                case 1:
+                    return "badge bg-primary";
+
+                case 2:
+                    return "badge bg-info";
+
+                case 3:
+                    return "badge bg-success";
+
+                case 4:
+                    return "badge bg-warning text-dark";
+
+                case 5:
+                    return "badge bg-secondary";
+
+                case 6:
+                    return "badge bg-dark";
+
+                default:
+                    return "badge bg-light text-dark";
+            }
+        }
+
+
+
     }
 }
 
-<div class="container-fluid mt-4">
+<div class="container-fluid mt-4 px-sm-0">
 
     <div class="card shadow-sm">
         <div class="card-header bg-secondary text-white">
@@ -104,7 +136,7 @@
                         <th><i class="fa-solid fa-hashtag"></i> Cotizacion</th>
                         <th><i class="fas fa-id-card"></i> Cliente</th>
                         <th><i class="fas fa-tag"></i> Status</th>
-                        <th><i class="fa-solid fa-percent"></i> Tarifa</th>
+                        <th><i class="fa-solid fa-layer-group"></i> Perfil</th>
                         <th><i class="fa-regular fa-money-bill-1"></i> Total</th>
                         <th><i class="fas fa-gear"></i> Opciones</th>
                     </tr>
@@ -113,7 +145,7 @@
                     @foreach (var item in Model.Cotizaciones)
                     {
                         <tr id="row-@item.IdCotizacion">
-                            <td>@item.IdCotizacion</td>
+                            <td>@item.Cotizacion</td>
                             <td>@item.Cliente</td>
 
                             <td>
@@ -121,7 +153,7 @@
                             </td>
 
                             <td>
-                                @item.Tarifa
+                                @Html.Raw($"<span class=\"{BadgeColor(item.IdPerfil)}\" >{item.Perfil}</span>")
                             </td>
                             <td>
                                 @string.Format(cultureMx, "{0:C}", item.Total)
