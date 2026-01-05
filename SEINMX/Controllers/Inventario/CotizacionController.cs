@@ -43,6 +43,13 @@ public class CotizacionController : ApplicationController
                 query = query.Where(x => x.Status == model.Status);
         }
 
+        if (!GetIsAdmin())
+        {
+            var usr = GetUserId();
+            query = query.Where(x => x.UsuarioResponsable == usr);
+        }
+
+
         var lista = await query
             .OrderByDescending(x => x.IdCotizacion)
             .ToListAsync();
@@ -163,7 +170,7 @@ public class CotizacionController : ApplicationController
     {
         var model = new CotizacionNuevaViewModel
         {
-           IdCliente = idCliente ?? 0
+            IdCliente = idCliente ?? 0
         };
 
         return View(model);
@@ -254,6 +261,15 @@ public class CotizacionController : ApplicationController
 
         if (entity == null)
             throw new Exception("Cotización no encontrada");
+
+        if (!GetIsAdmin())
+        {
+            if (entity.UsuarioResponsable != GetUserId())
+            {
+                throw new Exception("No tiene permiso para editar esta cotización");
+
+            }
+        }
 
         if (refresh is null)
         {
@@ -458,27 +474,51 @@ public class CotizacionController : ApplicationController
     [HttpGet]
     public async Task<IActionResult> GetDetalles(int idCotizacion)
     {
-        var detalles = await _db.VsCotizacionDetalles
-            .Where(x => x.IdCotizacion == idCotizacion)
-            .Select(x => new
-            {
-                x.IdCotizacionDetalle,
-                x.Cantidad,
-                x.IdProducto,
-                x.Codigo,
-                x.Descripcion,
-                x.PrecioListaMxn,
-                x.PorcentajeProveedor,
-                x.PrecioProveedor,
-                x.PorcentajeProveedorGanancia,
-                x.GananciaProveedor,
-                x.PrecioSein,
-                x.PrecioCliente,
-                x.Total,
-                x.Observaciones
-            }).ToListAsync();
+        var query = _db.VsCotizacionDetalles
+            .Where(x => x.IdCotizacion == idCotizacion);
 
-        return Json(detalles);
+        if (GetIsAdmin())
+        {
+            var lista = await query
+                .Select(x => new
+                {
+                    idCotizacionDetalle = x.IdCotizacionDetalle,
+                    cantidad = x.Cantidad,
+                    idProducto = x.IdProducto,
+                    codigo = x.Codigo,
+                    descripcion = x.Descripcion,
+                    precioListaMxn = x.PrecioListaMxn,
+                    porcentajeProveedor = x.PorcentajeProveedor,
+                    precioProveedor = x.PrecioProveedor,
+                    porcentajeProveedorGanancia = x.PorcentajeProveedorGanancia,
+                    gananciaProveedor = x.GananciaProveedor,
+                    precioSein = x.PrecioSein,
+                    precioCliente = x.PrecioCliente,
+                    total = x.Total,
+                    observaciones = x.Observaciones
+                })
+                .ToListAsync();
+
+            return Json(lista);
+        }
+        else
+        {
+            var lista = await query
+                .Select(x => new
+                {
+                    idCotizacionDetalle = x.IdCotizacionDetalle,
+                    cantidad = x.Cantidad,
+                    idProducto = x.IdProducto,
+                    codigo = x.Codigo,
+                    descripcion = x.Descripcion,
+                    precioCliente = x.PrecioCliente,
+                    total = x.Total,
+                    observaciones = x.Observaciones
+                })
+                .ToListAsync();
+
+            return Json(lista);
+        }
     }
 
     [HttpDelete]

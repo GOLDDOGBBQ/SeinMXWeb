@@ -154,12 +154,13 @@
                         </li>
 
 
+                        @*
                         <li class="nav-item">
                             <a href="/Facturas/Index" class="nav-link">
                                 <i class="nav-icon fa-solid fa-file-invoice-dollar"></i>
                                 <p>Facturas</p>
                             </a>
-                        </li>
+                        </li>*@
 
                         <li class="nav-item">
                             <a href="/Cliente/Index" class="nav-link">
@@ -168,17 +169,18 @@
                             </a>
                         </li>
 
-                        <li class="nav-item">
-                            <a href="/Producto/Index" class="nav-link">
-                                <i class="nav-icon fa-solid fa-dolly"></i>
-                                <p>Productos</p>
-                            </a>
-                        </li>
-
-
                         @if (UserClaimsHelper.IsAdmin(User))
                         {
+
+
                             <li class="nav-header">Administrador</li>
+                            <li class="nav-item">
+                                <a href="/Producto/Index" class="nav-link">
+                                    <i class="nav-icon fa-solid fa-dolly"></i>
+                                    <p>Productos</p>
+                                </a>
+                            </li>
+
                             <li class="nav-item">
                                 <a href="/Proveedor/Index" class="nav-link">
                                     <i class="nav-icon fa-solid fa-building-user"></i>

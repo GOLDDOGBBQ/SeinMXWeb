@@ -25,7 +25,7 @@
 @using SEINMX.Clases.Helpers
 @model SEINMX.Models.Inventario.CotizacionViewModel
 
-<div class="container-fluid mt-4 px-sm-0">
+<div class="container-fluid mt-4 px-0 px-sm-1 px-md-4">
     @if (!ViewData.ModelState.IsValid)
     {
         <div class="alert alert-danger">
@@ -169,7 +169,7 @@
                     <div class="col-md-9">
                         @Html.HiddenFor(model => model.IdCliente)
                         @Html.LabelFor(model => model.Cliente, labelAtt)
-                        @Html.EditorFor(model => model.Cliente,  new  { htmlAttributes = new  { @class = "form-control", disabled = "disabled"   }})
+                        @Html.EditorFor(model => model.Cliente, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
                     </div>
 
                     <!-- Contacto -->
@@ -255,12 +255,15 @@
                 <tr>
                     <th>Código</th>
                     <th>Descripción</th>
-                    <th>Precio Lista</th>
-                    <th>% Prov</th>
-                    <th>Precio Prov</th>
-                    <th>% Gan</th>
-                    <th>Ganancia</th>
-                    <th>Precio Sein</th>
+                    @if (UserClaimsHelper.IsAdmin(User))
+                    {
+                        <th>Precio Lista</th>
+                        <th>% Prov</th>
+                        <th>Precio Prov</th>
+                        <th>% Gan</th>
+                        <th>Ganancia</th>
+                        <th>Precio Sein</th>
+                    }
                     <th>Precio Cliente</th>
                     <th>Cantidad</th>
                     <th>Total</th>
@@ -400,7 +403,6 @@
         }
 
 
-
         contactoDropdown.setAttribute('selected', '@((Model.IdClienteContacto ?? 0) > 0 ? Model.IdClienteContacto.ToString() : "")');
         razonDropdown.setAttribute('selected', '@((Model.IdClienteRazonSolcial ?? 0) > 0 ? Model.IdClienteRazonSolcial.ToString() : "")');
     </script>
@@ -418,37 +420,56 @@
 
 
         const idCotizacion = @Model.IdCotizacion;
+        const esAdmin = @UserClaimsHelper.IsAdmin(User).ToString().ToLower();
 
         async function cargarTabla() {
-            const res = await fetch(`@Url.Action("GetDetalles", "Cotizacion", new { idCotizacion = @Model.IdCotizacion })`);
+            const res = await fetch(`@Url.Action("GetDetalles", "Cotizacion", new { idCotizacion = Model.IdCotizacion })`);
             const data = await res.json();
 
             const tbody = document.querySelector("#tablaDetalle tbody");
             tbody.innerHTML = "";
-
             data.forEach(d => {
-                tbody.innerHTML += `
-            <tr data-id="${d.idCotizacionDetalle}">
-
-                <td>${d.codigo}</td>
-                <td>${d.descripcion}</td>
-                <td>${d.precioListaMxn.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                <td>${d.porcentajeProveedor}</td>
-                <td>${d.precioProveedor.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                <td>${d.porcentajeProveedorGanancia}</td>
-                <td>${d.gananciaProveedor}</td>
-                <td>${d.precioSein.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                <td>${d.precioCliente.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                <td><input class="form-control txtCantidad" value="${d.cantidad}"></td>
-                <td>${d.total.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                <td><input class="form-control txtObs" value="${d.observaciones}"></td>
-                <td>
-                    <button class="btn btn-danger btnEliminar">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>`;
+                if (esAdmin) {
+                    tbody.insertAdjacentHTML("beforeend", `
+                    <tr data-id="${d.idCotizacionDetalle}">
+                        <td>${d.codigo}</td>
+                        <td>${d.descripcion}</td>
+                        <td>${d.precioListaMxn.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                        <td>${d.porcentajeProveedor}</td>
+                        <td>${d.precioProveedor.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                        <td>${d.porcentajeProveedorGanancia}</td>
+                        <td>${d.gananciaProveedor}</td>
+                        <td>${d.precioSein.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                        <td>${d.precioCliente.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                        <td><input class="form-control txtCantidad" value="${d.cantidad}"></td>
+                        <td>${d.total.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                        <td><input class="form-control txtObs" value="${d.observaciones ?? ""}"></td>
+                        <td>
+                            <button class="btn btn-danger btnEliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+                } else {
+                    tbody.insertAdjacentHTML("beforeend", `
+                    <tr data-id="${d.idCotizacionDetalle}">
+                        <td>${d.codigo}</td>
+                        <td>${d.descripcion}</td>
+                        <td>${d.precioCliente.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                        <td><input class="form-control txtCantidad" value="${d.cantidad}"></td>
+                        <td>${d.total.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                        <td><input class="form-control txtObs" value="${d.observaciones ?? ""}"></td>
+                        <td>
+                            <button class="btn btn-danger btnEliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `);
+                }
             });
+
         }
 
         // Agregar producto
