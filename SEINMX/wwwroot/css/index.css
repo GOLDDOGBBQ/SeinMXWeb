@@ -10,8 +10,8 @@ body {
     background-color: #ffffff;
 }
 
-.vh-50 {
-    height: 50vh;
+.min-vh-50 {
+    min-height: 50vh;
 }
 
 .zoom {
