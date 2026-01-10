@@ -1,10 +1,23 @@
 ﻿@{
     ViewData["Title"] = "Login";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var labelAtt = new
+    {
+        @@class = "form-label"
+    };
 }
+@model SEINMX.Models.Cuenta.LoginViewModel
+
 <div class="container min-vh-100 d-flex justify-content-center align-items-center">
 
     <div class="login-box">
+        <div class="login-logo">
+            <a href="/">
+                <img src="/img/Sein-logo.webp" alt="Logo" class="sidebar-logo">
+            </a>
+        </div>
+
         <div class="card card-dark">
             <div class="card-header text-center">
                 <h3>Iniciar Sesión</h3>
@@ -17,28 +30,41 @@
 
                 @using (Html.BeginForm("Login", "Cuenta", FormMethod.Post))
                 {
+                    @Html.LabelFor(model => model.Usuario, labelAtt)
                     <div class="input-group mb-3">
-                        <input type="text" name="usuario" class="form-control" placeholder="Usuario"
-                               value="@(ViewBag.Usuario ?? "")" required/>
-                        <div class="input-group-append">
-                            <div class="input-group-text"><span class="fas fa-user"></span></div>
+                        @Html.EditorFor(model => model.Usuario, new { htmlAttributes = new { @class = "form-control" } })
+                        <div class="input-group-text">
+                            <span class="fas fa-user"></span>
                         </div>
                     </div>
+                    @Html.ValidationMessageFor(model => model.Usuario)
 
+                    @Html.LabelFor(model => model.Password, labelAtt)
                     <div class="input-group mb-3">
-                        <input type="password" name="password" class="form-control" placeholder="Contraseña" required/>
-                        <div class="input-group-append">
-                            <div class="input-group-text"><span class="fas fa-lock"></span></div>
+                        @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control",placeholder="Contraseña" } })
+                        <div class="input-group-text">
+                            <span class="fas fa-lock"></span>
                         </div>
                     </div>
+                    @Html.ValidationMessageFor(model => model.Password)
 
                     <div class="row">
-                        <div class="col-12">
-                            <button type="submit" class="btn btn-dark btn-block">Iniciar Sesión</button>
+                        <div class="col-12 mb-3">
+                            <div class="icheck-primary">
+                                @Html.EditorFor(model => model.Recuerdame)
+                                <label for="Recuerdame">
+                                    @Html.DisplayNameFor(model => model.Recuerdame)
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-12 d-flex align-items-center justify-content-center mb-3">
+                            <button type="submit" class="btn btn-dark btn-block mx-auto">Iniciar Sesión</button>
                         </div>
                     </div>
                 }
             </div>
         </div>
+
     </div>
 </div>

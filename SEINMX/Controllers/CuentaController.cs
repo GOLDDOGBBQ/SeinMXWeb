@@ -6,11 +6,12 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using SEINMX.Models.Cuenta;
 
 
 namespace SEINMX.Controllers
 {
-    public class CuentaController : Controller
+    public class CuentaController : ApplicationController
     {
         private readonly AppDbContext _context;
 
@@ -23,7 +24,8 @@ namespace SEINMX.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            return View();
+            var model = new LoginViewModel();
+            return View(model);
         }
 
         // GET: /Cuenta/Login
@@ -37,32 +39,34 @@ namespace SEINMX.Controllers
 
         // POST: /Cuenta/Login
         [HttpPost]
-        public async Task<IActionResult> Login(string usuario, string password)
+        public async Task<IActionResult> Login(LoginViewModel model)
         {
-            ViewBag.Usuario = usuario;
-
-            if (string.IsNullOrEmpty(usuario) || string.IsNullOrEmpty(password))
+            if (!ModelState.IsValid)
             {
                 ViewBag.Error = "Debe ingresar usuario y contraseña.";
-                return View();
+                TempData["toast-error"] = "Revise los campos marcados.";
+                return View(model);
+            }
+
+            model.Normalize();
+
+            if (string.IsNullOrEmpty(model.Usuario) || string.IsNullOrEmpty(model.Password))
+            {
+                ViewBag.Error = "Debe ingresar usuario y contraseña.";
+                TempData["toast-error"] = "Debe ingresar usuario y contraseña.";
+                return View(model);
             }
 
 
             var user = await _context.Usuarios
-                .FirstOrDefaultAsync(u => u.Usuario1 == usuario && !u.Eliminado);
+                .FirstOrDefaultAsync(u => u.Usuario1 == model.Usuario && !u.Eliminado);
 
-            if (user == null || !PasswordHasher.Verify(password, user.PasswordHash)) // En producción: usa hash y salt
+            if (user == null ||
+                !PasswordHasher.Verify(model.Password, user.PasswordHash)) // En producción: usa hash y salt
             {
                 ViewBag.Error = "Usuario o contraseña incorrectos.";
-                return View();
-            }
-
-
-            if (user.CambiarPassword)
-            {
-                TempData["IdUsuarioCambio"] = user.IdUsuario;
-                TempData["Mensaje"] = "Debe cambiar su contraseña antes de continuar.";
-                return RedirectToAction("CambiarPassword");
+                TempData["toast-error"] = "Usuario o contraseña incorrectos.";
+                return View(model);
             }
 
 
@@ -77,20 +81,39 @@ namespace SEINMX.Controllers
                 new Claim(ClaimTypes.NameIdentifier, user.Usuario1),
                 new Claim(ClaimTypes.Name, user.Nombre ?? user.Usuario1),
                 new Claim("Usuario", user.Usuario1),
-                new Claim("Admin", user.Admin.ToString())
+                new Claim("Admin", user.Admin.ToString()),
+                new Claim("IdUsuario", user.IdUsuario.ToString())
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
 
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                new AuthenticationProperties
-                {
-                    IsPersistent = true,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24)
-                });
+            if (model.Recuerdame)
+            {
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    new AuthenticationProperties
+                    {
+                        IsPersistent = true,
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                    });
+            }
+            else
+            {
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    new ClaimsPrincipal(claimsIdentity),
+                    new AuthenticationProperties
+                    {
+                        IsPersistent = false
+                    });
+            }
 
+            if (user.CambiarPassword)
+            {
+                TempData["Mensaje"] = "Debe cambiar su contraseña antes de continuar.";
+                return RedirectToAction("CambiarPassword");
+            }
 
 
             return RedirectToAction("Inicio", "Cuenta");
@@ -99,61 +122,44 @@ namespace SEINMX.Controllers
 
         // GET: /Cuenta/CambiarPassword
         [HttpGet]
+        [Authorize]
         public IActionResult CambiarPassword()
         {
-            if (!TempData.ContainsKey("IdUsuarioCambio"))
-                return RedirectToAction("Login");
-
             ViewBag.Mensaje = TempData["Mensaje"];
-            return View();
+            var model = new LoginCambioViewModel();
+            return View(model);
         }
 
 
-// POST: /Cuenta/CambiarPassword
+        // POST: /Cuenta/CambiarPassword
+        [Authorize]
         [HttpPost]
-        public async Task<IActionResult> CambiarPassword(string nuevaPassword, string confirmarPassword)
+        public async Task<IActionResult> CambiarPassword(LoginCambioViewModel model)
         {
-            if (!TempData.ContainsKey("IdUsuarioCambio"))
-                return RedirectToAction("Login");
+            int idUsuario = GetIdUsuarioPrimaryKey();
 
-            int idUsuario = (int)TempData["IdUsuarioCambio"];
+            if (idUsuario == 0)
+            {
+                TempData["toast-error"] = "Usuario no encontrado. inicia sesion de nuevo";
+                return RedirectToAction("Logout", "Cuenta");
+            }
 
-            if (string.IsNullOrEmpty(nuevaPassword) || nuevaPassword != confirmarPassword)
+            if (string.IsNullOrEmpty(model.NuevaPassword) || model.NuevaPassword != model.ConfirmarPassword)
             {
                 ViewBag.Error = "Las contraseñas no coinciden o están vacías.";
-                TempData["IdUsuarioCambio"] = idUsuario; // Mantener temporal
-                return View();
+                TempData["toast-error"] = "Las contraseñas no coinciden o están vacías.";
+                return View(model);
             }
 
             var user = await _context.Usuarios.FindAsync(idUsuario);
             if (user == null)
                 return RedirectToAction("Login");
 
-            user.PasswordHash = PasswordHasher.GenerateHash(nuevaPassword);
+            user.PasswordHash = PasswordHasher.GenerateHash(model.NuevaPassword);
             user.CambiarPassword = false;
             user.UltimoAcceso = DateTime.Now;
 
             await _context.SaveChangesAsync();
-
-            // Crear claims y hacer login
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Usuario1),
-                new Claim(ClaimTypes.Name, user.Nombre ?? user.Usuario1),
-                new Claim("Usuario", user.Usuario1),
-                new Claim("Admin", user.Admin.ToString())
-            };
-
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                new AuthenticationProperties
-                {
-                    IsPersistent = true,
-                    ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24)
-                });
 
             return RedirectToAction("Inicio", "Cuenta");
         }
@@ -167,6 +173,7 @@ namespace SEINMX.Controllers
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }
+
         // GET: /Cuenta/AccesoDenegado
         [HttpGet]
         public IActionResult AccesoDenegado()

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SEINMX.Clases;
 using SEINMX.Context;
@@ -7,6 +8,7 @@ using SEINMX.Context.Database;
 
 namespace SEINMX.Controllers.Inventario
 {
+    [Authorize]
     public class CotizacionDetalleController : ApplicationController
     {
         private readonly AppDbContext _db;

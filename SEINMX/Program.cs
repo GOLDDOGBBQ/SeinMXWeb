@@ -37,7 +37,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Cuenta/Login";
         options.AccessDeniedPath = "/Cuenta/AccesoDenegado";
-        options.ExpireTimeSpan = TimeSpan.FromHours(24);
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
         options.SlidingExpiration = true;
     });
 

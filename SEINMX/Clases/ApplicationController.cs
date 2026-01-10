@@ -11,6 +11,7 @@ namespace SEINMX.Clases;
 public class ApplicationController  : Controller
 {
     private string  ApiName ;
+    private int IdUsuarioPrimaryKey ;
     private string UserId ;
     private bool Admin ;
 
@@ -23,6 +24,11 @@ public class ApplicationController  : Controller
     {
         return UserId;
     }
+    public int GetIdUsuarioPrimaryKey()
+    {
+        return IdUsuarioPrimaryKey;
+    }
+
 
     public bool GetIsAdmin()
     {
@@ -36,6 +42,7 @@ public class ApplicationController  : Controller
 
         string? userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         string? sAdmion = User.FindFirstValue("Admin");
+        string? IdUsuario = User.FindFirstValue("IdUsuario");
 
         var serviceProvider = context.HttpContext.RequestServices;
 
@@ -50,6 +57,10 @@ public class ApplicationController  : Controller
         if (!bool.TryParse(sAdmion, out Admin))
         {
             Admin = false;
+        }
+        if (!int.TryParse(IdUsuario, out IdUsuarioPrimaryKey))
+        {
+            IdUsuarioPrimaryKey = 0;
         }
 
     }

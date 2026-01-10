@@ -3,12 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using SEINMX.Clases;
 using SEINMX.Context;
 using SEINMX.Models.Inventario;
-using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using SEINMX.Context.Database;
 
 
 namespace SEINMX.Controllers.Inventario;
-
+[Authorize]
 public class ProductoController : ApplicationController
 {
     private readonly AppDbContext _db;
