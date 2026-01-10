@@ -250,30 +250,31 @@
             <b>Productos</b>
         </div>
         <div class="card-body">
-            <table class="table table-bordered table-hover mt-4 " id="tablaDetalle">
-                <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Descripción</th>
-                    @if (UserClaimsHelper.IsAdmin(User))
-                    {
-                        <th>Precio Lista</th>
-                        <th>% Prov</th>
-                        <th>Precio Prov</th>
-                        <th>% Gan</th>
-                        <th>Ganancia</th>
-                        <th>Precio Sein</th>
-                    }
-                    <th>Precio Cliente</th>
-                    <th>Cantidad</th>
-                    <th>Total</th>
-                    <th>Observaciones</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover mt-4 " id="tablaDetalle">
+                    <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Descripción</th>
+                        @if (UserClaimsHelper.IsAdmin(User))
+                        {
+                            <th>Precio Lista</th>
+                            <th>% Prov</th>
+                            <th>Precio Prov</th>
+                            <th>% Gan</th>
+                            <th>Ganancia</th>
+                            <th>Precio Sein</th>
+                        }
+                        <th>Precio Cliente</th>
+                        <th>Cantidad</th>
+                        <th>Total</th>
+                        <th>Observaciones</th>
+                        <th></th>
+                    </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
     </div>
 

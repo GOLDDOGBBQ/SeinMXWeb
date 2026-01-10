@@ -103,34 +103,35 @@
                 </button>
             </div>
         </div>
-
-        <table class="table table-sm table-striped">
-            <thead class="table-light">
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Teléfono</th>
-                <th>Correo</th>
-                <th class="text-end">Opciones</th>
-            </tr>
-            </thead>
-            <tbody id="listaContactos">
-            @foreach (var c in Model.ClienteContactos)
-            {
-                <tr data-id="@c.IdClienteContacto">
-                    <td>@c.IdClienteContacto</td>
-                    <td><input class="form-control txt_ct_Nombre" value="@c.Nombre"></td>
-                    <td><input class="form-control txt_ct_Telefono" value="@c.Telefono"></td>
-                    <td><input class="form-control txt_ct_Correo" value="@c.Correo"></td>
-                    <td class="text-end">
-                        <button class="btn btn-danger btn-sm" onclick="quitarContactoTemp(this)">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
+        <div class="table-responsive">
+            <table class="table table-sm table-striped">
+                <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Teléfono</th>
+                    <th>Correo</th>
+                    <th class="text-end">Opciones</th>
                 </tr>
-            }
-            </tbody>
-        </table>
+                </thead>
+                <tbody id="listaContactos">
+                @foreach (var c in Model.ClienteContactos)
+                {
+                    <tr data-id="@c.IdClienteContacto">
+                        <td>@c.IdClienteContacto</td>
+                        <td><input class="form-control txt_ct_Nombre" value="@c.Nombre"></td>
+                        <td><input class="form-control txt_ct_Telefono" value="@c.Telefono"></td>
+                        <td><input class="form-control txt_ct_Correo" value="@c.Correo"></td>
+                        <td class="text-end">
+                            <button class="btn btn-danger btn-sm" onclick="quitarContactoTemp(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
 
         <hr/>
 
