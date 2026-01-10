@@ -116,6 +116,22 @@
         razonDropdown.setAttribute('selected', '@((Model.IdClienteRazonSolcial ?? 0) > 0 ? Model.IdClienteRazonSolcial.ToString() : "")');
 
 
+        const idCotizacion = @Model.IdCliente;
+        if(idCotizacion > 0){
+            contactoDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
+                const encodedSearch = encodeURIComponent(search);
+                return await fetch(`@Url.Action("DropdownClienteContacto", "Cliente")?idCliente=${@Model.IdCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
+                    .then(r => r.json());
+            }
+
+            razonDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
+                const encodedSearch = encodeURIComponent(search);
+                return await fetch(`@Url.Action("DropdownClienteRazonSolcial", "Cliente")?idCliente=${@Model.IdCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
+                    .then(r => r.json());
+            }
+        }
+
+
         clientesDropdown.addEventListener("change", () => {
             const idCliente = clientesDropdown.selected;
 

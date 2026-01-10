@@ -262,6 +262,38 @@
         btn.closest("tr").remove();
     }
 
+
+    function ValidarDatosSinAgregar() {
+
+        // ====== CONTACTO PENDIENTE ======
+        const ctNombre = document.getElementById("ctNombre").value.trim();
+        const ctTel = document.getElementById("ctTel").value.trim();
+        const ctCorreo = document.getElementById("ctCorreo").value.trim();
+
+        const hayContactoPendiente = ctNombre || ctTel || ctCorreo;
+
+        // ====== RAZÓN SOCIAL PENDIENTE ======
+        const rzRFC = document.getElementById("rzRFC").value.trim();
+        const rzRazon = document.getElementById("rzRazon").value.trim();
+        const rzDom = document.getElementById("rzDom").value.trim();
+        const rzCod = document.getElementById("rzCod").value.trim();
+        const rzObs = document.getElementById("rzObs").value.trim();
+
+        const hayRazonPendiente = rzRFC || rzRazon || rzDom || rzCod || rzObs;
+
+        if (hayContactoPendiente || hayRazonPendiente) {
+            showToast(
+                "Datos sin agregar",
+                "Hay información escrita en Contactos o Razones Sociales que aún no ha sido agregada.",
+                "error"
+            );
+            return false;
+        }
+
+        return true;
+    }
+
+
     // ===============================================
     // GUARDAR CLIENTE COMPLETO (incluye listas)
     // ===============================================
@@ -269,6 +301,12 @@
         const btn = document.getElementById("btnGuardarCliente");
         btn.disabled = true;
         btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Guardando...`;
+
+        if (!ValidarDatosSinAgregar()) {
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fas fa-save"></i> Guardar`;
+            return;
+        }
 
         try {
             const cliId = document.getElementById("IdCliente");
