@@ -65,6 +65,8 @@ public class DofDailyExchangeRateService : CronBackgroundService
 
         using var db = CreateClassContext();
 
+        var mame = GetType().Name;
+
         var result = db
             .SpGenericResults
             .FromSqlInterpolated($@"
@@ -75,7 +77,7 @@ public class DofDailyExchangeRateService : CronBackgroundService
                          Fecha = fecha
                      })},
                      @UserId = 'PROCESOS',
-                     @ProgName = '{GetType().Name}'
+                     @ProgName = '{mame}'
             ")
             .AsEnumerable()
             .FirstOrDefault();
