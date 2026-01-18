@@ -9,7 +9,7 @@ public class CotizacionViewModel
     public int IdCotizacion { get; set; }
 
 
-    [Display(Name = "# Cotizacion")]
+    [Display(Name = "# Cotización")]
     public string? Cotizacion { get; set; }
 
     // -------------------------
@@ -29,12 +29,6 @@ public class CotizacionViewModel
 
     [Display(Name = "Perfil de la Cotizacion")]
     public string? Perfil { get; set; }
-
-
-    [Display(Name = "IVA (%)")]
-    [Required(ErrorMessage = "El IVA es obligatorio.")]
-    [Range(0, 100, ErrorMessage = "El IVA debe estar entre 0 y 100.")]
-    public decimal? PorcentajeIVA { get; set; }
 
     [Display(Name = "Descuento (%)")]
     [Range(0, 999999999, ErrorMessage = "El descuento no puede ser negativo.")]

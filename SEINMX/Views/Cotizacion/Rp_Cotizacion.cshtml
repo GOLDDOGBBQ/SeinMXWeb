@@ -1,6 +1,7 @@
 ﻿@using System.Globalization
 @model SEINMX.Models.Inventario.CotizacionPdfModel
 @using SEINMX.Clases.Helpers
+@using SEINMX.Clases.Utilerias
 
 
 @{
@@ -90,6 +91,16 @@
             flex-direction: column;
         }
 
+        .doc-title {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .small-muted {
+            color: #6c757d;
+            font-size: 13px;
+        }
+
         .page-footer {
             margin-top: auto; /* empuja el footer al fondo */
             padding-top: 10px;
@@ -123,36 +134,10 @@
         </div>
 
 
-        <div class="col-5 offset-1 p-0">
-            <table class="tableHeder ms-auto">
-                <thead class="ColorHeader ">
-                <tr>
-                    <th colspan="2" class="fw-bold text-center"><strong>COTIZACIÓN @Model.Cotizacion</strong></th>
-
-                </tr>
-                </thead>
-
-                <tbody>
-                <tr>
-                    <td class="ColorSubHeader"><strong>Fecha:</strong></td>
-                    <td> @Model.Fecha.ToString("dd De MMMM Del yyyy")</td>
-                </tr>
-                <tr>
-                    <td class="ColorSubHeader "><strong>Moneda:</strong></td>
-                    <td> MXN</td>
-                </tr>
-                <tr>
-                    <td class="ColorSubHeader "><strong>Sucursal:</strong></td>
-                    <td> Guadalajara</td>
-
-                <tr>
-                    <td class="ColorSubHeader "><strong>Asesor:</strong></td>
-                    <td> @Model.UsuarioResponsable</td>
-                </tr>
-                </tbody>
-
-            </table>
-
+        <div class="col-6 text-end">
+            <div class="doc-title">COTIZACIÓN @Model.Cotizacion</div>
+            <div class="small-muted fw-bold"><strong>Fecha:</strong> @Model.Fecha.ToString("dd de MMMM del yyyy")</div>
+            <div class="small-muted fw-bold"><strong>Asesor:</strong> @Model.UsuarioResponsable</div>
         </div>
 
 
@@ -197,7 +182,7 @@
                 <th>Código</th>
                 <th>Descripción</th>
                 <th class="text-end">Cantidad</th>
-                <th class="text-end">Precio</th>
+                <th class="text-end">Precio Unitario</th>
                 <th class="text-end">Importe</th>
                 <th>Observaciones</th>
             </tr>
@@ -222,38 +207,48 @@
     </div>
     <!-- TOTALES -->
     <div class="row mt-4">
-        <div class="col-6"></div>
-        <div class="col-6">
-            <table class="w-100 totales">
-                <tr>
-                    <td class="fw-bold text-end">Subtotal:</td>
-                    <td class="text-end">
-                        @string.Format(cultureMx, "{0:C}", Model.SubTotal)
-                    </td>
-                </tr>
-                @if (Model.DescuentoTotal > 0)
-                {
+        <div class="col-8 d-flex align-self-end  flex-column">
+            @{
+
+                decimal cTotal =(Model.Total??0) ;
+            }
+            <div ><strong>Monto en letra:</strong></div>
+            <div>@NumeroEnLetras.NumeroALetras(cTotal)</div>
+        </div>
+        <div class="col-4">
+            <div class="table-container">
+                <table class="w-100 totales">
                     <tr>
-                        <td class="fw-bold text-end">Descuento:</td>
+                        <td class="fw-bold text-end">Subtotal:</td>
                         <td class="text-end">
-                            @string.Format(cultureMx, "{0:C}", Model.DescuentoTotal)
+                            @string.Format(cultureMx, "{0:C}", Model.SubTotal)
                         </td>
                     </tr>
-                }
-                <tr>
-                    <td class="fw-bold text-end">IVA:</td>
-                    <td class="text-end">
-                        @string.Format(cultureMx, "{0:C}", Model.Iva)
-                    </td>
-                </tr>
-                <tr>
-                    <td class="fw-bold text-end">Total:</td>
-                    <td class="text-end">
-                        @string.Format(cultureMx, "{0:C}", Model.Total)
-                    </td>
-                </tr>
-            </table>
+                    @if (Model.DescuentoTotal > 0)
+                    {
+                        <tr>
+                            <td class="fw-bold text-end">Descuento:</td>
+                            <td class="text-end">
+                                @string.Format(cultureMx, "{0:C}", Model.DescuentoTotal)
+                            </td>
+                        </tr>
+                    }
+                    <tr>
+                        <td class="fw-bold text-end">IVA:</td>
+                        <td class="text-end">
+                            @string.Format(cultureMx, "{0:C}", Model.Iva)
+                        </td>
+                    </tr>
+                    <tr class="border-bottom  border-top ">
+                        <td class="fs-6 fw-bold text-end">Total:</td>
+                        <td class="fs-6 fw-bold text-end">
+                            @string.Format(cultureMx, "{0:C}", Model.Total)
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
+
     </div>
 
     <!-- CONDICIONES -->

@@ -118,15 +118,6 @@
                         @Html.ValidationMessageFor(model => model.Descuento, "", labelValidation)
 
                     </div>
-
-                    <!-- IVA -->
-                    <div class="col-md-2">
-                        @Html.LabelFor(model => model.PorcentajeIVA, labelAtt)
-                        @Html.EditorFor(model => model.PorcentajeIVA, editformAtt)
-                        @Html.ValidationMessageFor(model => model.PorcentajeIVA, "", labelValidation)
-
-                    </div>
-
                     <!-- Incluir Envio -->
                     <div class="col-md-2">
                         <label class="form-label">Términos y Condiciones</label>
@@ -477,14 +468,14 @@
         document.querySelector("#btnAgregarProducto").addEventListener("click", async () => {
             const Comboprod = document.querySelector("#IdProducto");
             let prod = Comboprod.selected;
-            let cant = document.querySelector("#txtCantidad").value;
-            let obs = document.querySelector("#txtObsProd").value;
+            let txtCant = document.querySelector("#txtCantidad");
+            let txtObs = document.querySelector("#txtObsProd");
 
             let payload = {
                 IdCotizacion: parseInt(idCotizacion),
                 IdProducto: parseInt(prod),
-                Cantidad: cant,
-                Observaciones: obs,
+                Cantidad: txtCant.value,
+                Observaciones: txtObs.value,
             };
 
             const res = await fetch('@Url.Action("AgregarProducto", "Cotizacion")', {
@@ -499,6 +490,9 @@
                 return;
             }
             Comboprod.setAttribute("selected", "")
+
+            txtCant.value = 1;
+            txtObs.value = "";
 
             await recargarTotales();
             await cargarTabla();

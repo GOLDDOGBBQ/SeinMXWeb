@@ -84,7 +84,7 @@
             <form method="get" class="row g-3">
 
                 <div class="col-md-2">
-                    <label class="form-label"># Cotizacion</label>
+                    <label class="form-label"># Cotización</label>
                     <input type="text" name="idCotizacion" class="form-control" placeholder="ID..."
                            value="@Model.IdCotizacion">
                 </div>
@@ -133,10 +133,14 @@
                 <table class="table table-striped table-hover table-bordered">
                     <thead class="table-dark">
                     <tr>
-                        <th><i class="fa-solid fa-hashtag"></i> Cotizacion</th>
+                        <th><i class="fa-solid fa-hashtag"></i> Cotización</th>
                         <th><i class="fas fa-id-card"></i> Cliente</th>
+                        <th><i class="fa-regular fa-calendar"></i> Fecha</th>
+                        <th><i class="fas fa-user"></i> Usuario</th>
                         <th><i class="fas fa-tag"></i> Status</th>
                         <th><i class="fa-solid fa-layer-group"></i> Perfil</th>
+                        <th><i class="fa-regular fa-money-bill-1"></i> Sub Total</th>
+                        <th><i class="fa-regular fa-money-bill-1"></i> IVA</th>
                         <th><i class="fa-regular fa-money-bill-1"></i> Total</th>
                         <th><i class="fas fa-gear"></i> Opciones</th>
                     </tr>
@@ -147,6 +151,8 @@
                         <tr id="row-@item.IdCotizacion">
                             <td>@item.Cotizacion</td>
                             <td>@item.Cliente</td>
+                            <td>@item.Fecha</td>
+                            <td>@item.UsuarioResponsable</td>
 
                             <td>
                                 @Html.Raw(BadgeEstatus(item.Status))
@@ -154,6 +160,12 @@
 
                             <td>
                                 @Html.Raw($"<span class=\"{BadgeColor(item.IdPerfil)}\" >{item.Perfil}</span>")
+                            </td>
+                            <td>
+                                @string.Format(cultureMx, "{0:C}", item.SubTotal)
+                            </td>
+                            <td>
+                                @string.Format(cultureMx, "{0:C}", item.Iva)
                             </td>
                             <td>
                                 @string.Format(cultureMx, "{0:C}", item.Total)

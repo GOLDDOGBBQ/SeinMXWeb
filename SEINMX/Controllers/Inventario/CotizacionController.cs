@@ -193,7 +193,6 @@ public class CotizacionController : ApplicationController
             IdClienteContacto = model.IdClienteContacto,
             IdClienteRazonSolcial = model.IdClienteRazonSolcial,
             TipoCambio = _db.TipoCambioDofs.OrderByDescending(x => x.Fecha).FirstOrDefault()?.TipoCambio ?? 1,
-            PorcentajeIVA = 16,
             Descuento = 0,
             UsuarioResponsable = GetUserId(),
         };
@@ -280,7 +279,6 @@ public class CotizacionController : ApplicationController
                 Fecha = entity.Fecha,
                 TipoCambio = entity.TipoCambio,
                 Perfil = entity.Perfil,
-                PorcentajeIVA = entity.PorcentajeIva,
                 Descuento = entity.Descuento,
                 UsuarioResponsable = entity.UsuarioResponsable,
                 IdCliente = entity.IdCliente,

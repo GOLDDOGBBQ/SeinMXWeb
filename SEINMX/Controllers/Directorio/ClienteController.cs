@@ -256,7 +256,7 @@ public class ClienteController : ApplicationController
                     var modelClienteRazonSolcial = new ClienteRazonSolcial
                     {
                         IdCliente = entity.IdCliente,
-                        Rfc = r.RFC,
+                        Rfc = r.RFC.ToUpper(),
                         RazonSocial = r.RazonSocial.ToUpper(),
                         Domicilio = r.Domicilio ?? "",
                         CodigoPostal = r.CodigoPostal ?? "",
@@ -356,6 +356,13 @@ public class ClienteController : ApplicationController
             lista = lista.Where(c => c.IdCliente == id.Value);
         }
 
+        if (!GetIsAdmin())
+        {
+            var usr = GetUserId();
+            lista = lista.Where(x => x.UsrReg == usr);
+        }
+
+
         var count = await lista.CountAsync();
         var data = await lista.Skip(page * pageSize).Take(pageSize)
             .Select(drmCliente => new { display = drmCliente.Nombre, value = drmCliente.IdCliente.ToString() })
@@ -385,6 +392,11 @@ public class ClienteController : ApplicationController
         {
             lista = lista.Where(c => c.IdClienteContacto == id.Value);
         }
+        if (!GetIsAdmin())
+        {
+            var usr = GetUserId();
+            lista = lista.Where(x => x.UsrReg == usr);
+        }
 
         if (idCliente.HasValue)
         {
@@ -413,6 +425,13 @@ public class ClienteController : ApplicationController
         {
             lista = lista.Where(x => x.RazonSocial.Contains(search));
         }
+
+        if (!GetIsAdmin())
+        {
+            var usr = GetUserId();
+            lista = lista.Where(x => x.UsrReg == usr);
+        }
+
 
         if (id.HasValue)
         {

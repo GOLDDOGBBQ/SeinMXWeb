@@ -143,7 +143,7 @@
             <div class="col-md-3"><input id="rzRazon" class="form-control text-uppercase" placeholder="Razón Social"/>
             </div>
             <div class="col-md-3"><input id="rzDom" class="form-control" placeholder="Domicilio"/></div>
-            <div class="col-md-3"><input id="rzCod" class="form-control" placeholder="CodigoPostal"/></div>
+            <div class="col-md-3"><input id="rzCod" class="form-control" placeholder="Código Postal"/></div>
             <div class="col-md-3"><input id="rzObs" class="form-control" placeholder="Observaciones"/></div>
             <div class="col-md-3 offset-6 d-grid">
                 <button class="btn btn-primary" onclick="agregarRazonTemp()">
@@ -151,39 +151,39 @@
                 </button>
             </div>
         </div>
-
-        <table class="table table-sm table-striped">
-            <thead class="table-light">
-            <tr>
-                <th>ID</th>
-                <th>RFC</th>
-                <th>Razón Social</th>
-                <th>Domicilio</th>
-                <th>Codigo Postal</th>
-                <th>Observaciones</th>
-                <th class="text-end">Opciones</th>
-            </tr>
-            </thead>
-            <tbody id="listaRazones">
-            @foreach (var r in Model.ClienteRazonSolcials)
-            {
-                <tr data-id="@r.IdClienteRazonSolcial">
-                    <td>@r.IdClienteRazonSolcial</td>
-                    <td>@r.RFC</td>
-                    <td><input class="form-control text-uppercase txt_rs_RazonSocial" value="@r.RazonSocial"></td>
-                    <td><input class="form-control txt_rs_Domicilio" value="@r.Domicilio"></td>
-                    <td><input class="form-control txt_rs_CodigoPostal" value="@r.CodigoPostal"></td>
-                    <td><input class="form-control txt_rs_Observaciones" value="@r.Observaciones"></td>
-                    <td class="text-end">
-                        <button class="btn btn-danger btn-sm" onclick="quitarRazonTemp(this)">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </td>
+        <div class="table-responsive">
+            <table class="table table-sm table-striped">
+                <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>RFC</th>
+                    <th>Razón Social</th>
+                    <th>Domicilio</th>
+                    <th>Código Postal</th>
+                    <th>Observaciones</th>
+                    <th class="text-end">Opciones</th>
                 </tr>
-            }
-            </tbody>
-        </table>
-
+                </thead>
+                <tbody id="listaRazones">
+                @foreach (var r in Model.ClienteRazonSolcials)
+                {
+                    <tr data-id="@r.IdClienteRazonSolcial">
+                        <td>@r.IdClienteRazonSolcial</td>
+                        <td>@r.RFC</td>
+                        <td><input class="form-control text-uppercase txt_rs_RazonSocial" value="@r.RazonSocial"></td>
+                        <td><input class="form-control txt_rs_Domicilio" value="@r.Domicilio"></td>
+                        <td><input class="form-control txt_rs_CodigoPostal" value="@r.CodigoPostal"></td>
+                        <td><input class="form-control txt_rs_Observaciones" value="@r.Observaciones"></td>
+                        <td class="text-end">
+                            <button class="btn btn-danger btn-sm" onclick="quitarRazonTemp(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 

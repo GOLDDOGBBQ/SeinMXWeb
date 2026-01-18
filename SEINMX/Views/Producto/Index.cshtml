@@ -20,23 +20,19 @@
             <!-- FILTROS -->
             <form method="get" class="row g-3">
 
-                <div class="col-md-2">
-                    <label class="form-label"># Producto</label>
-                    <input type="text" name="IdProducto" class="form-control" placeholder="ID..."
-                           value="@Model.IdProducto">
+                <div class="col-md-4">
+                    <label class="form-label">Código</label>
+                    <input type="text" name="Codigo" class="form-control" placeholder="Buscar..."
+                           value="@Model.Codigo">
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label">Descripcion </label>
+                    <label class="form-label">Descripción </label>
                     <input type="text" name="Descripcion" class="form-control" placeholder="Buscar..."
                            value="@Model.Descripcion">
                 </div>
 
-                <div class="col-md-2">
-                    <label class="form-label">Codigo</label>
-                    <input type="text" name="Codigo" class="form-control" placeholder="ID..."
-                           value="@Model.Codigo">
-                </div>
+
                 <!-- BOTÓN DE BÚSQUEDA -->
                 <div class="col-md-2 d-flex align-items-end">
                     <button type="submit" class="btn btn-primary w-100">
@@ -62,10 +58,9 @@
                 <table class="table table-sm table-striped table-hover table-bordered">
                     <thead class="table-dark">
                     <tr>
-                        <th><i class="fa-solid fa-hashtag"></i> Producto</th>
-                        <th><i class="fa-solid fa-barcode"></i> Codigo</th>
-                        <th><i class="fa-solid fa-circle-info"></i> Descripcion</th>
-                        <th><i class="fa-regular fa-money-bill-1"></i> PrecioLista</th>
+                        <th><i class="fa-solid fa-barcode"></i> Código</th>
+                        <th><i class="fa-solid fa-circle-info"></i> Descripción</th>
+                        <th><i class="fa-regular fa-money-bill-1"></i> Precio Lista</th>
                         <th><i class="fa-solid fa-dollar-sign"></i> Moneda</th>
                         <th><i class="fa-solid fa-id-card-clip"></i> Proveedor</th>
                         <th><i class="fa-regular fa-comment-dots"></i> Observaciones</th>
@@ -76,7 +71,6 @@
                     @foreach (var item in Model.Productos)
                     {
                         <tr id="row-@item.IdProducto">
-                            <td>@item.IdProducto</td>
                             <td>@item.Codigo</td>
                             <td>@item.Descripcion</td>
                             <td>

@@ -26,7 +26,7 @@
                 <div class="info-box-content">
                     <span class="info-box-text">Producto</span>
                     <span class="info-box-number">
-                        @Model.IdProducto
+                        @Model.IdProducto / @Model.Codigo
                         @if (Model.IdProducto is null)
                         {
                             @Html.Raw("Nuevo")
@@ -52,12 +52,12 @@
 
                 <div class="row">
                     <div class="col-md-3 mt-2">
-                        <label class="form-label" for="Codigo">Codigo</label>
+                        <label class="form-label" for="Codigo">Código</label>
                         @Html.EditorFor(model => model.Codigo, new { htmlAttributes = new { @class = "form-control" } })
                     </div>
 
                     <div class="col-md-9 mt-2">
-                        <label class="form-label" for="Descripcion">Descripcion</label>
+                        <label class="form-label" for="Descripcion">Descripción</label>
                         @Html.EditorFor(model => model.Descripcion, new { htmlAttributes = new { @class = "form-control" } })
                     </div>
 
@@ -115,7 +115,7 @@
     const proveedorDropdown = document.querySelector("#IdProveedor");
 
     proveedorDropdown.dataProvider = new ClientsDataProvider(
-        '/Cliente/DropdownClientes',
+        '/Proveedor/DropdownProveedors',
         'Buscar Proveedor...'
     );
     proveedorDropdown.setAttribute('selected', '@(Model is { IdProveedor : > 0 } ? Model.IdProveedor.ToString() : "")');
