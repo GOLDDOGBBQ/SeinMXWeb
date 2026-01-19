@@ -95,6 +95,7 @@ namespace SEINMX.Controllers
                     new AuthenticationProperties
                     {
                         IsPersistent = true,
+                        AllowRefresh = true,
                         ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
                     });
             }
@@ -105,7 +106,8 @@ namespace SEINMX.Controllers
                     new ClaimsPrincipal(claimsIdentity),
                     new AuthenticationProperties
                     {
-                        IsPersistent = false
+                        IsPersistent = false,
+                        AllowRefresh = true
                     });
             }
 

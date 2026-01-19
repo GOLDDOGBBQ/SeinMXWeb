@@ -39,6 +39,9 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Cuenta/AccesoDenegado";
         options.ExpireTimeSpan = TimeSpan.FromDays(7);
         options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     });
 
 builder.Services.AddAuthorization();
@@ -46,7 +49,7 @@ builder.Services.AddAuthorization();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<RazorViewToStringRenderer>();
 //builder.Services.AddSingleton<BlazorRenderer>();
-if (!builder.Environment.IsDevelopment())
+if (builder.Environment.IsProduction())
 {
     builder.Services.AddSingleton<CronConfigServiceProvider>();
     builder.Services.AddHttpClient<ExchangeRateService>();
