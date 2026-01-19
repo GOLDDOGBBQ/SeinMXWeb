@@ -48,4 +48,6 @@ public partial class CotizacionDetalle
     public virtual Cotizacion IdCotizacionNavigation { get; set; } = null!;
 
     public virtual Producto IdProductoNavigation { get; set; } = null!;
+
+    public virtual ICollection<OrdenCompraDetalle> OrdenCompraDetalles { get; set; } = new List<OrdenCompraDetalle>();
 }

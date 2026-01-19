@@ -35,6 +35,8 @@ public partial class Producto
 
     public bool Eliminado { get; set; }
 
+    public string? CodigoProveedor { get; set; }
+
     public virtual ICollection<CotizacionDetalle> CotizacionDetalles { get; set; } = new List<CotizacionDetalle>();
 
     public virtual Proveedor IdProveedorNavigation { get; set; } = null!;

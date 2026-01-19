@@ -82,7 +82,7 @@ public class CotizacionViewModel
 
     public List<SelectListItem> GetComboStatus()
     {
-        return CombosFijos.GetComboStatus(Status, false);
+        return CombosFijos.GetComboStatusCotizacion(Status, false);
     }
 }
 
@@ -96,7 +96,7 @@ public class CotizacionBuscadorViewModel
 
     public List<SelectListItem> GetComboStatus()
     {
-        return CombosFijos.GetComboStatus(Status, true);
+        return CombosFijos.GetComboStatusCotizacion(Status, true);
     }
 }
 

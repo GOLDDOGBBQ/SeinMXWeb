@@ -31,5 +31,7 @@ public partial class Proveedor
 
     public bool Eliminado { get; set; }
 
+    public virtual ICollection<OrdenCompra> OrdenCompras { get; set; } = new List<OrdenCompra>();
+
     public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();
 }

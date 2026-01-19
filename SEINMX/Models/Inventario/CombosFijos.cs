@@ -4,7 +4,7 @@ namespace SEINMX.Models.Inventario;
 
 public static class CombosFijos
 {
-    public static List<SelectListItem> GetComboStatus(int? status, bool isFilter)
+    public static List<SelectListItem> GetComboStatusCotizacion(int? status, bool isFilter)
     {
         var lista = new List<SelectListItem>
         {
@@ -17,7 +17,24 @@ public static class CombosFijos
         };
 
         if (isFilter)
-            lista.Insert(0, new SelectListItem("Todos", "0", status is null or 0));
+            lista.Insert(0, new SelectListItem("TODOS", "0", status is null or 0));
+
+        return lista;
+    }
+
+    public static List<SelectListItem> GetComboStatusOrdenCompra(int? status, bool isFilter)
+    {
+        var lista = new List<SelectListItem>
+        {
+            new SelectListItem("EN PROCESO", "1", status == 1),
+            new SelectListItem("COLOCADA", "2", status == 2),
+            new SelectListItem("PAGADA", "3", status == 3),
+            new SelectListItem("ENTREGADA", "4", status == 4),
+            new SelectListItem("CERRADA", "5", status == 5)
+        };
+
+        if (isFilter)
+            lista.Insert(0, new SelectListItem("TODOS", "0", status is null or 0));
 
         return lista;
     }

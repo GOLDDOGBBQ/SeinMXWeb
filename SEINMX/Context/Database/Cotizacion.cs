@@ -55,5 +55,7 @@ public partial class Cotizacion
 
     public virtual Perfil? IdPerfilNavigation { get; set; }
 
+    public virtual ICollection<OrdenCompra> OrdenCompras { get; set; } = new List<OrdenCompra>();
+
     public virtual Usuario? UsuarioResponsableNavigation { get; set; }
 }

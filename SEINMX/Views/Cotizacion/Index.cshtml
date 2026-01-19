@@ -1,4 +1,5 @@
 ﻿@using System.Globalization
+@using SEINMX.Clases.Helpers
 @model SEINMX.Models.Inventario.CotizacionBuscadorViewModel
 
 @{
@@ -35,8 +36,6 @@
         }
 
 
-
-
         public static string BadgeColor(int? id)
         {
             switch (id)
@@ -63,7 +62,6 @@
                     return "badge bg-light text-dark";
             }
         }
-
 
 
     }
@@ -182,14 +180,16 @@
 
 
                                 <a class="btn btn-sm btn-secondary"
-                                    href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = item.IdCotizacion, file = true })">
+                                   href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = item.IdCotizacion, file = true })">
                                     <i class="fa-regular fa-file-pdf"></i>
                                 </a>
-                                <a class="btn btn-sm btn-secondary"
-                                   href="@Url.Action("OrdenCompra", "Cotizacion", new { idCotizacion = item.IdCotizacion})">
-                                    <i class="fa-solid fa-bag-shopping"></i>
-                                </a>
-
+                                @if (UserClaimsHelper.IsAdmin(User))
+                                {
+                                    <a class="btn btn-sm btn-secondary"
+                                       href="@Url.Action("OrdenCompra", "Cotizacion", new { idCotizacion = item.IdCotizacion })">
+                                        <i class="fa-solid fa-bag-shopping"></i>
+                                    </a>
+                                }
 
                             </td>
                         </tr>
