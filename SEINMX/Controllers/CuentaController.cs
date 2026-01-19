@@ -24,7 +24,10 @@ namespace SEINMX.Controllers
         [HttpGet]
         public IActionResult Login()
         {
-            var model = new LoginViewModel();
+            var model = new LoginViewModel
+            {
+                Recuerdame = true
+            };
             return View(model);
         }
 
