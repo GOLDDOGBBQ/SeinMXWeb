@@ -62,7 +62,9 @@ public class OrdenCompraViewModel
 
 public class OrdenCompraBuscadorViewModel
 {
+    [Display(Name = "# Orden Compra")]
     public int? IdOrdenCompra { get; set; }
+    [Display(Name = "# Cotización")]
     public int? IdCotizacion { get; set; }
     public string? Cliente { get; set; }
     public int? Status { get; set; }

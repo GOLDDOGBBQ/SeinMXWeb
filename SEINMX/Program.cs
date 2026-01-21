@@ -1,5 +1,6 @@
 using CargoBajaLib.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using SEINMX.Clases.Tools;
@@ -29,6 +30,12 @@ builder.Services.AddDbContext<AppClassContext>(options =>
 });
 
 
+
+var keysPath = Path.Combine(builder.Environment.ContentRootPath, "DataProtectionKeys");
+
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(keysPath))
+    .SetApplicationName("SEINMX");
 // =======================
 // Configurar autenticación por cookies
 // =======================
@@ -37,7 +44,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     {
         options.LoginPath = "/Cuenta/Login";
         options.AccessDeniedPath = "/Cuenta/AccesoDenegado";
-        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.ExpireTimeSpan = TimeSpan.FromDays(15);
         options.SlidingExpiration = true;
         options.Cookie.HttpOnly = true;
         options.Cookie.SameSite = SameSiteMode.Lax;

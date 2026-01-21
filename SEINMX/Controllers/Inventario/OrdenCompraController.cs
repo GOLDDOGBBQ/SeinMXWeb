@@ -183,175 +183,175 @@ public class OrdenCompraController : ApplicationController
         return View("Nueva", model);
     }
 
-    [HttpGet("Editar/{id?}")]
-    public async Task<IActionResult> Editar(int? id)
-    {
-        if (id == null)
-            throw new Exception("Orden de compra no recibida");
+    /*[HttpGet("OrdenCompra/Editar/{id?}")]*/
+ public async Task<IActionResult> Editar(int? id)
+ {
+     if (id == null)
+         throw new Exception("Orden de compra no recibida");
 
-        var model = await BuscarOrden(id);
+     var model = await BuscarOrden(id);
 
-        return View("Editar", model);
-    }
+     return View("Editar", model);
+ }
 
-    private async Task<OrdenCompraViewModel> BuscarOrden(int? id, OrdenCompraViewModel? refresh = null)
-    {
-        var entity = await _db.VsOrdenCompras
-            .FirstOrDefaultAsync(x => x.IdOrdenCompra == id);
+ private async Task<OrdenCompraViewModel> BuscarOrden(int? id, OrdenCompraViewModel? refresh = null)
+ {
+     var entity = await _db.VsOrdenCompras
+         .FirstOrDefaultAsync(x => x.IdOrdenCompra == id);
 
-        if (entity == null)
-            throw new Exception("Orden de compra");
+     if (entity == null)
+         throw new Exception("Orden de compra");
 
-        if (!GetIsAdmin())
-        {
-            throw new Exception("No tiene permiso para editar esta Orden de compra");
-        }
+     if (!GetIsAdmin())
+     {
+         throw new Exception("No tiene permiso para editar esta Orden de compra");
+     }
 
-        if (refresh is null)
-        {
-            var model = new OrdenCompraViewModel
-            {
-                IdOrdenCompra = entity.IdOrdenCompra,
-                Cotizacion = entity.Cotizacion,
-                Fecha = entity.Fecha,
-                Cliente = entity.Cliente,
-                Status = entity.Status ?? 1,
-                Observaciones = entity.Observaciones,
-                SubTotal = entity.SubTotal,
-                Iva = entity.Iva,
-                Total = entity.Total,
-            };
+     if (refresh is null)
+     {
+         var model = new OrdenCompraViewModel
+         {
+             IdOrdenCompra = entity.IdOrdenCompra,
+             Cotizacion = entity.Cotizacion,
+             Fecha = entity.Fecha,
+             Cliente = entity.Cliente,
+             Status = entity.Status ?? 1,
+             Observaciones = entity.Observaciones,
+             SubTotal = entity.SubTotal,
+             Iva = entity.Iva,
+             Total = entity.Total,
+         };
 
-            return model;
-        }
-        else
-        {
-            refresh.SubTotal = entity.SubTotal;
-            refresh.Iva = entity.Iva;
-            refresh.Total = entity.Total;
-            return refresh;
-        }
-    }
-
-
-    [HttpGet]
-    public async Task<IActionResult> GetTotales(int idOrdenCompra)
-    {
-        var item = await _db.VsOrdenCompras
-            .FirstOrDefaultAsync(x => x.IdOrdenCompra == idOrdenCompra);
-
-        if (item == null) return NotFound();
-
-        return Json(new
-        {
-            ok = true,
-            item.Iva,
-            item.SubTotal,
-            item.Total,
-        });
-    }
-
-    [HttpPost]
-    public async Task<IActionResult> Guardar(OrdenCompraViewModel model)
-    {
-        if (!ModelState.IsValid)
-        {
-            TempData["toast-error"] = "Revise los campos marcados.";
-            return View("Editar", await BuscarOrden(model.IdOrdenCompra, model));
-        }
+         return model;
+     }
+     else
+     {
+         refresh.SubTotal = entity.SubTotal;
+         refresh.Iva = entity.Iva;
+         refresh.Total = entity.Total;
+         return refresh;
+     }
+ }
 
 
-        try
-        {
-            var result = _clasContext
-                .SpGenericResults
-                .FromSqlInterpolated($@"
-                EXEC [INV].[GP_OrdenCompraNuevo]
-                     @json = {JsonSerializer.Serialize(model)},
-                     @UserId = {GetUserId()},
-                     @ProgName = {GetApiName()}
-            ")
-                .AsEnumerable()
-                .FirstOrDefault();
+ [HttpGet]
+ public async Task<IActionResult> GetTotales(int idOrdenCompra)
+ {
+     var item = await _db.VsOrdenCompras
+         .FirstOrDefaultAsync(x => x.IdOrdenCompra == idOrdenCompra);
 
-            // Si el SP no regresó nada (caso muy raro)
-            if (result == null)
-            {
-                TempData["toast-error"] = "No se recibió respuesta del servidor.";
-                ModelState.Clear();
-                return View("Editar", await BuscarOrden(model.IdOrdenCompra, model));
-            }
+     if (item == null) return NotFound();
 
-            // Si el SP reporta error
-            if (result.IdError != 0)
-            {
-                TempData["toast-error"] = result.MensajeError + " " + result.MensajeErrorDev;
-                ModelState.Clear();
-                return View("Editar", await BuscarOrden(model.IdOrdenCompra, model));
-            }
+     return Json(new
+     {
+         ok = true,
+         item.Iva,
+         item.SubTotal,
+         item.Total,
+     });
+ }
 
-            TempData["toast-success"] = "Los datos fueron guardados correctamente.";
-            ModelState.Clear();
-            return View("Editar", await BuscarOrden(result.Id));
-        }
-        catch (Exception ex)
-        {
-            TempData["toast-error"] = "Error del servidor." + ex.Message;
-            return View("Editar", await BuscarOrden(model.IdOrdenCompra, model));
-        }
-    }
+ [HttpPost]
+ public async Task<IActionResult> Guardar(OrdenCompraViewModel model)
+ {
+     if (!ModelState.IsValid)
+     {
+         TempData["toast-error"] = "Revise los campos marcados.";
+         return View("Editar", await BuscarOrden(model.IdOrdenCompra, model));
+     }
 
 
-    /*
-    [HttpPost]
-    public async Task<IActionResult> AgregarProducto([FromBody] AgregarProductoRequest request)
-    {
-        try
-        {
-            var result = _clasContext
-                .SpGenericResults
-                .FromSqlInterpolated($@"
-                EXEC [INV].[GP_OrdenCompraDetalleNuevo]
-                     @IdOrdenCompra = {request.IdOrdenCompra},
-                     @IdOrdenCompraDetalle = {request.IdCotizacionDetalle},
-                     @IdProducto = {request.IdProducto},
-                     @Cantidad = {request.Cantidad},
-                     @Observaciones = {request.Observaciones},
-                     @UserId = {GetUserId()},
-                     @ProgName = {GetApiName()}
-            ")
-                .AsEnumerable()
-                .FirstOrDefault();
+     try
+     {
+         var result = _clasContext
+             .SpGenericResults
+             .FromSqlInterpolated($@"
+             EXEC [INV].[GP_OrdenCompraNuevo]
+                  @json = {JsonSerializer.Serialize(model)},
+                  @UserId = {GetUserId()},
+                  @ProgName = {GetApiName()}
+         ")
+             .AsEnumerable()
+             .FirstOrDefault();
 
-            // Si el SP no regresó nada (caso muy raro)
-            if (result == null)
-            {
-                return Json(new { ok = false, msg = "No se recibió respuesta del servidor." });
-            }
+         // Si el SP no regresó nada (caso muy raro)
+         if (result == null)
+         {
+             TempData["toast-error"] = "No se recibió respuesta del servidor.";
+             ModelState.Clear();
+             return View("Editar", await BuscarOrden(model.IdOrdenCompra, model));
+         }
 
-            // Si el SP reporta error
-            if (result.IdError != 0)
-            {
-                return Json(new
-                {
-                    ok = false,
-                    msg = result.MensajeError,
-                    dev = result.MensajeErrorDev
-                });
-            }
+         // Si el SP reporta error
+         if (result.IdError != 0)
+         {
+             TempData["toast-error"] = result.MensajeError + " " + result.MensajeErrorDev;
+             ModelState.Clear();
+             return View("Editar", await BuscarOrden(model.IdOrdenCompra, model));
+         }
 
-            return Json(new
-            {
-                ok = true,
-                idCotizacionDetalle = result.IdCotizacionDetalle
-            });
-        }
-        catch (Exception ex)
-        {
-            return Json(new { ok = false, msg = ex.Message });
-        }
-    }
-    */
+         TempData["toast-success"] = "Los datos fueron guardados correctamente.";
+         ModelState.Clear();
+         return View("Editar", await BuscarOrden(result.Id));
+     }
+     catch (Exception ex)
+     {
+         TempData["toast-error"] = "Error del servidor." + ex.Message;
+         return View("Editar", await BuscarOrden(model.IdOrdenCompra, model));
+     }
+ }
+
+
+ /*
+ [HttpPost]
+ public async Task<IActionResult> AgregarProducto([FromBody] AgregarProductoRequest request)
+ {
+     try
+     {
+         var result = _clasContext
+             .SpGenericResults
+             .FromSqlInterpolated($@"
+             EXEC [INV].[GP_OrdenCompraDetalleNuevo]
+                  @IdOrdenCompra = {request.IdOrdenCompra},
+                  @IdOrdenCompraDetalle = {request.IdCotizacionDetalle},
+                  @IdProducto = {request.IdProducto},
+                  @Cantidad = {request.Cantidad},
+                  @Observaciones = {request.Observaciones},
+                  @UserId = {GetUserId()},
+                  @ProgName = {GetApiName()}
+         ")
+             .AsEnumerable()
+             .FirstOrDefault();
+
+         // Si el SP no regresó nada (caso muy raro)
+         if (result == null)
+         {
+             return Json(new { ok = false, msg = "No se recibió respuesta del servidor." });
+         }
+
+         // Si el SP reporta error
+         if (result.IdError != 0)
+         {
+             return Json(new
+             {
+                 ok = false,
+                 msg = result.MensajeError,
+                 dev = result.MensajeErrorDev
+             });
+         }
+
+         return Json(new
+         {
+             ok = true,
+             idCotizacionDetalle = result.IdCotizacionDetalle
+         });
+     }
+     catch (Exception ex)
+     {
+         return Json(new { ok = false, msg = ex.Message });
+     }
+ }
+ */
 
     /*
     [HttpGet]

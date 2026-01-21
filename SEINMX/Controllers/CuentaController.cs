@@ -99,7 +99,7 @@ namespace SEINMX.Controllers
                     {
                         IsPersistent = true,
                         AllowRefresh = true,
-                        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+                        ExpiresUtc = DateTimeOffset.UtcNow.AddDays(15)
                     });
             }
             else

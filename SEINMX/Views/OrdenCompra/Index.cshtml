@@ -1,9 +1,9 @@
 ﻿@using System.Globalization
 @using SEINMX.Clases.Helpers
-@model SEINMX.Models.Inventario.CotizacionBuscadorViewModel
+@model SEINMX.Models.Inventario.OrdenCompraBuscadorViewModel
 
 @{
-    ViewBag.Title = "Cotizaciones";
+    ViewBag.Title = "Orden Compra";
     CultureInfo cultureMx = new CultureInfo("es-MX");
 
     var labelAtt = new
@@ -26,26 +26,31 @@
     <div class="card shadow-sm">
         <div class="card-header bg-secondary text-white">
             <h3 class="card-title">
-                <i class="fa-solid fa-file-invoice"></i> Lista de Cotizaciones
+                <i class="fa-solid fa-bag-shopping"></i> Lista de Ordenes de Compra
             </h3>
         </div>
 
         <div class="card-body">
 
             <!-- FILTROS -->
-            @using (Html.BeginForm("Index", "Cotizacion", FormMethod.Get, new { @class = "row g-3" }))
+            @using (Html.BeginForm("Index", "OrdenCompra", FormMethod.Get, new { @class = "row g-3" }))
             {
+                <div class="col-md-2">
+                    @Html.LabelFor(model => model.IdOrdenCompra, labelAtt)
+                    @Html.EditorFor(model => model.IdOrdenCompra, editFilterAtt)
+                </div>
+
                 <div class="col-md-2">
                     @Html.LabelFor(model => model.IdCotizacion, labelAtt)
                     @Html.EditorFor(model => model.IdCotizacion, editFilterAtt)
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-4">
                     @Html.LabelFor(model => model.Cliente, labelAtt)
                     @Html.EditorFor(model => model.Cliente, editFilterAtt)
                 </div>
 
-                <!-- FILTRO DE IDTIPO -->
+                <!-- FILTRO DE Status -->
                 <div class="col-md-2">
                     <div class="form-group">
                         @Html.LabelFor(model => model.Status, labelAtt)
@@ -64,14 +69,15 @@
                     </button>
                 </div>
             }
+
             <hr/>
 
 
-            <!-- BOTÓN AGREGAR CLIENTE -->
+            <!-- BOTÓN AGREGAR  -->
             <div class="mb-3">
                 <button class="btn btn-primary"
-                        onclick="location.href='@Url.Action("Nueva", "Cotizacion")'">
-                    <i class="fas fa-plus"></i> Crear Cotización
+                        onclick="location.href='@Url.Action("Nueva", "OrdenCompra")'">
+                    Agregar Orden Compra
                 </button>
             </div>
 
@@ -81,12 +87,13 @@
                 <table class="table table-striped table-hover table-bordered">
                     <thead class="table-dark">
                     <tr>
-                        <th><i class="fa-solid fa-hashtag"></i> Cotización</th>
-                        <th><i class="fas fa-id-card"></i> Cliente</th>
                         <th><i class="fa-regular fa-calendar"></i> Fecha</th>
-                        <th><i class="fas fa-user"></i> Usuario</th>
+                        <th><i class="fa-solid fa-hashtag"></i> Orden Compra</th>
+                        <th><i class="fas fa-id-card"></i> Cotización</th>
+                        <th><i class="fas fa-user"></i> Cliente</th>
+                        <th><i class="fa-solid fa-building-user"></i> Proveedor</th>
+
                         <th><i class="fas fa-tag"></i> Status</th>
-                        <th><i class="fa-solid fa-layer-group"></i> Perfil</th>
                         <th><i class="fa-regular fa-money-bill-1"></i> Sub Total</th>
                         <th><i class="fa-regular fa-money-bill-1"></i> IVA</th>
                         <th><i class="fa-regular fa-money-bill-1"></i> Total</th>
@@ -94,22 +101,19 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach (var item in Model.Cotizaciones)
+                    @foreach (var item in Model.Ordenes)
                     {
-                        <tr id="row-@item.IdCotizacion">
+                        <tr id="row-@item.IdOrdenCompra">
+                            <td>@item.Fecha</td>
+                            <td>@item.IdOrdenCompra</td>
                             <td>@item.Cotizacion</td>
                             <td>@item.Cliente</td>
-                            <td>@item.Fecha</td>
-                            <td>@item.UsuarioResponsable</td>
+                            <td>@item.Proveedor</td>
 
                             <td>
-                                @Html.Raw(BadgeGenerator.Badge(item.Status, item.StatusDesc))
+                                @Html.Raw(BadgeGenerator.Badge(item.Status,item.StatusDesc))
                             </td>
 
-                            <td>
-                                @Html.Raw(BadgeGenerator.Badge(item.IdPerfil, item.Perfil ?? "Sin perfil"))
-
-                            </td>
                             <td>
                                 @string.Format(cultureMx, "{0:C}", item.SubTotal)
                             </td>
@@ -121,26 +125,20 @@
                             </td>
                             <td>
                                 <button class="btn btn-sm btn-primary"
-                                        onclick="location.href='@Url.Action("Editar", "Cotizacion", new { id = item.IdCotizacion })'">
+                                        onclick="location.href='@Url.Action("Editar", "Cotizacion", new { id = item.IdOrdenCompra })'">
                                     <i class="fas fa-pen-to-square"></i>
                                 </button>
 
                                 <a class="OpenSideNav text-white btn btn-sm btn-secondary"
-                                   href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = item.IdCotizacion })"
+                                   href="@Url.Action("GenerarPdf", "OrdenCompra", new { id = item.IdOrdenCompra })"
                                    target="frameCB"> <i class="fa-regular fa-eye "></i></a>
 
 
                                 <a class="btn btn-sm btn-secondary"
-                                   href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = item.IdCotizacion, file = true })">
+                                   href="@Url.Action("GenerarPdf", "OrdenCompra", new { id = item.IdOrdenCompra, file = true })">
                                     <i class="fa-regular fa-file-pdf"></i>
                                 </a>
-                                @if (UserClaimsHelper.IsAdmin(User))
-                                {
-                                    <a class="btn btn-sm btn-secondary"
-                                       href="@Url.Action("OrdenCompra", "Cotizacion", new { idCotizacion = item.IdCotizacion })">
-                                        <i class="fa-solid fa-bag-shopping"></i>
-                                    </a>
-                                }
+
 
                             </td>
                         </tr>
