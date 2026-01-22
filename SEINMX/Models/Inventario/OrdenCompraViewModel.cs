@@ -6,6 +6,7 @@ namespace SEINMX.Models.Inventario;
 public class OrdenCompraViewModel
 {
     [Required(ErrorMessage = "El # Orden Compra es requerido.")]
+    [Display(Name = "# Orden Compra")]
     public int IdOrdenCompra { get; set; }
 
     [Display(Name = "# Cotización")]
@@ -26,8 +27,18 @@ public class OrdenCompraViewModel
     [Display(Name = "Cliente")]
     public string? Cliente { get; set; }
 
+    [Display(Name = "Tipo Cambio")]
+    [Required(ErrorMessage = "El tipo de cambio es obligatorio.")]
+    [Range(0.0001, 999999, ErrorMessage = "El tipo de cambio debe ser mayor a 0.")]
+    [DisplayFormat(DataFormatString = "{0:F4}", ApplyFormatInEditMode = true)]
+    public decimal? TipoCambio { get; set; }
+
     [Display(Name = "Proveedor")]
     public string? Proveedor { get; set; }
+
+    [DisplayFormat(DataFormatString = "{0:F4}", ApplyFormatInEditMode = true)]
+    [Display(Name = "Porcentaje Proveedor")]
+    public decimal? PorcentajeProveedor { get; set; }
 
     // -------------------------
     // STATUS
@@ -47,11 +58,13 @@ public class OrdenCompraViewModel
     // -------------------------
     // Datos de consulta en la vista
     // -------------------------
+    [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = true)]
     [Display(Name = "Sub totalSub total")]
     public decimal? SubTotal { get; set; }
-
+    [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = true)]
     [Display(Name = "IVA")]
     public decimal? Iva { get; set; }
+    [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = true)]
     public decimal? Total { get; set; }
 
     public List<SelectListItem> GetComboStatus()
@@ -88,9 +101,11 @@ public class OrdenCompraNuevaViewModel
     [Display(Name = "Proveedor")]
     [Required(ErrorMessage = "Debe seleccionar un Proveedor.")]
     public int IdProveedor { get; set; }
-
-    public int Status { get; set; }
+    public decimal? PorcentajeProveedor { get; set; }
+    public int? Status { get; set; }
     public DateOnly? Fecha { get; set; }
+
+    public decimal? TipoCambio { get; set; }
 
 
 }

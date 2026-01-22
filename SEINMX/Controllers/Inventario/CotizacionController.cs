@@ -189,7 +189,7 @@ public class CotizacionController : ApplicationController
         if (!ModelState.IsValid)
         {
             TempData["toast-error"] = "Revise los campos marcados.";
-            return View("Editar", model);
+            return View("Nueva", model);
         }
 
         var nueva = new CotizacionViewModel
@@ -395,38 +395,6 @@ public class CotizacionController : ApplicationController
         }
     }
 
-    public async Task<JsonResult> DropdownProducto(int page = 0, int pageSize = 30, int? id = null, string search = "")
-    {
-        var lista = _db.Productos.Where(x => x.Eliminado == false);
-
-
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            var pattern = $"%{search.Trim()}%";
-            lista = lista.Where(x => EF.Functions.Like(x.Descripcion, pattern) || EF.Functions.Like(x.Codigo, pattern));
-        }
-
-        if (id.HasValue)
-        {
-            lista = lista.Where(c => c.IdProducto == id.Value);
-        }
-
-        var count = await lista.CountAsync();
-        var data = await lista.Skip(page * pageSize).Take(pageSize)
-            .Select(drmCliente => new
-            {
-                display = $"{drmCliente.Codigo} - {drmCliente.Descripcion}", value = drmCliente.IdProducto.ToString()
-            })
-            .ToListAsync();
-        var remaining = Math.Max(count - (page * pageSize) - data.Count, 0);
-
-        return Json(new
-        {
-            moreToLoad = remaining > 0,
-            data
-        });
-    }
-
     [HttpPost]
     public async Task<IActionResult> AgregarProducto([FromBody] AgregarProductoRequest request)
     {
@@ -544,4 +512,43 @@ public class CotizacionController : ApplicationController
             return Json(new { ok = false, msg = ex.Message });
         }
     }
+
+    public async Task<JsonResult> DropdownCotizaciones(int page = 0, int pageSize = 30, int? id = null, string search = "")
+    {
+
+        var lista = _db.VsCotizacions.OrderByDescending(x => x.IdCotizacion).AsQueryable();
+
+        if (!GetIsAdmin())
+        {
+            var usr = GetUserId();
+            lista = lista.Where(x => x.UsuarioResponsable == usr);
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var pattern = $"%{search.Trim()}%";
+            lista = lista.Where(x => EF.Functions.Like(x.Cotizacion, pattern) || EF.Functions.Like(x.Cliente, pattern));
+        }
+
+        if (id.HasValue)
+        {
+            lista = lista.Where(c => c.IdCotizacion == id.Value);
+        }
+
+        var count = await lista.CountAsync();
+        var data = await lista.Skip(page * pageSize).Take(pageSize)
+            .Select(drmCliente => new
+            {
+                display = $"{drmCliente.Cotizacion} - {drmCliente.Cliente}", value = drmCliente.IdCotizacion.ToString()
+            })
+            .ToListAsync();
+        var remaining = Math.Max(count - (page * pageSize) - data.Count, 0);
+
+        return Json(new
+        {
+            moreToLoad = remaining > 0,
+            data
+        });
+    }
+
 }

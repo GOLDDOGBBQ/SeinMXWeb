@@ -1,0 +1,93 @@
+﻿@using SEINMX.Clases.Helpers
+
+@model SEINMX.Models.Inventario.OrdenCompraNuevaViewModel
+@{
+    ViewBag.Title = "Orden Compra Nueva";
+    var labelAtt = new
+    {
+        @@class = "form-label"
+    };
+
+    var labelValidation = new
+    {
+        @@class = "text-danger"
+    };
+    var editformAtt = new
+    {
+        htmlAttributes = new
+        {
+            @@class = "form-control"
+        }
+    };
+}
+<div class="card shadow-sm">
+
+@using (Html.BeginForm("Crear", "OrdenCompra", FormMethod.Post))
+{
+
+    <div class="card-header bg-secondary text-white d-flex align-items-center">
+        <div>
+            <i class="fas fa-user"></i> Orden Compra Nueva
+        </div>
+        <div class="ms-auto">
+            <button type="submit"  class="btn btn-lg btn-success" >
+                <i class="fas fa-save"></i> Guardar
+            </button>
+        </div>
+    </div>
+
+    <div class="card-body">
+
+        <!-- FORM  -->
+        <div class="row">
+            <!-- Cotizacion -->
+            <div class="col-sm-12 col-lg-6 mb-3">
+                @Html.LabelFor(model => model.IdCotizacion, labelAtt)
+                <cb-dropdown
+                    id="IdCotizacion"
+                    name="IdCotizacion">
+                </cb-dropdown>
+                @Html.ValidationMessageFor(model => model.IdCotizacion, "", labelValidation)
+            </div>
+
+
+            <!-- Proveedor -->
+            <div class="col-sm-12 col-lg-6 mb-3">
+                @Html.LabelFor(model => model.IdProveedor, labelAtt)
+                <cb-dropdown
+                    id="IdProveedor"
+                    name="IdProveedor">
+                </cb-dropdown>
+                @Html.ValidationMessageFor(model => model.IdProveedor, "", labelValidation)
+            </div>
+
+        </div>
+
+    </div>
+}
+</div>
+
+
+
+
+    <script type="module">
+        import {ClientsDataProvider} from "@UrlExtensions.Absolute("/dropdown-1.1.0/clientsDataProvider-1.1.1.js ")";
+
+        const cotizacionDropdown = document.querySelector("#IdCotizacion");
+        const proveedorDropdown = document.querySelector("#IdProveedor");
+
+
+        cotizacionDropdown.dataProvider = new ClientsDataProvider(
+            '/Cotizacion/DropdownCotizaciones',
+            'Buscar Cotización...'
+        );
+
+
+        proveedorDropdown.dataProvider = new ClientsDataProvider(
+            '/Proveedor/DropdownProveedors',
+            'Buscar Proveedor...'
+        );
+        cotizacionDropdown.setAttribute('selected', '@(Model is { IdCotizacion: > 0 } ? Model.IdCotizacion.ToString() : "")');
+        proveedorDropdown.setAttribute('selected', '@(Model is { IdProveedor : > 0 } ? Model.IdProveedor.ToString() : "")');
+
+    </script>

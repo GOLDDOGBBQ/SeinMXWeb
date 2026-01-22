@@ -15,6 +15,10 @@ public partial class VsOrdenCompra
 
     public short? Status { get; set; }
 
+    public decimal TipoCambio { get; set; }
+
+    public decimal PorcentajeProveedor { get; set; }
+
     public string StatusDesc { get; set; } = null!;
 
     public DateOnly Fecha { get; set; }

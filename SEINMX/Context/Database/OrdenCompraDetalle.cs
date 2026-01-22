@@ -11,6 +11,8 @@ public partial class OrdenCompraDetalle
 
     public int IdCotizacionDetalle { get; set; }
 
+    public decimal PrecioListaMxn { get; set; }
+
     public decimal PrecioProveedor { get; set; }
 
     public decimal Cantidad { get; set; }

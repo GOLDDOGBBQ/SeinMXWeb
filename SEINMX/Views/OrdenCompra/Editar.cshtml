@@ -1,6 +1,6 @@
 ﻿
 @{
-    ViewBag.Title = "Editar Cotizacion";
+    ViewBag.Title = "Editar Orden Compra";
     CultureInfo cultureMx = new CultureInfo("es-MX");
 
     var labelAtt = new
@@ -23,7 +23,7 @@
 
 @using System.Globalization
 @using SEINMX.Clases.Helpers
-@model SEINMX.Models.Inventario.CotizacionViewModel
+@model SEINMX.Models.Inventario.OrdenCompraViewModel
 
 <div class="container-fluid mt-4 px-0 px-sm-1 px-md-4">
     @if (!ViewData.ModelState.IsValid)
@@ -35,30 +35,41 @@
         </div>
     }
 
-    <!-- INFO Cotizacion -->
+    <!-- INFO Orden Compra -->
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-sm-12 col-md-5 col-lg-3">
             <div class="info-box">
                 <span class="info-box-icon text-bg-success shadow-sm">
-                    <i class="fa-solid fa-hashtag"></i>
+                    <i class="fas fa-id-card"></i>
                 </span>
 
                 <div class="info-box-content">
-                    <span class="info-box-text">@Html.DisplayNameFor(model => model.Cotizacion)</span>
-                    <span class="info-box-number">@Model.Cotizacion</span>
+                    <span class="info-box-text"> @Html.DisplayNameFor(model => model.IdOrdenCompra)  </span>
+                    <span class="info-box-number"> @Model.IdOrdenCompra / @Model.Cotizacion</span>
                 </div>
             </div>
         </div>
-
-        <div class="col-md-3">
+        <div class="col-sm-12 col-md-7 col-lg-4">
             <div class="info-box">
                 <span class="info-box-icon text-bg-success shadow-sm">
-                    <i class="fa-solid fa-layer-group"></i>
+                    <i class="fas fa-user"></i>
                 </span>
 
                 <div class="info-box-content">
-                    <span class="info-box-text">@Html.DisplayNameFor(model => model.Perfil)</span>
-                    <span class="info-box-number">@Model.Perfil</span>
+                    <span class="info-box-text">@Html.DisplayNameFor(model => model.Cliente)</span>
+                    <span class="info-box-number">@Model.Cliente</span>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-7 col-lg-5 offset-sm-0 offset-md-5 offset-lg-0">
+            <div class="info-box">
+                <span class="info-box-icon text-bg-success shadow-sm">
+                    <i class="fa-solid fa-building-user"></i>
+                </span>
+
+                <div class="info-box-content">
+                    <span class="info-box-text">@Html.DisplayNameFor(model => model.Proveedor)</span>
+                    <span class="info-box-number">@Model.Proveedor</span>
                 </div>
             </div>
         </div>
@@ -69,13 +80,9 @@
     <!-- FORM Cotizacion -->
 
 
-    @using (Html.BeginForm("Guardar", "Cotizacion", FormMethod.Post))
+    @using (Html.BeginForm("Guardar", "OrdenCompra", FormMethod.Post))
     {
-        @Html.HiddenFor(m => m.IdCotizacion)
-        @Html.HiddenFor(m => m.Cotizacion)
-        @Html.HiddenFor(m => m.Perfil)
-
-
+        @Html.HiddenFor(m => m.IdOrdenCompra)
         <div class="card card-secondary mt-3">
             <div class="card-header">
                 <h3 class="card-title">Datos generales</h3>
@@ -111,80 +118,13 @@
                         @Html.ValidationMessageFor(model => model.TipoCambio, "", labelValidation)
                     </div>
 
-                    <!-- Descuento -->
+                    <!-- Porcentaje Proveedor -->
                     <div class="col-md-2">
-                        @Html.LabelFor(model => model.Descuento, labelAtt)
-                        @Html.EditorFor(model => model.Descuento, editformAtt)
-                        @Html.ValidationMessageFor(model => model.Descuento, "", labelValidation)
+                        @Html.LabelFor(model => model.PorcentajeProveedor, labelAtt)
+                        @Html.EditorFor(model => model.PorcentajeProveedor, editformAtt)
+                        @Html.ValidationMessageFor(model => model.PorcentajeProveedor, "", labelValidation)
 
                     </div>
-                    <!-- Incluir Envio -->
-                    <div class="col-md-2">
-                        <label class="form-label">Términos y Condiciones</label>
-                        <div class="form-check">
-                            @Html.EditorFor(model => model.EsIncluirEnvio, new
-                            {
-                                htmlAttributes = new
-                                {
-                                    @class = "form-check-input"
-                                }
-                            })
-                            @Html.LabelFor(model => model.EsIncluirEnvio, new
-                            {
-                                @class = "form-check-label"
-                            })
-                        </div>
-
-
-                        @Html.ValidationMessageFor(model => model.EsIncluirEnvio, "", labelValidation)
-
-                    </div>
-
-                </div>
-
-                <div class="row mt-3">
-                    <!-- Usuario Responsable -->
-                    <div class="col-md-3">
-                        @Html.LabelFor(model => model.UsuarioResponsable, labelAtt)
-                        @Html.DropDownListFor(
-                            m => m.UsuarioResponsable,
-                            (List<SelectListItem>)ViewBag.UsuariosResponsables,
-                            new { @class = "form-select", id = "UsuarioResponsable", name = "UsuarioResponsable" }
-                        )
-                        @Html.ValidationMessageFor(model => model.UsuarioResponsable, "", labelValidation)
-
-                    </div>
-
-
-                    <!-- Cliente -->
-                    <div class="col-md-9">
-                        @Html.HiddenFor(model => model.IdCliente)
-                        @Html.LabelFor(model => model.Cliente, labelAtt)
-                        @Html.EditorFor(model => model.Cliente, new { htmlAttributes = new { @class = "form-control", disabled = "disabled" } })
-                    </div>
-
-                    <!-- Contacto -->
-
-                    <div class="col-md-6">
-                        @Html.LabelFor(model => model.IdClienteContacto, labelAtt)
-                        <cb-dropdown
-                            id="IdClienteContacto"
-                            name="IdClienteContacto">
-                        </cb-dropdown>
-                        @Html.ValidationMessageFor(model => model.IdClienteContacto, "", labelValidation)
-                    </div>
-
-
-                    <!-- Razón Social -->
-                    <div class="col-md-6">
-                        @Html.LabelFor(model => model.IdClienteRazonSolcial, labelAtt)
-                        <cb-dropdown
-                            id="IdClienteRazonSolcial"
-                            name="IdClienteRazonSolcial">
-                        </cb-dropdown>
-                        @Html.ValidationMessageFor(model => model.IdClienteRazonSolcial, "", labelValidation)
-                    </div>
-
 
                 </div>
 
@@ -206,35 +146,6 @@
         </div>
     }
 
-    <!-- Agregar Productos FORM -->
-    <div class="card card-secondary mt-3">
-        <div class="card-header">
-            <h3 class="card-title">Agregar Producto</h3>
-        </div>
-        <div class="card-body">
-
-            <!-- Combo cb-dropdown -->
-            <cb-dropdown id="IdProducto" name="IdProducto"></cb-dropdown>
-
-            <div class="row mt-3">
-                <div class="col-md-2">
-                    <label>Cantidad</label>
-                    <input type="number" id="txtCantidad" class="form-control" value="1" step="0.0001">
-                </div>
-                <div class="col-md-10">
-                    <label>Observaciones</label>
-                    <input type="text" id="txtObsProd" class="form-control">
-                </div>
-            </div>
-
-        </div>
-        <div class="card-footer text-end">
-            <button id="btnAgregarProducto" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Agregar
-            </button>
-        </div>
-    </div>
-
     <!-- Agregar Productos TABLA-->
     <div class="card mt-3">
         <div class="card-header">
@@ -245,21 +156,16 @@
                 <table class="table table-bordered table-hover mt-4 " id="tablaDetalle">
                     <thead>
                     <tr>
+
+
                         <th>Código</th>
+                        <th>Código Proveedor</th>
                         <th>Descripción</th>
-                        @if (UserClaimsHelper.IsAdmin(User))
-                        {
-                            <th>Precio Lista</th>
-                            <th>% Prov</th>
-                            <th>Precio Prov</th>
-                            <th>% Gan</th>
-                            <th>Ganancia</th>
-                            <th>Precio Sein</th>
-                        }
-                        <th>Precio Cliente</th>
+                        <th>Precio Lista</th>
+                        <th>% Prov</th>
+                        <th>Precio Prov</th>
                         <th>Cantidad</th>
                         <th>Total</th>
-                        <th>Observaciones</th>
                         <th></th>
                     </tr>
                     </thead>
@@ -320,7 +226,7 @@
             </div>
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-3">
             <div class="info-box">
                     <span class="info-box-icon text-bg-success shadow-sm">
                         <i class="fa-regular fa-file-pdf"></i>
@@ -329,13 +235,13 @@
                 <div class="info-box-content">
                     <a class="OpenSideNav text-white btn btn-sm btn-secondary"
                        style="--bs-btn-padding-y: 0.25rem; --bs-btn-padding-x: 0.5rem; --bs-btn-font-size: 0.75rem; "
-                       href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = Model.IdCotizacion })"
+                       href="@Url.Action("GenerarPdf", "OrdenCompra", new { id = Model.IdOrdenCompra })"
                        target="frameCB"> <i class="fa-solid fa-eye"></i> Ver</a>
 
 
                     <a class="btn btn-secondary mt-1"
                        style="--bs-btn-padding-y: 0.25rem; --bs-btn-padding-x: 0.5rem; --bs-btn-font-size: 0.75rem; "
-                       href="@Url.Action("GenerarPdf", "Cotizacion", new { idCotizacion = Model.IdCotizacion, file = true })">
+                       href="@Url.Action("GenerarPdf", "OrdenCompra", new { id = Model.IdOrdenCompra, file = true })">
                         <i class="fa-solid fa-download"></i> Descargar
                     </a>
 
@@ -357,47 +263,6 @@
 
 
 
-    <script type="module">
-        import {ClientsDataProvider} from "@UrlExtensions.Absolute("/dropdown-1.1.0/clientsDataProvider-1.1.1.js ")";
-
-        const ProductDropdown = document.querySelector("#IdProducto");
-        ProductDropdown.dataProvider = new ClientsDataProvider('/Cotizacion/DropdownProducto', 'Buscar Producto...');
-
-    </script>
-
-    <script type="module">
-        import {ClientsDataProvider} from "@UrlExtensions.Absolute("/dropdown-1.1.0/clientsDataProvider-1.1.1.js ")";
-
-        const contactoDropdown = document.querySelector("#IdClienteContacto");
-        const razonDropdown = document.querySelector("#IdClienteRazonSolcial");
-
-        contactoDropdown.dataProvider = new ClientsDataProvider(
-            '@Url.Action("DropdownClienteContacto", "Cliente")',
-            'Buscar contacto...'
-        );
-
-        razonDropdown.dataProvider = new ClientsDataProvider(
-            '@Url.Action("DropdownClienteRazonSolcial", "Cliente")',
-            'Buscar razón social...'
-        );
-
-
-        contactoDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
-            const encodedSearch = encodeURIComponent(search);
-            return await fetch(`@Url.Action("DropdownClienteContacto", "Cliente")?idCliente=${@Model.IdCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
-                .then(r => r.json());
-        }
-
-        razonDropdown.dataProvider.loadData = async ({page, pageSize, search}) => {
-            const encodedSearch = encodeURIComponent(search);
-            return await fetch(`@Url.Action("DropdownClienteRazonSolcial", "Cliente")?idCliente=${@Model.IdCliente}&page=${page}&pageSize=${pageSize}&search=${encodedSearch}`)
-                .then(r => r.json());
-        }
-
-
-        contactoDropdown.setAttribute('selected', '@((Model.IdClienteContacto ?? 0) > 0 ? Model.IdClienteContacto.ToString() : "")');
-        razonDropdown.setAttribute('selected', '@((Model.IdClienteRazonSolcial ?? 0) > 0 ? Model.IdClienteRazonSolcial.ToString() : "")');
-    </script>
     <script>
 
         function isError(json) {
@@ -411,19 +276,18 @@
         }
 
 
-        const idCotizacion = @Model.IdCotizacion;
-        const esAdmin = @UserClaimsHelper.IsAdmin(User).ToString().ToLower();
+        const idOrdenCompra = @Model.IdOrdenCompra;
+
 
         async function cargarTabla() {
-            const res = await fetch(`@Url.Action("GetDetalles", "Cotizacion", new { idCotizacion = Model.IdCotizacion })`);
+            const res = await fetch(`@Url.Action("GetDetalles", "OrdenCompra", new { idOrdenCompra = Model.IdOrdenCompra })`);
             const data = await res.json();
 
             const tbody = document.querySelector("#tablaDetalle tbody");
             tbody.innerHTML = "";
             data.forEach(d => {
-                if (esAdmin) {
-                    tbody.insertAdjacentHTML("beforeend", `
-                    <tr data-id="${d.idCotizacionDetalle}">
+                tbody.insertAdjacentHTML("beforeend", `
+                    <tr data-id="${d.idOrdenCompraDetalle}">
                         <td>${d.codigo}</td>
                         <td>${d.descripcion}</td>
                         <td>${d.precioListaMxn.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
@@ -443,23 +307,7 @@
                         </td>
                     </tr>
                 `);
-                } else {
-                    tbody.insertAdjacentHTML("beforeend", `
-                    <tr data-id="${d.idCotizacionDetalle}">
-                        <td>${d.codigo}</td>
-                        <td>${d.descripcion}</td>
-                        <td>${d.precioCliente.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td><input class="form-control txtCantidad" value="${d.cantidad}"></td>
-                        <td>${d.total.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td><input class="form-control txtObs" value="${d.observaciones ?? ""}"></td>
-                        <td>
-                            <button class="btn btn-danger btnEliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `);
-                }
+
             });
 
         }
@@ -472,7 +320,7 @@
             let txtObs = document.querySelector("#txtObsProd");
 
             let payload = {
-                IdCotizacion: parseInt(idCotizacion),
+                IdOrdenCompra: parseInt(idOrdenCompra),
                 IdProducto: parseInt(prod),
                 Cantidad: txtCant.value,
                 Observaciones: txtObs.value,
@@ -511,7 +359,7 @@
 
 
                 let payload = {
-                    IdCotizacionDetalle: parseInt(idDetalle),
+                    IdOrdenCompraDetalle: parseInt(idDetalle),
                     Cantidad: row.querySelector(".txtCantidad").value,
                     Observaciones: row.querySelector(".txtObs").value
                 };
@@ -557,7 +405,7 @@
         });
 
         async function recargarTotales() {
-            const res = await fetch(`@Url.Action("GetTotales", "Cotizacion", new { idCotizacion = Model.IdCotizacion })`);
+            const res = await fetch(`@Url.Action("GetTotales", "OrdenCompra", new { idOrdenCompra = Model.IdOrdenCompra })`);
             const json = await res.json();
             if (isError(json)) {
                 location.reload();
@@ -573,8 +421,6 @@
 
         }
 
-        // Inicial
-        cargarTabla();
 
     </script>
 

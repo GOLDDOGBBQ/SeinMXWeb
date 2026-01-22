@@ -25,6 +25,7 @@ public class CotizacionViewModel
     [Display(Name = "Tipo Cambio")]
     [Required(ErrorMessage = "El tipo de cambio es obligatorio.")]
     [Range(0.0001, 999999, ErrorMessage = "El tipo de cambio debe ser mayor a 0.")]
+    [DisplayFormat(DataFormatString = "{0:F4}", ApplyFormatInEditMode = true)]
     public decimal? TipoCambio { get; set; }
 
     [Display(Name = "Perfil de la Cotizacion")]

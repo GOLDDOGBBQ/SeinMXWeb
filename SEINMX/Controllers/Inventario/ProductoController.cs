@@ -151,8 +151,6 @@ public class ProductoController : ApplicationController
             return View("Editar", model);
         }
     }
-
-
     [HttpDelete]
     public async Task<IActionResult> Eliminar(int id)
     {
@@ -173,4 +171,38 @@ public class ProductoController : ApplicationController
             return Json(new { ok = false, mensaje = ex.Message });
         }
     }
+
+
+    public async Task<JsonResult> DropdownProducto(int page = 0, int pageSize = 30, int? id = null, string search = "")
+    {
+        var lista = _db.Productos.Where(x => x.Eliminado == false);
+
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var pattern = $"%{search.Trim()}%";
+            lista = lista.Where(x => EF.Functions.Like(x.Descripcion, pattern) || EF.Functions.Like(x.Codigo, pattern));
+        }
+
+        if (id.HasValue)
+        {
+            lista = lista.Where(c => c.IdProducto == id.Value);
+        }
+
+        var count = await lista.CountAsync();
+        var data = await lista.Skip(page * pageSize).Take(pageSize)
+            .Select(drmCliente => new
+            {
+                display = $"{drmCliente.Codigo} - {drmCliente.Descripcion}", value = drmCliente.IdProducto.ToString()
+            })
+            .ToListAsync();
+        var remaining = Math.Max(count - (page * pageSize) - data.Count, 0);
+
+        return Json(new
+        {
+            moreToLoad = remaining > 0,
+            data
+        });
+    }
+
 }

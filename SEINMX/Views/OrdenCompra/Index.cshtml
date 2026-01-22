@@ -77,7 +77,7 @@
             <div class="mb-3">
                 <button class="btn btn-primary"
                         onclick="location.href='@Url.Action("Nueva", "OrdenCompra")'">
-                    Agregar Orden Compra
+                    <i class="fas fa-plus"></i> Agregar Orden Compra
                 </button>
             </div>
 
@@ -105,7 +105,7 @@
                     {
                         <tr id="row-@item.IdOrdenCompra">
                             <td>@item.Fecha</td>
-                            <td>@item.IdOrdenCompra</td>
+                            <td class="text-center">@item.IdOrdenCompra</td>
                             <td>@item.Cotizacion</td>
                             <td>@item.Cliente</td>
                             <td>@item.Proveedor</td>
@@ -125,7 +125,7 @@
                             </td>
                             <td>
                                 <button class="btn btn-sm btn-primary"
-                                        onclick="location.href='@Url.Action("Editar", "Cotizacion", new { id = item.IdOrdenCompra })'">
+                                        onclick="location.href='@Url.Action("Editar", "OrdenCompra", new { id = item.IdOrdenCompra })'">
                                     <i class="fas fa-pen-to-square"></i>
                                 </button>
 

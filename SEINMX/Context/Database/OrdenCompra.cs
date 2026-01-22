@@ -15,6 +15,10 @@ public partial class OrdenCompra
 
     public DateOnly Fecha { get; set; }
 
+    public decimal TipoCambio { get; set; }
+
+    public decimal PorcentajeProveedor { get; set; }
+
     public decimal PorcentajeIva { get; set; }
 
     public string CondicionPago { get; set; } = null!;
