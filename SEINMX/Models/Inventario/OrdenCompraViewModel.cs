@@ -66,6 +66,8 @@ public class OrdenCompraViewModel
     public decimal? Iva { get; set; }
     [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = true)]
     public decimal? Total { get; set; }
+    public List<CotizacionOrdenDetalleViewModel> Detalles { get; set; }
+
 
     public List<SelectListItem> GetComboStatus()
     {

@@ -22,7 +22,6 @@
 }
 
 @using System.Globalization
-@using SEINMX.Clases.Helpers
 @model SEINMX.Models.Inventario.OrdenCompraViewModel
 
 <div class="container-fluid mt-4 px-0 px-sm-1 px-md-4">
@@ -156,20 +155,48 @@
                 <table class="table table-bordered table-hover mt-4 " id="tablaDetalle">
                     <thead>
                     <tr>
-
-
+                        <th></th>
                         <th>Código</th>
                         <th>Código Proveedor</th>
                         <th>Descripción</th>
-                        <th>Precio Lista</th>
-                        <th>% Prov</th>
-                        <th>Precio Prov</th>
-                        <th>Cantidad</th>
-                        <th>Total</th>
-                        <th></th>
+                        <th>Cantidad Cotizada</th>
+                        <th>Precio Lista (MXN)</th>
+                        <th>% Proveedor</th>
+                        <th>Precio Proveedor</th>
+                        <th>Cantidad Disponible</th>
+                        <th>Cantidad OC</th>
+                        <th>Total (MXN)</th>
                     </tr>
                     </thead>
-                    <tbody></tbody>
+                    <tbody>
+                    @{ var rowNumb = 1; }
+                    @foreach (var item in Model.Detalles)
+                    {
+                        <tr id="row-@rowNumb"
+                            data-idCotizacionDetalle="@item.IdCotizacionDetalle"
+                            data-idOrdenCompraDetalle="@item.IdOrdenCompraDetalle"
+                            data-precio="@item.PrecioProveedor" data-mode="view">
+                            <td class="text-center acciones"></td>
+                            <td>@Html.DisplayFor(m => item.Codigo)</td>
+                            <td>@Html.DisplayFor(m => item.CodigoProveedor)</td>
+                            <td>@Html.DisplayFor(m => item.Descripcion)</td>
+                            <td class="text-center">@Html.DisplayFor(m => item.CantidadCotizada)</td>
+                            <td class="text-end">@Html.DisplayFor(m => item.PrecioListaMXN)</td>
+                            <td class="text-center">@Html.DisplayFor(m => item.PorcentajeProveedor)</td>
+                            <td class="text-end precio">@Html.DisplayFor(m => item.PrecioProveedor)</td>
+                            <td class="text-center">@Html.DisplayFor(m => item.CantidadDisponible)</td>
+
+                            <td class="text-center cantidad">
+                                <span class="valor">@item.Cantidad</span>
+                                <input type="number" class="form-control form-control-sm d-none"
+                                       min="1" value="@item.Cantidad">
+                            </td>
+                            <td class="text-end total">@Html.DisplayFor(m => item.Total)</td>
+
+                        </tr>
+                    }
+
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -187,7 +214,7 @@
                     <span class="info-box-text">Sub total</span>
                     <span class="info-box-number" id="infoSubTotal"
                           name="infoSubTotal">
-                            @string.Format(cultureMx, "{0:C}", Model.SubTotal)
+                        @Html.DisplayFor(m => Model.SubTotal)
                         </span>
                 </div>
             </div>
@@ -204,7 +231,7 @@
                 <div class="info-box-content">
                     <span class="info-box-text">IVA</span>
                     <span class="info-box-number" id="infoIva" name="infoIva">
-                            @string.Format(cultureMx, "{0:C}", Model.Iva)
+                        @Html.DisplayFor(m => Model.Iva)
                         </span>
                 </div>
             </div>
@@ -220,7 +247,7 @@
                 <div class="info-box-content">
                     <span class="info-box-text">Total</span>
                     <span class="info-box-number" id="infoTotal" name="infoTotal">
-                            @string.Format(cultureMx, "{0:C}", Model.Total)
+                        @Html.DisplayFor(m => Model.Total)
                         </span>
                 </div>
             </div>
@@ -275,134 +302,166 @@
 
         }
 
+        function renderAcciones(tr) {
+            const idDetalle = tr.dataset.idordencompradetalle;
+            const acciones = tr.querySelector(".acciones");
 
-        const idOrdenCompra = @Model.IdOrdenCompra;
+            const wrap = (html) => `
+                <div class="d-flex justify-content-center align-items-center gap-1 flex-nowrap">
+                    ${html}
+                </div>
+            `;
 
+            if (tr.dataset.mode === "edit") {
+                acciones.innerHTML = wrap(`
+            <button class="btn btn-success btn-sm" onclick="guardarDetalle(this)">
+                <i class="fas fa-save"></i>
+            </button>
+            <button class="btn btn-secondary btn-sm ms-1" onclick="cancelarEdicion(this)">
+                <i class="fas fa-times"></i>
+            </button>`);
+                return;
+            }
 
-        async function cargarTabla() {
-            const res = await fetch(`@Url.Action("GetDetalles", "OrdenCompra", new { idOrdenCompra = Model.IdOrdenCompra })`);
-            const data = await res.json();
-
-            const tbody = document.querySelector("#tablaDetalle tbody");
-            tbody.innerHTML = "";
-            data.forEach(d => {
-                tbody.insertAdjacentHTML("beforeend", `
-                    <tr data-id="${d.idOrdenCompraDetalle}">
-                        <td>${d.codigo}</td>
-                        <td>${d.descripcion}</td>
-                        <td>${d.precioListaMxn.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td>${d.porcentajeProveedor}</td>
-                        <td>${d.precioProveedor.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td>${d.porcentajeProveedorGanancia}</td>
-                        <td>${d.gananciaProveedor}</td>
-                        <td>${d.precioSein.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td>${d.precioCliente.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td><input class="form-control txtCantidad" value="${d.cantidad}"></td>
-                        <td>${d.total.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td><input class="form-control txtObs" value="${d.observaciones ?? ""}"></td>
-                        <td>
-                            <button class="btn btn-danger btnEliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `);
-
-            });
-
+            if (!idDetalle) {
+                acciones.innerHTML = wrap(`
+            <button class="btn btn-success btn-sm" onclick="editarDetalle(this)">
+                <i class="fas fa-plus"></i>
+            </button>`);
+            } else {
+                acciones.innerHTML = wrap(`
+            <button class="btn btn-primary btn-sm" onclick="editarDetalle(this)">
+                <i class="fas fa-pen-to-square"></i>
+            </button>
+            <button class="btn btn-danger btn-sm ms-1" onclick="eliminarDetalle(this)">
+                <i class="fas fa-trash"></i>
+            </button>`);
+            }
         }
 
-        // Agregar producto
-        document.querySelector("#btnAgregarProducto").addEventListener("click", async () => {
-            const Comboprod = document.querySelector("#IdProducto");
-            let prod = Comboprod.selected;
-            let txtCant = document.querySelector("#txtCantidad");
-            let txtObs = document.querySelector("#txtObsProd");
 
-            let payload = {
-                IdOrdenCompra: parseInt(idOrdenCompra),
-                IdProducto: parseInt(prod),
-                Cantidad: txtCant.value,
-                Observaciones: txtObs.value,
+        function editarDetalle(btn) {
+            const tr = btn.closest("tr");
+
+            if (!tr.dataset.originalCantidad) {
+                tr.dataset.originalCantidad = tr.querySelector(".cantidad .valor").textContent;
+                tr.dataset.originalTotal = tr.querySelector(".total").textContent;
+            }
+
+            tr.dataset.mode = "edit";
+
+            const input = tr.querySelector(".cantidad input");
+            const span = tr.querySelector(".cantidad .valor");
+
+            span.classList.add("d-none");
+            input.classList.remove("d-none");
+            input.focus();
+
+            input.addEventListener("input", () => recalcularTotal(tr));
+
+            renderAcciones(tr);
+        }
+
+        function recalcularTotal(tr) {
+            const precio = parseFloat(tr.dataset.precio);
+            const cantidad = parseFloat(tr.querySelector(".cantidad input").value) || 0;
+
+            const total = precio * cantidad;
+
+            tr.querySelector(".total").textContent =
+                total.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
+        }
+
+        function cancelarEdicion(btn) {
+            const tr = btn.closest("tr");
+
+            const spanCantidad = tr.querySelector(".cantidad .valor");
+            const inputCantidad = tr.querySelector(".cantidad input");
+            const totalTd = tr.querySelector(".total");
+
+            const idDetalle = tr.dataset.idordencompradetalle;
+
+            if (idDetalle) {
+                // 🔹 Caso EDITAR (ya existía en BD)
+                spanCantidad.textContent = tr.dataset.originalCantidad;
+                totalTd.textContent = tr.dataset.originalTotal;
+            } else {
+                // 🔹 Caso AGREGAR (nuevo)
+                spanCantidad.textContent = "0";
+                totalTd.textContent =
+                    (0).toLocaleString("es-MX", {style: "currency", currency: "MXN"});
+                inputCantidad.value = 0;
+            }
+
+            // Restaurar UI
+            spanCantidad.classList.remove("d-none");
+            inputCantidad.classList.add("d-none");
+
+            tr.dataset.mode = "view";
+
+            // Limpiar backups
+            delete tr.dataset.originalCantidad;
+            delete tr.dataset.originalTotal;
+
+            renderAcciones(tr);
+        }
+
+        async function guardarDetalle(btn) {
+            const tr = btn.closest("tr");
+
+            const payload = {
+                IdOrdenCompra: idOrdenCompra,
+                IdCotizacionDetalle: parseInt(tr.dataset.idcotizaciondetalle),
+                IdOrdenCompraDetalle: tr.dataset.idordencompradetalle
+                    ? parseInt(tr.dataset.idordencompradetalle)
+                    : null,
+                Cantidad: parseFloat(tr.querySelector(".cantidad input").value)
             };
 
-            const res = await fetch('@Url.Action("AgregarProducto", "Cotizacion")', {
+            const res = await fetch('/OrdenCompra/GuardarDetalle', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(payload)
             });
 
             const json = await res.json();
+            if (!json.ok) return showToast("Error", json.msg, "error");
 
-            if (isError(json)) {
-                return;
-            }
-            Comboprod.setAttribute("selected", "")
+            // 🔁 Actualizar fila
+            tr.dataset.idordencompradetalle = json.detalle.idOrdenCompraDetalle;
+            tr.querySelector(".cantidad .valor").textContent = json.detalle.cantidad;
+            tr.querySelector(".cantidad .valor").classList.remove("d-none");
+            tr.querySelector(".cantidad input").classList.add("d-none");
 
-            txtCant.value = 1;
-            txtObs.value = "";
+            tr.querySelector(".total").textContent =
+                json.detalle.total.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
 
-            await recargarTotales();
-            await cargarTabla();
-            showToast("Producto agregado", "Se agregó el producto correctamente");
+            tr.dataset.mode = "view";
+            renderAcciones(tr);
 
+            recargarTotales();
+        }
 
-        });
+        async function eliminarDetalle(btn) {
+            const tr = btn.closest("tr");
+            const id = parseInt(tr.dataset.idordencompradetalle);
 
-        // Editar producto
-        document.addEventListener("change", async (e) => {
-            if (e.target.classList.contains("txtCantidad") ||
-                e.target.classList.contains("txtObs")) {
+            const res = await fetch(`/OrdenCompra/EliminarDetalle/${id}`, {method: 'DELETE'});
+            const json = await res.json();
 
-                let row = e.target.closest("tr");
-                let idDetalle = row.dataset.id;
+            if (!json.ok) return showToast("Error", json.msg, "error");
 
+            tr.dataset.idordencompradetalle = "";
+            tr.querySelector(".cantidad .valor").textContent = "0";
+            tr.querySelector(".total").textContent =
+                (0).toLocaleString("es-MX", {style: "currency", currency: "MXN"});
 
-                let payload = {
-                    IdOrdenCompraDetalle: parseInt(idDetalle),
-                    Cantidad: row.querySelector(".txtCantidad").value,
-                    Observaciones: row.querySelector(".txtObs").value
-                };
+            renderAcciones(tr);
+            recargarTotales();
+        }
 
-                const res = await fetch(`@Url.Action("AgregarProducto", "Cotizacion")`, {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify(payload)
-                });
+        const idOrdenCompra = @Model.IdOrdenCompra;
 
-
-                const json = await res.json();
-                if (isError(json)) {
-                    return;
-                }
-                await recargarTotales();
-                await cargarTabla();
-                showToast("Producto actualizado", "Se modificó correctamente");
-
-            }
-        });
-
-        // Eliminar producto
-        document.addEventListener("click", async (e) => {
-            if (e.target.closest(".btnEliminar")) {
-                let row = e.target.closest("tr");
-                let idDetalle = row.dataset.id;
-
-                const res = await fetch(`@Url.Action("DeleteProducto", "Cotizacion")?idDetalle=${idDetalle}`, {
-                    method: "DELETE",
-                });
-
-                const json = await res.json();
-                if (isError(json)) {
-                    return;
-                }
-
-                await cargarTabla();
-                await recargarTotales();
-                showToast("Producto eliminado", "Se eliminó el producto correctamente");
-
-            }
-        });
 
         async function recargarTotales() {
             const res = await fetch(`@Url.Action("GetTotales", "OrdenCompra", new { idOrdenCompra = Model.IdOrdenCompra })`);
@@ -421,6 +480,9 @@
 
         }
 
+
+        document.querySelectorAll("#tablaDetalle tbody tr")
+            .forEach(tr => renderAcciones(tr));
 
     </script>
 

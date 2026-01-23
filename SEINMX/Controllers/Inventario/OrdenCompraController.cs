@@ -6,6 +6,7 @@ using SEINMX.Context;
 using SEINMX.Models.Inventario;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using SEINMX.Clases.Utilerias;
 
 [Authorize]
@@ -222,6 +223,7 @@ public class OrdenCompraController : ApplicationController
                 SubTotal = entity.SubTotal,
                 Iva = entity.Iva,
                 Total = entity.Total,
+                Detalles = await ObtenerDetalleAsync(entity.IdCotizacion, entity.IdOrdenCompra)
             };
 
             return model;
@@ -233,6 +235,70 @@ public class OrdenCompraController : ApplicationController
             refresh.Total = entity.Total;
             return refresh;
         }
+    }
+
+
+
+    public async Task<List<CotizacionOrdenDetalleViewModel>> ObtenerDetalleAsync(
+        int idCotizacion,
+        int idOrdenCompra)
+    {
+        var sql = @"
+            WITH CTE_Cotizacion AS (
+                SELECT
+                    cd.IdCotizacionDetalle,
+                    cd.IdCotizacion,
+                    p.Codigo,
+                    p.CodigoProveedor,
+                    p.Descripcion,
+                    cd.Cantidad,
+                    cd.PrecioListaMXN,
+                    cd.PrecioProveedor,
+                    cd.PorcentajeProveedor
+                FROM INV.CotizacionDetalle cd
+                JOIN INV.Producto p ON cd.IdProducto = p.IdProducto
+                WHERE cd.IdCotizacion = @IdCotizacion
+            ),
+            CTE_Asignados AS (
+                SELECT
+                    ocd.IdCotizacionDetalle,
+                    SUM(ocd.Cantidad) AS Asignados
+                FROM INV.OrdenCompraDetalle ocd
+                JOIN INV.OrdenCompra oc ON ocd.IdOrdenCompra = oc.IdOrdenCompra
+                WHERE oc.IdCotizacion = @IdCotizacion
+                  AND oc.IdOrdenCompra <> @IdOrdenCompra
+                GROUP BY ocd.IdCotizacionDetalle
+            )
+            SELECT
+                c.IdCotizacionDetalle,
+                c.IdCotizacion,
+                c.Codigo,
+                c.CodigoProveedor,
+                c.Descripcion,
+                ocd.IdOrdenCompraDetalle,
+                ocd.IdOrdenCompra,
+                c.Cantidad AS CantidadCotizada,
+                ISNULL(ocd.Cantidad, 0) AS Cantidad,
+                c.Cantidad
+                    - ISNULL(a.Asignados, 0)
+                    - ISNULL(ocd.Cantidad, 0) AS CantidadDisponible,
+                COALESCE(ocd.PrecioListaMXN, c.PrecioListaMXN) AS PrecioListaMXN,
+                COALESCE(ocd.PrecioProveedor, c.PrecioProveedor) AS PrecioProveedor,
+                COALESCE(ocd.PorcentajeProveedor, c.PorcentajeProveedor) AS PorcentajeProveedor,
+                Total = (COALESCE(ocd.PrecioProveedor, c.PrecioProveedor) *  ISNULL(ocd.Cantidad, 0))
+            FROM CTE_Cotizacion c
+            LEFT JOIN CTE_Asignados a ON c.IdCotizacionDetalle = a.IdCotizacionDetalle
+            LEFT JOIN INV.OrdenCompraDetalle ocd
+                ON c.IdCotizacionDetalle = ocd.IdCotizacionDetalle
+    ";
+
+        return await _clasContext
+            .CotizacionOrdenDetalleViewModels
+            .FromSqlRaw(sql,
+                new SqlParameter("@IdCotizacion", idCotizacion),
+                new SqlParameter("@IdOrdenCompra", idOrdenCompra))
+            .AsNoTracking()
+            .ToListAsync();
     }
 
 

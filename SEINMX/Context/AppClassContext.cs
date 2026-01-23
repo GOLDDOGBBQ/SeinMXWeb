@@ -18,6 +18,7 @@ public partial class AppClassContext : DbContext
     public virtual DbSet<SpCotizacionDetalleNuevoResult> SpCotizacionDetalleNuevoResults { get; set; }
     public virtual DbSet<SpCotizacionNuevoResult> SpCotizacionNuevoResults { get; set; }
     public virtual DbSet<SpGenericResult> SpGenericResults { get; set; }
+    public virtual DbSet<CotizacionOrdenDetalleViewModel> CotizacionOrdenDetalleViewModels { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -46,12 +47,56 @@ public partial class AppClassContext : DbContext
         modelBuilder.Entity<SpGenericResult>(eb =>
         {
             eb.HasNoKey();
-            eb.ToView(null); // evita mapearlo a una vista/tabla
+            eb.ToView(null);
             eb.Property(p => p.Id).HasColumnName("Id");
             eb.Property(p => p.IdError).HasColumnName("IdError");
             eb.Property(p => p.MensajeError).HasColumnName("MensajeError");
             eb.Property(p => p.MensajeErrorDev).HasColumnName("MensajeErrorDev");
         });
+
+        modelBuilder.Entity<CotizacionOrdenDetalleViewModel>(entity =>
+        {
+            entity.HasNoKey();
+            entity.ToView(null);
+
+            entity.Property(e => e.IdCotizacionDetalle);
+            entity.Property(e => e.IdCotizacion);
+
+            entity.Property(e => e.Codigo)
+                .HasMaxLength(50);
+
+            entity.Property(e => e.CodigoProveedor)
+                .HasMaxLength(50);
+
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.IdOrdenCompraDetalle);
+            entity.Property(e => e.IdOrdenCompra);
+
+            entity.Property(e => e.CantidadCotizada)
+                .HasColumnType("decimal(18,4)");
+
+            entity.Property(e => e.Cantidad)
+                .HasColumnType("decimal(18,4)");
+
+            entity.Property(e => e.CantidadDisponible)
+                .HasColumnType("decimal(18,4)");
+
+            entity.Property(e => e.PrecioListaMXN)
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(e => e.PrecioProveedor)
+                .HasColumnType("decimal(18,2)");
+
+            entity.Property(e => e.PorcentajeProveedor)
+                .HasColumnType("decimal(18,4)");
+
+            entity.Property(e => e.Total)
+                .HasColumnType("decimal(18,2)");
+        });
+
+
 
         OnModelCreatingPartial(modelBuilder);
     }
