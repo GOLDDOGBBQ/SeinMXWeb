@@ -155,7 +155,6 @@
                 <table class="table table-bordered table-hover mt-4 " id="tablaDetalle">
                     <thead>
                     <tr>
-                        <th></th>
                         <th>Código</th>
                         <th>Código Proveedor</th>
                         <th>Descripción</th>
@@ -166,6 +165,7 @@
                         <th>Cantidad Disponible</th>
                         <th>Cantidad OC</th>
                         <th>Total (MXN)</th>
+                        <th></th>
                     </tr>
                     </thead>
                     <tbody>
@@ -175,24 +175,27 @@
                         <tr id="row-@rowNumb"
                             data-idCotizacionDetalle="@item.IdCotizacionDetalle"
                             data-idOrdenCompraDetalle="@item.IdOrdenCompraDetalle"
-                            data-precio="@item.PrecioProveedor" data-mode="view">
-                            <td class="text-center acciones"></td>
-                            <td>@Html.DisplayFor(m => item.Codigo)</td>
-                            <td>@Html.DisplayFor(m => item.CodigoProveedor)</td>
-                            <td>@Html.DisplayFor(m => item.Descripcion)</td>
-                            <td class="text-center">@Html.DisplayFor(m => item.CantidadCotizada)</td>
-                            <td class="text-end">@Html.DisplayFor(m => item.PrecioListaMXN)</td>
-                            <td class="text-center">@Html.DisplayFor(m => item.PorcentajeProveedor)</td>
-                            <td class="text-end precio">@Html.DisplayFor(m => item.PrecioProveedor)</td>
-                            <td class="text-center">@Html.DisplayFor(m => item.CantidadDisponible)</td>
+                            data-precio="@item.PrecioProveedor"
+                            data-disponible="@item.CantidadDisponible"
 
-                            <td class="text-center cantidad">
+                            data-mode="view">
+
+                            <td class="codigo">@Html.DisplayFor(m => item.Codigo)</td>
+                            <td class="codigoProveedor">@Html.DisplayFor(m => item.CodigoProveedor)</td>
+                            <td class="descripcion">@Html.DisplayFor(m => item.Descripcion)</td>
+                            <td class="cantidadCotizada text-center">@Html.DisplayFor(m => item.CantidadCotizada)</td>
+                            <td class="precioLista text-end">@Html.DisplayFor(m => item.PrecioListaMXN)</td>
+                            <td class="porcentajeProveedor text-center">@Html.DisplayFor(m => item.PorcentajeProveedor)</td>
+                            <td class="precioProveedor text-end">@Html.DisplayFor(m => item.PrecioProveedor)</td>
+                            <td class="cantidadDisponible text-center">@Html.DisplayFor(m => item.CantidadDisponible)</td>
+
+                            <td class="cantidad text-center ">
                                 <span class="valor">@item.Cantidad</span>
                                 <input type="number" class="form-control form-control-sm d-none"
                                        min="1" value="@item.Cantidad">
                             </td>
-                            <td class="text-end total">@Html.DisplayFor(m => item.Total)</td>
-
+                            <td class="total text-end ">@Html.DisplayFor(m => item.Total)</td>
+                            <td class="acciones text-center"></td>
                         </tr>
                     }
 
@@ -291,6 +294,9 @@
 
 
     <script>
+        const idOrdenCompra = @Model.IdOrdenCompra;
+        const idCotizacion = @Model.IdCotizacion;
+
 
         function isError(json) {
             if (!json.ok) {
@@ -339,7 +345,6 @@
             }
         }
 
-
         function editarDetalle(btn) {
             const tr = btn.closest("tr");
 
@@ -353,6 +358,12 @@
             const input = tr.querySelector(".cantidad input");
             const span = tr.querySelector(".cantidad .valor");
 
+
+            const cantidad = parseFloat(input.value) || 0;
+            if (isNaN(cantidad) || cantidad <= 0) {
+                input.value =   tr.dataset.disponible
+            }
+
             span.classList.add("d-none");
             input.classList.remove("d-none");
             input.focus();
@@ -364,9 +375,19 @@
 
         function recalcularTotal(tr) {
             const precio = parseFloat(tr.dataset.precio);
-            const cantidad = parseFloat(tr.querySelector(".cantidad input").value) || 0;
+            const inputCantidad = tr.querySelector(".cantidad input");
+            const cantidad = parseFloat(inputCantidad.value) || 0;
 
             const total = precio * cantidad;
+
+
+            if (isNaN(cantidad) || cantidad <= 0) {
+                inputCantidad.classList.add("is-invalid");
+            } else {
+                // Quitar error visual si estaba marcado
+                inputCantidad.classList.remove("is-invalid");
+            }
+
 
             tr.querySelector(".total").textContent =
                 total.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
@@ -409,13 +430,32 @@
         async function guardarDetalle(btn) {
             const tr = btn.closest("tr");
 
+            const inputCantidad = tr.querySelector(".cantidad input");
+            const cantidad = parseFloat(inputCantidad.value);
+
+            if (isNaN(cantidad) || cantidad <= 0) {
+                inputCantidad.classList.add("is-invalid");
+                inputCantidad.focus();
+
+                showToast(
+                    "Cantidad inválida",
+                    "La cantidad debe ser mayor a 0",
+                    "error"
+                );
+                return;
+            } else {
+                // Quitar error visual si estaba marcado
+                inputCantidad.classList.remove("is-invalid");
+            }
+
             const payload = {
                 IdOrdenCompra: idOrdenCompra,
+                IdCotizacion: idCotizacion,
                 IdCotizacionDetalle: parseInt(tr.dataset.idcotizaciondetalle),
                 IdOrdenCompraDetalle: tr.dataset.idordencompradetalle
                     ? parseInt(tr.dataset.idordencompradetalle)
                     : null,
-                Cantidad: parseFloat(tr.querySelector(".cantidad input").value)
+                Cantidad: cantidad
             };
 
             const res = await fetch('/OrdenCompra/GuardarDetalle', {
@@ -427,19 +467,13 @@
             const json = await res.json();
             if (!json.ok) return showToast("Error", json.msg, "error");
 
-            // 🔁 Actualizar fila
-            tr.dataset.idordencompradetalle = json.detalle.idOrdenCompraDetalle;
-            tr.querySelector(".cantidad .valor").textContent = json.detalle.cantidad;
-            tr.querySelector(".cantidad .valor").classList.remove("d-none");
-            tr.querySelector(".cantidad input").classList.add("d-none");
-
-            tr.querySelector(".total").textContent =
-                json.detalle.total.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
-
-            tr.dataset.mode = "view";
-            renderAcciones(tr);
-
             recargarTotales();
+
+            const model = json.data[0];
+            actualizarFilaDesdeModelo(tr, model);
+
+
+
         }
 
         async function eliminarDetalle(btn) {
@@ -460,7 +494,6 @@
             recargarTotales();
         }
 
-        const idOrdenCompra = @Model.IdOrdenCompra;
 
 
         async function recargarTotales() {
@@ -479,6 +512,48 @@
             infoIva.textContent = json.iva?.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
 
         }
+
+
+        function actualizarFilaDesdeModelo(tr, model) {
+            // ======================
+            // DATA ATTRIBUTES
+            // ======================
+            tr.dataset.idordencompradetalle = model.idOrdenCompraDetalle;
+            tr.dataset.idcotizaciondetalle = model.idCotizacionDetalle;
+            tr.dataset.mode = "view";
+
+            // ======================
+            // CELDAS
+            // ======================
+            tr.querySelector(".codigo").textContent = model.codigo;
+            tr.querySelector(".codigoProveedor").textContent = model.codigoProveedor ?? "";
+            tr.querySelector(".descripcion").textContent = model.descripcion;
+
+            tr.querySelector(".cantidadCotizada").textContent = model.cantidadCotizada;
+            tr.querySelector(".cantidadDisponible").textContent = model.cantidadDisponible;
+            tr.querySelector(".cantidad .valor").textContent = model.cantidad;
+
+            tr.querySelector(".precioLista").textContent =
+                model.precioListaMXN.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
+
+            tr.querySelector(".precioProveedor").textContent =
+                model.precioProveedor.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
+
+            tr.querySelector(".porcentajeProveedor").textContent =
+                model.porcentajeProveedor.toLocaleString("es-MX", { style: "percent", minimumFractionDigits: 2 });
+
+            tr.querySelector(".total").textContent =
+                model.total.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
+
+            // ======================
+            // UI
+            // ======================
+            tr.querySelector(".cantidad input")?.classList.add("d-none");
+            tr.querySelector(".cantidad .valor")?.classList.remove("d-none");
+
+            renderAcciones(tr);
+        }
+
 
 
         document.querySelectorAll("#tablaDetalle tbody tr")

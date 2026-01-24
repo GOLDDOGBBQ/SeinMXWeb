@@ -8,6 +8,7 @@ public class OrdenCompraViewModel
     [Required(ErrorMessage = "El # Orden Compra es requerido.")]
     [Display(Name = "# Orden Compra")]
     public int IdOrdenCompra { get; set; }
+    public int IdCotizacion { get; set; }
 
     [Display(Name = "# Cotización")]
     public string? Cotizacion { get; set; }

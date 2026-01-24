@@ -212,6 +212,7 @@ public class OrdenCompraController : ApplicationController
             var model = new OrdenCompraViewModel
             {
                 IdOrdenCompra = entity.IdOrdenCompra,
+                IdCotizacion = entity.IdCotizacion,
                 Cotizacion = entity.Cotizacion,
                 Fecha = entity.Fecha,
                 Cliente = entity.Cliente,
@@ -238,65 +239,77 @@ public class OrdenCompraController : ApplicationController
     }
 
 
-
     public async Task<List<CotizacionOrdenDetalleViewModel>> ObtenerDetalleAsync(
         int idCotizacion,
-        int idOrdenCompra)
+        int idOrdenCompra,
+        int? idOrdenCompraDetalle = null
+    )
     {
-        var sql = @"
-            WITH CTE_Cotizacion AS (
-                SELECT
-                    cd.IdCotizacionDetalle,
-                    cd.IdCotizacion,
-                    p.Codigo,
-                    p.CodigoProveedor,
-                    p.Descripcion,
-                    cd.Cantidad,
-                    cd.PrecioListaMXN,
-                    cd.PrecioProveedor,
-                    cd.PorcentajeProveedor
-                FROM INV.CotizacionDetalle cd
-                JOIN INV.Producto p ON cd.IdProducto = p.IdProducto
-                WHERE cd.IdCotizacion = @IdCotizacion
-            ),
-            CTE_Asignados AS (
-                SELECT
-                    ocd.IdCotizacionDetalle,
-                    SUM(ocd.Cantidad) AS Asignados
-                FROM INV.OrdenCompraDetalle ocd
-                JOIN INV.OrdenCompra oc ON ocd.IdOrdenCompra = oc.IdOrdenCompra
-                WHERE oc.IdCotizacion = @IdCotizacion
-                  AND oc.IdOrdenCompra <> @IdOrdenCompra
-                GROUP BY ocd.IdCotizacionDetalle
-            )
-            SELECT
-                c.IdCotizacionDetalle,
-                c.IdCotizacion,
-                c.Codigo,
-                c.CodigoProveedor,
-                c.Descripcion,
-                ocd.IdOrdenCompraDetalle,
-                ocd.IdOrdenCompra,
-                c.Cantidad AS CantidadCotizada,
-                ISNULL(ocd.Cantidad, 0) AS Cantidad,
-                c.Cantidad
-                    - ISNULL(a.Asignados, 0)
-                    - ISNULL(ocd.Cantidad, 0) AS CantidadDisponible,
-                COALESCE(ocd.PrecioListaMXN, c.PrecioListaMXN) AS PrecioListaMXN,
-                COALESCE(ocd.PrecioProveedor, c.PrecioProveedor) AS PrecioProveedor,
-                COALESCE(ocd.PorcentajeProveedor, c.PorcentajeProveedor) AS PorcentajeProveedor,
-                Total = (COALESCE(ocd.PrecioProveedor, c.PrecioProveedor) *  ISNULL(ocd.Cantidad, 0))
-            FROM CTE_Cotizacion c
-            LEFT JOIN CTE_Asignados a ON c.IdCotizacionDetalle = a.IdCotizacionDetalle
-            LEFT JOIN INV.OrdenCompraDetalle ocd
-                ON c.IdCotizacionDetalle = ocd.IdCotizacionDetalle
+        string sWhere = "";
+        var listaParametros = new List<SqlParameter>();
+
+        listaParametros.Add(new SqlParameter("@IdCotizacion", idCotizacion));
+        listaParametros.Add(new SqlParameter("@IdOrdenCompra", idOrdenCompra));
+
+        if (idOrdenCompraDetalle is not null)
+        {
+            listaParametros.Add(new SqlParameter("@IdOrdenCompraDetalle", idOrdenCompraDetalle));
+            sWhere = " WHERE ocd.IdOrdenCompraDetalle = @IdOrdenCompraDetalle";
+        }
+
+
+        var sql = $@"
+            WITH CTE_Productos AS (SELECT cd.IdCotizacionDetalle,
+                                          cd.IdCotizacion,
+                                          p.Codigo,
+                                          p.CodigoProveedor,
+                                          p.Descripcion,
+                                          cd.Cantidad,
+                                          PrecioListaMXN  = IIF(p.IdMoneda = 1, p.PrecioLista, (p.PrecioLista * OC.TipoCambio)),
+                                          PrecioProveedor = (IIF(p.IdMoneda = 1, p.PrecioLista, (p.PrecioLista * OC.TipoCambio)) -
+                                                             (IIF(p.IdMoneda = 1, p.PrecioLista, (p.PrecioLista * OC.TipoCambio)) *
+                                                              (OC.PorcentajeProveedor/100))),
+                                          OC.PorcentajeProveedor
+                                   FROM INV.CotizacionDetalle    cd
+                                            JOIN INV.Producto    p ON cd.IdProducto = p.IdProducto
+                                            JOIN INV.OrdenCompra OC ON cd.IdCotizacion = OC.IdCotizacion
+                                   WHERE OC.IdOrdenCompra = @IdOrdenCompra),
+                 CTE_Asignados AS (SELECT ocd.IdCotizacionDetalle,
+                                          SUM(ocd.Cantidad) AS Asignados
+                                   FROM INV.OrdenCompraDetalle   ocd
+                                            JOIN INV.OrdenCompra oc ON ocd.IdOrdenCompra = oc.IdOrdenCompra
+                                   WHERE oc.IdCotizacion = @IdCotizacion
+                                     AND oc.IdOrdenCompra <> @IdOrdenCompra
+                                   GROUP BY ocd.IdCotizacionDetalle)
+            SELECT c.IdCotizacionDetalle,
+                   c.IdCotizacion,
+                   c.Codigo,
+                   c.CodigoProveedor,
+                   c.Descripcion,
+                   ocd.IdOrdenCompraDetalle,
+                   ocd.IdOrdenCompra,
+                   CantidadCotizada    = c.Cantidad,
+                   Cantidad            = ISNULL(ocd.Cantidad, 0),
+                   CantidadDisponible  = c.Cantidad
+                       - ISNULL(a.Asignados, 0)
+                       - ISNULL(ocd.Cantidad, 0),
+                   PrecioListaMXN      = COALESCE(ocd.PrecioListaMXN, c.PrecioListaMXN),
+                   PrecioProveedor     = COALESCE(ocd.PrecioProveedor, c.PrecioProveedor),
+                   PorcentajeProveedor = COALESCE(ocd.PorcentajeProveedor, c.PorcentajeProveedor),
+                   Total               = (COALESCE(ocd.PrecioProveedor, c.PrecioProveedor) * ISNULL(ocd.Cantidad, 0))
+            FROM CTE_Productos                        c
+                     LEFT JOIN CTE_Asignados          a ON c.IdCotizacionDetalle = a.IdCotizacionDetalle
+                     LEFT JOIN INV.OrdenCompraDetalle ocd
+                               ON c.IdCotizacionDetalle = ocd.IdCotizacionDetalle AND  ocd.IdOrdenCompra = @IdOrdenCompra
+            {sWhere}
+
     ";
+
 
         return await _clasContext
             .CotizacionOrdenDetalleViewModels
             .FromSqlRaw(sql,
-                new SqlParameter("@IdCotizacion", idCotizacion),
-                new SqlParameter("@IdOrdenCompra", idOrdenCompra))
+                listaParametros.ToArray())
             .AsNoTracking()
             .ToListAsync();
     }
@@ -370,9 +383,8 @@ public class OrdenCompraController : ApplicationController
     }
 
 
-    /*
     [HttpPost]
-    public async Task<IActionResult> AgregarProducto([FromBody] AgregarProductoRequest request)
+    public async Task<IActionResult> GuardarDetalle([FromBody] OrdenCompraDetalleRequest request)
     {
         try
         {
@@ -381,10 +393,9 @@ public class OrdenCompraController : ApplicationController
                 .FromSqlInterpolated($@"
                 EXEC [INV].[GP_OrdenCompraDetalleNuevo]
                      @IdOrdenCompra = {request.IdOrdenCompra},
-                     @IdOrdenCompraDetalle = {request.IdCotizacionDetalle},
-                     @IdProducto = {request.IdProducto},
-                     @Cantidad = {request.Cantidad},
-                     @Observaciones = {request.Observaciones},
+                     @IdOrdenCompraDetalle = {request.IdOrdenCompraDetalle},
+                     @IdCotizacionDetalle = {request.IdCotizacionDetalle},         
+                     @Cantidad = {request.Cantidad},  
                      @UserId = {GetUserId()},
                      @ProgName = {GetApiName()}
             ")
@@ -392,7 +403,7 @@ public class OrdenCompraController : ApplicationController
                 .FirstOrDefault();
 
             // Si el SP no regresó nada (caso muy raro)
-            if (result == null)
+            if (result is null)
             {
                 return Json(new { ok = false, msg = "No se recibió respuesta del servidor." });
             }
@@ -411,7 +422,8 @@ public class OrdenCompraController : ApplicationController
             return Json(new
             {
                 ok = true,
-                idCotizacionDetalle = result.IdCotizacionDetalle
+                IdOrdenCompraDetalle = result.Id,
+                data =  await ObtenerDetalleAsync(request.IdCotizacion, request.IdOrdenCompra,result.Id)
             });
         }
         catch (Exception ex)
@@ -419,7 +431,6 @@ public class OrdenCompraController : ApplicationController
             return Json(new { ok = false, msg = ex.Message });
         }
     }
-    */
 
     /*
     [HttpGet]
