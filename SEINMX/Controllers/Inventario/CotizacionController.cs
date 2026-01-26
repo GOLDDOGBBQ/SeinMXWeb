@@ -117,61 +117,6 @@ public class CotizacionController : ApplicationController
         }
     }
 
-    [HttpGet]
-    public async Task<IActionResult> OrdenCompra(int? idCotizacion)
-    {
-        if (!GetIsAdmin())
-        {
-            return Unauthorized();
-        }
-
-
-
-        var header = await _db.VsCotizacions
-            .FirstOrDefaultAsync(x => x.IdCotizacion == idCotizacion);
-
-        if (header == null)
-            return NotFound();
-
-        var detalles = await _db.VsCotizacionDetalles
-            .Where(x => x.IdCotizacion == idCotizacion)
-            .OrderBy(x => x.IdCotizacionDetalle)
-            .ToListAsync();
-
-
-        var model = new OrdenCompraPdfModel(
-            IdCotizacion: header.IdCotizacion,
-            Fecha: header.Fecha ?? DateOnly.FromDateTime(DateTime.Now),
-            TipoCambio: header.TipoCambio,
-            Tarifa: header.Tarifa,
-            PorcentajeIVA: header.PorcentajeIva,
-            Descuento: header.Descuento,
-            UsuarioResponsable: header.UsuarioResponsable,
-            IdCliente: header.IdCliente,
-            IdClienteContacto: header.IdClienteContacto,
-            IdClienteRazonSolcial: header.IdClienteRazonSolcial,
-            Observaciones: header.Observaciones,
-            SubTotal: header.SubTotal,
-            Iva: header.Iva,
-            Total: header.Total,
-            Detalles: detalles,
-
-            // Campos para PDF
-            Cliente: header.Cliente,
-            NombreContacto: header.NombreContacto,
-            Telefono: header.Telefono
-        );
-
-
-        var pdf = await _razorRenderer.RenderViewToPdfAsync(
-            "~/Views/Cotizacion/Rp_OrdenCompra.cshtml",
-            model
-        );
-
-
-        return File(pdf, "application/pdf", $"Orden Compra - {model.IdCotizacion}.pdf");
-    }
-
 
     public IActionResult Nueva(int? idCliente = null)
     {

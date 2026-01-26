@@ -31,7 +31,7 @@
                 document.getElementById(sidenavID).style.display = "none";
             }
             if (frameID != null) {      
-                document.getElementById(frameID).src = "/Imagenes/Icons/Carga.gif";
+                document.getElementById(frameID).src = "/img/Carga.gif";
             }
         });
     }

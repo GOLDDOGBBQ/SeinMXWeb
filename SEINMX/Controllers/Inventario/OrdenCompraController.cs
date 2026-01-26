@@ -5,7 +5,6 @@ using SEINMX.Clases;
 using SEINMX.Context;
 using SEINMX.Models.Inventario;
 using System.Text.Json;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using SEINMX.Clases.Utilerias;
 
@@ -23,7 +22,7 @@ public class OrdenCompraController : ApplicationController
         _razorRenderer = razorRenderer;
     }
 
-    public async Task<IActionResult> Index(OrdenCompraBuscadorViewModel model)
+    public async Task<IActionResult> Index(OrdenCompraBuscadorViewModel model, int? idCotizacion)
     {
         if (!GetIsAdmin())
         {
@@ -31,6 +30,11 @@ public class OrdenCompraController : ApplicationController
         }
 
         model.Status ??= 1;
+
+        if (idCotizacion is not null)
+        {
+            model.IdCotizacion = idCotizacion.Value;
+        }
 
         var query = _db.VsOrdenCompras.OrderByDescending(x => x.IdOrdenCompra).AsQueryable();
 
@@ -66,63 +70,54 @@ public class OrdenCompraController : ApplicationController
         return View(model);
     }
 
-
-    /*
     [HttpGet]
-    public async Task<IActionResult> GenerarPdf(int? idOrdenCompra, bool file = false)
+    public async Task<IActionResult> GenerarPdf(int? id, bool file = false)
     {
         var header = await _db.VsOrdenCompras
-            .FirstOrDefaultAsync(x => x.IdOrdenCompra == idOrdenCompra);
+            .FirstOrDefaultAsync(x => x.IdOrdenCompra == id);
 
         if (header == null)
             return NotFound();
 
-        var detalles = await _db.OrdenCompraDetalles
-            .Where(x => x.IdOrdenCompra == idOrdenCompra)
+        var detalles = await _db.VsOrdenCompraDetalles
+            .Where(x => x.IdOrdenCompra == id)
             .OrderBy(x => x.IdOrdenCompraDetalle)
             .ToListAsync();
 
 
         var model = new OrdenCompraPdfModel(
-            IdCotizacion: header.IdCotizacion,
-            Fecha: header.Fecha ?? DateOnly.FromDateTime(DateTime.Now),
+            IdOrdenCompra: header.IdOrdenCompra,
+            Fecha: header.Fecha,
             TipoCambio: header.TipoCambio,
-            Tarifa: header.Tarifa,
-            PorcentajeIVA: header.PorcentajeIva,
-            Descuento: header.Descuento,
-            UsuarioResponsable: header.UsuarioResponsable,
-            IdCliente: header.IdCliente,
-            IdClienteContacto: header.IdClienteContacto,
-            IdClienteRazonSolcial: header.IdClienteRazonSolcial,
+            CondicionPago: header.CondicionPago,
+            Proveedor: header.Proveedor,
+            ProveedorRfc: header.ProveedorRfc,
+            ProveedorRazonSocial: header.ProveedorRazonSocial,
+            StatusDesc: header.StatusDesc,
             Observaciones: header.Observaciones,
             SubTotal: header.SubTotal,
             Iva: header.Iva,
             Total: header.Total,
-            Detalles: detalles,
-
-            // Campos para PDF
-            Cliente: header.Cliente,
-            NombreContacto: header.NombreContacto,
-            Telefono: header.Telefono
+            Detalles: detalles
         );
 
 
         if (file)
         {
             var pdf = await _razorRenderer.RenderViewToPdfAsync(
-                "~/Views/Cotizacion/Rp_OrdenCompra.cshtml",
+                "~/Views/OrdenCompra/Rp_OrdenCompra.cshtml",
                 model
             );
 
 
-            return File(pdf, "application/pdf", $"Cotizacion-{model.IdCotizacion}.pdf");
+            return File(pdf, "application/pdf", $"OrdenCompra-{model.IdOrdenCompra}.pdf");
         }
         else
         {
-            return View("Rp_Cotizacion", model);
+            return View("Rp_OrdenCompra", model);
         }
     }
-    */
+
 
     [HttpPost]
     public IActionResult Crear(OrdenCompraNuevaViewModel model)
@@ -219,6 +214,7 @@ public class OrdenCompraController : ApplicationController
                 Proveedor = entity.Proveedor,
                 TipoCambio = entity.TipoCambio,
                 PorcentajeProveedor = entity.PorcentajeProveedor,
+                CondicionPago = entity.CondicionPago,
                 Status = entity.Status ?? 1,
                 Observaciones = entity.Observaciones,
                 SubTotal = entity.SubTotal,
@@ -231,6 +227,7 @@ public class OrdenCompraController : ApplicationController
         }
         else
         {
+            refresh.Detalles = await ObtenerDetalleAsync(entity.IdCotizacion, entity.IdOrdenCompra);
             refresh.SubTotal = entity.SubTotal;
             refresh.Iva = entity.Iva;
             refresh.Total = entity.Total;
@@ -242,21 +239,36 @@ public class OrdenCompraController : ApplicationController
     public async Task<List<CotizacionOrdenDetalleViewModel>> ObtenerDetalleAsync(
         int idCotizacion,
         int idOrdenCompra,
-        int? idOrdenCompraDetalle = null
+        int? idOrdenCompraDetalle = null,
+        int? idCotizacionDetalle = null
     )
     {
         string sWhere = "";
-        var listaParametros = new List<SqlParameter>();
+        var nLen = idOrdenCompraDetalle is null ? 2 : 3;
 
-        listaParametros.Add(new SqlParameter("@IdCotizacion", idCotizacion));
-        listaParametros.Add(new SqlParameter("@IdOrdenCompra", idOrdenCompra));
+        if (idCotizacionDetalle is not null)
+        {
+            nLen += 1;
+        }
+
+        object[] arrParametros = new object[nLen];
+
+        arrParametros[0] = new SqlParameter("@IdCotizacion", idCotizacion);
+
+        arrParametros[1] = new SqlParameter("@IdOrdenCompra", idOrdenCompra);
 
         if (idOrdenCompraDetalle is not null)
         {
-            listaParametros.Add(new SqlParameter("@IdOrdenCompraDetalle", idOrdenCompraDetalle));
+            arrParametros[2] = new SqlParameter("@IdOrdenCompraDetalle", idOrdenCompraDetalle);
             sWhere = " WHERE ocd.IdOrdenCompraDetalle = @IdOrdenCompraDetalle";
         }
 
+        if (idCotizacionDetalle is not null)
+        {
+            nLen -= 1;
+            arrParametros[nLen] = new SqlParameter("@IdCotizacionDetalle", idCotizacionDetalle);
+            sWhere = " WHERE c.IdCotizacionDetalle = @IdCotizacionDetalle";
+        }
 
         var sql = $@"
             WITH CTE_Productos AS (SELECT cd.IdCotizacionDetalle,
@@ -270,9 +282,9 @@ public class OrdenCompraController : ApplicationController
                                                              (IIF(p.IdMoneda = 1, p.PrecioLista, (p.PrecioLista * OC.TipoCambio)) *
                                                               (OC.PorcentajeProveedor/100))),
                                           OC.PorcentajeProveedor
-                                   FROM INV.CotizacionDetalle    cd
-                                            JOIN INV.Producto    p ON cd.IdProducto = p.IdProducto
+                                   FROM INV.CotizacionDetalle    cd                                       
                                             JOIN INV.OrdenCompra OC ON cd.IdCotizacion = OC.IdCotizacion
+                                            JOIN INV.Producto    p ON cd.IdProducto = p.IdProducto AND OC.IdProveedor = p.IdProveedor
                                    WHERE OC.IdOrdenCompra = @IdOrdenCompra),
                  CTE_Asignados AS (SELECT ocd.IdCotizacionDetalle,
                                           SUM(ocd.Cantidad) AS Asignados
@@ -309,7 +321,7 @@ public class OrdenCompraController : ApplicationController
         return await _clasContext
             .CotizacionOrdenDetalleViewModels
             .FromSqlRaw(sql,
-                listaParametros.ToArray())
+                arrParametros)
             .AsNoTracking()
             .ToListAsync();
     }
@@ -423,7 +435,7 @@ public class OrdenCompraController : ApplicationController
             {
                 ok = true,
                 IdOrdenCompraDetalle = result.Id,
-                data =  await ObtenerDetalleAsync(request.IdCotizacion, request.IdOrdenCompra,result.Id)
+                data = await ObtenerDetalleAsync(request.IdCotizacion, request.IdOrdenCompra, result.Id)
             });
         }
         catch (Exception ex)
@@ -432,73 +444,35 @@ public class OrdenCompraController : ApplicationController
         }
     }
 
-    /*
-    [HttpGet]
-    public async Task<IActionResult> GetDetalles(int idCotizacion)
-    {
-        var query = _db.VsCotizacionDetalles
-            .Where(x => x.IdCotizacion == idCotizacion);
-
-        if (GetIsAdmin())
-        {
-            var lista = await query
-                .Select(x => new
-                {
-                    idCotizacionDetalle = x.IdCotizacionDetalle,
-                    cantidad = x.Cantidad,
-                    idProducto = x.IdProducto,
-                    codigo = x.Codigo,
-                    descripcion = x.Descripcion,
-                    precioListaMxn = x.PrecioListaMxn,
-                    porcentajeProveedor = x.PorcentajeProveedor,
-                    precioProveedor = x.PrecioProveedor,
-                    porcentajeProveedorGanancia = x.PorcentajeProveedorGanancia,
-                    gananciaProveedor = x.GananciaProveedor,
-                    precioSein = x.PrecioSein,
-                    precioCliente = x.PrecioCliente,
-                    total = x.Total,
-                    observaciones = x.Observaciones
-                })
-                .ToListAsync();
-
-            return Json(lista);
-        }
-        else
-        {
-            var lista = await query
-                .Select(x => new
-                {
-                    idCotizacionDetalle = x.IdCotizacionDetalle,
-                    cantidad = x.Cantidad,
-                    idProducto = x.IdProducto,
-                    codigo = x.Codigo,
-                    descripcion = x.Descripcion,
-                    precioCliente = x.PrecioCliente,
-                    total = x.Total,
-                    observaciones = x.Observaciones
-                })
-                .ToListAsync();
-
-            return Json(lista);
-        }
-    }*/
-
-    /*[HttpDelete]
-    public async Task<IActionResult> DeleteProducto(int idDetalle)
+    [HttpDelete]
+    public async Task<IActionResult> EliminarDetalle(int id)
     {
         try
         {
-            var item = await _db.CotizacionDetalles.FindAsync(idDetalle);
+            var item = await _db.OrdenCompraDetalles.FindAsync(id);
             if (item == null) return NotFound();
 
-            _db.CotizacionDetalles.Remove(item);
+            int idOrdenCompra = item.IdOrdenCompra;
+            int idCotizacionDetalle = item.IdCotizacionDetalle;
+
+            var itemOC = await _db.OrdenCompras.FindAsync(idOrdenCompra);
+            if (itemOC == null) return NotFound();
+
+            int idCotizacion = itemOC.IdCotizacion;
+
+
+            _db.OrdenCompraDetalles.Remove(item);
             await _db.SaveChangesAsync();
 
-            return Json(new { ok = true });
+            return Json(new
+            {
+                ok = true,
+                data = await ObtenerDetalleAsync(idCotizacion, idOrdenCompra,null,idCotizacionDetalle)
+            });
         }
         catch (Exception ex)
         {
             return Json(new { ok = false, msg = ex.Message });
         }
-    }*/
+    }
 }

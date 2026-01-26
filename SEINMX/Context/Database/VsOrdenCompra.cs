@@ -13,6 +13,10 @@ public partial class VsOrdenCompra
 
     public string? Proveedor { get; set; }
 
+    public string? ProveedorRfc { get; set; }
+
+    public string? ProveedorRazonSocial { get; set; }
+
     public short? Status { get; set; }
 
     public decimal TipoCambio { get; set; }

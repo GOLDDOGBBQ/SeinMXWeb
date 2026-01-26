@@ -47,6 +47,12 @@ public class ProveedorViewModel
         public decimal TarifaGanancia { get; set; }
 
 
+        [StringLength(50, ErrorMessage = "EL RFC no puede exceder 50 caracteres")]
+        public string RFC { get; set; } = string.Empty;
+
+        [StringLength(250, ErrorMessage = "La Razon Social no puede exceder 250 caracteres")]
+        [Display(Name = "Razon Social")]
+        public string RazonSocial { get; set; } = string.Empty;
 
     }
 

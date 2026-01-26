@@ -90,7 +90,7 @@
             <div class="card-body">
 
                 <div class="row">
-                    <div class="col-md-2">
+                    <div class="col-md-4">
                         <div class="form-group">
                             @Html.LabelFor(model => model.Status, labelAtt)
                             @Html.DropDownListFor(
@@ -103,7 +103,7 @@
                     </div>
 
                     <!-- Fecha -->
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         @Html.LabelFor(model => model.Fecha, labelAtt)
                         @Html.EditorFor(model => model.Fecha, editformAtt)
                         @Html.ValidationMessageFor(model => model.Fecha, "", labelValidation)
@@ -118,10 +118,17 @@
                     </div>
 
                     <!-- Porcentaje Proveedor -->
-                    <div class="col-md-2">
+                    <div class="col-md-3 col-lg-2">
                         @Html.LabelFor(model => model.PorcentajeProveedor, labelAtt)
                         @Html.EditorFor(model => model.PorcentajeProveedor, editformAtt)
                         @Html.ValidationMessageFor(model => model.PorcentajeProveedor, "", labelValidation)
+
+                    </div>
+                    <!-- Condicion Pago -->
+                    <div class="col-md-6 col-lg-4">
+                        @Html.LabelFor(model => model.CondicionPago, labelAtt)
+                        @Html.EditorFor(model => model.CondicionPago, editformAtt)
+                        @Html.ValidationMessageFor(model => model.CondicionPago, "", labelValidation)
 
                     </div>
 
@@ -160,7 +167,7 @@
                         <th>Descripción</th>
                         <th>Cantidad Cotizada</th>
                         <th>Precio Lista (MXN)</th>
-                        <th>% Proveedor</th>
+                        @*<th>% Proveedor</th>*@
                         <th>Precio Proveedor</th>
                         <th>Cantidad Disponible</th>
                         <th>Cantidad OC</th>
@@ -169,10 +176,19 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @{ var rowNumb = 1; }
+                    @{
+                        var rowNumb = 1;
+                        var sClass = "";
+                    }
                     @foreach (var item in Model.Detalles)
                     {
-                        <tr id="row-@rowNumb"
+                        sClass = "";
+                        if (item.CantidadDisponible == 0)
+                        {
+                            sClass = "table-secondary";
+                        }
+
+                        <tr id="row-@rowNumb" class="@sClass"
                             data-idCotizacionDetalle="@item.IdCotizacionDetalle"
                             data-idOrdenCompraDetalle="@item.IdOrdenCompraDetalle"
                             data-precio="@item.PrecioProveedor"
@@ -185,7 +201,7 @@
                             <td class="descripcion">@Html.DisplayFor(m => item.Descripcion)</td>
                             <td class="cantidadCotizada text-center">@Html.DisplayFor(m => item.CantidadCotizada)</td>
                             <td class="precioLista text-end">@Html.DisplayFor(m => item.PrecioListaMXN)</td>
-                            <td class="porcentajeProveedor text-center">@Html.DisplayFor(m => item.PorcentajeProveedor)</td>
+                            @*<td class="porcentajeProveedor text-center">@Html.DisplayFor(m => item.PorcentajeProveedor)</td>*@
                             <td class="precioProveedor text-end">@Html.DisplayFor(m => item.PrecioProveedor)</td>
                             <td class="cantidadDisponible text-center">@Html.DisplayFor(m => item.CantidadDisponible)</td>
 
@@ -328,7 +344,6 @@
             </button>`);
                 return;
             }
-
             if (!idDetalle) {
                 acciones.innerHTML = wrap(`
             <button class="btn btn-success btn-sm" onclick="editarDetalle(this)">
@@ -361,7 +376,7 @@
 
             const cantidad = parseFloat(input.value) || 0;
             if (isNaN(cantidad) || cantidad <= 0) {
-                input.value =   tr.dataset.disponible
+                input.value = tr.dataset.disponible
             }
 
             span.classList.add("d-none");
@@ -458,42 +473,80 @@
                 Cantidad: cantidad
             };
 
-            const res = await fetch('/OrdenCompra/GuardarDetalle', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
+            try {
+                const res = await fetch('/OrdenCompra/GuardarDetalle', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
 
-            const json = await res.json();
-            if (!json.ok) return showToast("Error", json.msg, "error");
+                if (!res.ok) {
+                    showToast(
+                        "Error",
+                        `Error del servidor (${res.status})`,
+                        "error"
+                    );
+                    return;
+                }
 
-            recargarTotales();
+                const json = await res.json();
+                if (!json.ok) return showToast("Error", json.msg, "error");
 
-            const model = json.data[0];
-            actualizarFilaDesdeModelo(tr, model);
+                recargarTotales();
+
+                const model = json.data[0];
+                actualizarFilaDesdeModelo(tr, model);
 
 
-
+            } catch (err) {
+                showToast(
+                    "Error",
+                    "No se pudo conectar con el servidor.",
+                    "error"
+                );
+            }
         }
+
 
         async function eliminarDetalle(btn) {
             const tr = btn.closest("tr");
             const id = parseInt(tr.dataset.idordencompradetalle);
 
-            const res = await fetch(`/OrdenCompra/EliminarDetalle/${id}`, {method: 'DELETE'});
-            const json = await res.json();
+            try {
+                const res = await fetch(`/OrdenCompra/EliminarDetalle/${id}`, {
+                    method: 'DELETE'
+                });
 
-            if (!json.ok) return showToast("Error", json.msg, "error");
+                if (!res.ok) {
+                    showToast(
+                        "Error",
+                        `Error del servidor (${res.status})`,
+                        "error"
+                    );
+                    return;
+                }
 
-            tr.dataset.idordencompradetalle = "";
-            tr.querySelector(".cantidad .valor").textContent = "0";
-            tr.querySelector(".total").textContent =
-                (0).toLocaleString("es-MX", {style: "currency", currency: "MXN"});
 
-            renderAcciones(tr);
-            recargarTotales();
+                const json = await res.json();
+
+                if (!json.ok) {
+                    showToast("Error", json.msg ?? "Ocurrió un error", "error");
+                    return;
+                }
+
+                recargarTotales();
+
+                const model = json.data[0];
+                actualizarFilaDesdeModelo(tr, model);
+
+            } catch (err) {
+                showToast(
+                    "Error",
+                    "No se pudo conectar con el servidor.",
+                    "error"
+                );
+            }
         }
-
 
 
         async function recargarTotales() {
@@ -518,9 +571,20 @@
             // ======================
             // DATA ATTRIBUTES
             // ======================
-            tr.dataset.idordencompradetalle = model.idOrdenCompraDetalle;
+            if (model.idOrdenCompraDetalle == null) {
+                delete tr.dataset.idordencompradetalle;
+            } else {
+                tr.dataset.idordencompradetalle = model.idOrdenCompraDetalle;
+            }
+
             tr.dataset.idcotizaciondetalle = model.idCotizacionDetalle;
             tr.dataset.mode = "view";
+
+            if (model.cantidadDisponible === 0) {
+                tr?.classList.add("table-secondary");
+            } else {
+                tr?.classList.remove("table-secondary");
+            }
 
             // ======================
             // CELDAS
@@ -534,16 +598,15 @@
             tr.querySelector(".cantidad .valor").textContent = model.cantidad;
 
             tr.querySelector(".precioLista").textContent =
-                model.precioListaMXN.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
+                model.precioListaMXN.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
 
             tr.querySelector(".precioProveedor").textContent =
-                model.precioProveedor.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
+                model.precioProveedor.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
 
-            tr.querySelector(".porcentajeProveedor").textContent =
-                model.porcentajeProveedor.toLocaleString("es-MX", { style: "percent", minimumFractionDigits: 2 });
+            @*tr.querySelector(".porcentajeProveedor").textContent =   model.porcentajeProveedor;*@
 
             tr.querySelector(".total").textContent =
-                model.total.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
+                model.total.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
 
             // ======================
             // UI
@@ -553,7 +616,6 @@
 
             renderAcciones(tr);
         }
-
 
 
         document.querySelectorAll("#tablaDetalle tbody tr")

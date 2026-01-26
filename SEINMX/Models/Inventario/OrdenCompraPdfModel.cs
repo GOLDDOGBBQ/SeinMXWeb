@@ -3,24 +3,18 @@
 namespace SEINMX.Models.Inventario;
 
 public record OrdenCompraPdfModel(
-    int IdCotizacion,
+    int IdOrdenCompra,
     DateOnly Fecha,
     decimal? TipoCambio,
-    decimal? Tarifa,
-    decimal? PorcentajeIVA,
-    decimal? Descuento,
-    string? UsuarioResponsable,
-    int? IdCliente,
-    int? IdClienteContacto,
-    int? IdClienteRazonSolcial,
+    string? CondicionPago,
+    string? Proveedor,
+    string? ProveedorRfc,
+    string? ProveedorRazonSocial,
+    string? StatusDesc,
     string? Observaciones,
     decimal? SubTotal,
     decimal? Iva,
     decimal? Total,
-    List<VsCotizacionDetalle> Detalles,
-
-    string?  Cliente,
-    string?  NombreContacto,
-    string?  Telefono
+    List<VsOrdenCompraDetalle> Detalles
 );
 

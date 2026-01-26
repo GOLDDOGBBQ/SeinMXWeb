@@ -31,6 +31,10 @@ public partial class Proveedor
 
     public bool Eliminado { get; set; }
 
+    public string Rfc { get; set; } = null!;
+
+    public string RazonSocial { get; set; } = null!;
+
     public virtual ICollection<OrdenCompra> OrdenCompras { get; set; } = new List<OrdenCompra>();
 
     public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();

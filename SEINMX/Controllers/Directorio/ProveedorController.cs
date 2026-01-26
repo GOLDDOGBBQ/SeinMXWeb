@@ -78,7 +78,9 @@ public class ProveedorController : ApplicationController
             Direccion = proveedor.Direccion,
             Observaciones = proveedor.Observaciones,
             Tarifa = proveedor.Tarifa,
-            TarifaGanancia = proveedor.TarifaGanancia
+            TarifaGanancia = proveedor.TarifaGanancia,
+            RFC = proveedor.Rfc,
+            RazonSocial = proveedor.RazonSocial
         };
 
         return View("Editar", model);
@@ -112,6 +114,8 @@ public class ProveedorController : ApplicationController
                     Observaciones = model.Observaciones ?? "",
                     Tarifa = model.Tarifa,
                     TarifaGanancia = model.TarifaGanancia,
+                    Rfc = model.RFC.ToUpper(),
+                    RazonSocial = model.RazonSocial.ToUpper(),
                     FchReg = DateTime.Now,
                     CreadoPor = GetApiName(),
                     UsrReg = GetUserId()
@@ -134,6 +138,9 @@ public class ProveedorController : ApplicationController
                 entity.Observaciones = model.Observaciones ?? "";
                 entity.Tarifa = model.Tarifa;
                 entity.TarifaGanancia = model.TarifaGanancia;
+                entity.Rfc = model.RFC.ToUpper();
+                entity.RazonSocial = model.RazonSocial.ToUpper();
+
                 entity.ModificadoPor = GetApiName();
                 entity.UsrAct = GetUserId();
                 entity.FchAct = DateTime.Now;

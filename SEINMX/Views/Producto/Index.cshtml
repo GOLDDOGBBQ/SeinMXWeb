@@ -59,6 +59,7 @@
                     <thead class="table-dark">
                     <tr>
                         <th><i class="fa-solid fa-barcode"></i> Código</th>
+                        <th><i class="fa-solid fa-barcode"></i> Código Proveedor</th>
                         <th><i class="fa-solid fa-circle-info"></i> Descripción</th>
                         <th><i class="fa-regular fa-money-bill-1"></i> Precio Lista</th>
                         <th><i class="fa-solid fa-dollar-sign"></i> Moneda</th>
@@ -70,8 +71,9 @@
                     <tbody>
                     @foreach (var item in Model.Productos)
                     {
-                        <tr id="row-@item.IdProducto">
+                        <tr  data-id-producto="@item.IdProducto">
                             <td>@item.Codigo</td>
+                            <td>@item.CodigoProveedor</td>
                             <td>@item.Descripcion</td>
                             <td>
                                 @string.Format(cultureMx, "{0:C}", item.PrecioLista)
@@ -119,9 +121,9 @@
         document.addEventListener("click", async (e) => {
             if (e.target.closest(".btnEliminar")) {
                 let row = e.target.closest("tr");
-                let idProducto = row.dataset.id;
+                let idProducto = row.dataset.idProducto;
 
-                const res = await fetch(`/Producto/Delete?idProducto=${idProducto}`, {
+                const res = await fetch(`/Producto/Eliminar?id=${idProducto}`, {
                     method: "DELETE",
                 });
 

@@ -13,6 +13,8 @@ public partial class OrdenCompraDetalle
 
     public decimal PrecioListaMxn { get; set; }
 
+    public decimal PorcentajeProveedor { get; set; }
+
     public decimal PrecioProveedor { get; set; }
 
     public decimal Cantidad { get; set; }

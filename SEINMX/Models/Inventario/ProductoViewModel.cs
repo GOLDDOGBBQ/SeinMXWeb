@@ -24,18 +24,25 @@ public class ProductoViewModel
         // Campos obligatorios
         // ===========================
         [Required(ErrorMessage = "El proveedor es obligatorio.")]
+        [Display(Name = "Proveedor")]
         public int IdProveedor { get; set; }
 
         [Required(ErrorMessage = "El código es obligatorio.")]
         [StringLength(50, ErrorMessage = "El código no puede exceder 50 caracteres.")]
         public string Codigo { get; set; } = string.Empty;
 
+        [StringLength(50, ErrorMessage = "El código no puede exceder 50 caracteres.")]
+        [Display(Name = "Codigo Proveedor")]
+        public string? CodigoProveedor { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "La descripción es obligatoria.")]
         [StringLength(500, ErrorMessage = "La descripción no puede exceder 500 caracteres.")]
+        [Display(Name = "Descripción")]
         public string Descripcion { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "El precio de lista es obligatorio.")]
         [Range(0.01, 99999999, ErrorMessage = "El precio debe ser mayor que cero.")]
+        [Display(Name = "Precio Lista")]
         public decimal PrecioLista { get; set; }
 
         [Required(ErrorMessage = "La existencia es obligatoria.")]
@@ -46,9 +53,12 @@ public class ProductoViewModel
         // ===========================
         // Campos opcionales
         // ===========================
+        [Display(Name = "Moneda")]
         public int? IdMoneda { get; set; }
 
         [StringLength(50, ErrorMessage = "La clave SAT no puede exceder 50 caracteres.")]
+
+        [Display(Name = "Clave Unidad SAT")]
         public string? ClaveUnidadSAT { get; set; } = string.Empty;
 
         [DataType(DataType.MultilineText)]

@@ -14,20 +14,13 @@
 <head>
     <meta charset="utf-8">
     <title>Cotización @Model.Cotizacion</title>
+
+
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
             font-size: 10px;
             padding: 30px;
-        }
-
-        .ColorHeader {
-            background-color: #f8aa00;
-        }
-
-        .ColorSubHeader {
-            border: 1px solid #e3e3e3;
-            background: #fafafa;
         }
 
         .summary-box {
@@ -41,16 +34,6 @@
             background-color: #000000;
             color: #ffffff;
         }
-
-        .tableHeder {
-            min-width: 80%;
-        }
-
-
-        .tableHeder, .tableHeder tr {
-            border: 1px solid #ccc;
-        }
-
 
         .tableDatos {
             border: 1px solid #ccc;
@@ -66,7 +49,6 @@
 
         }
 
-
         .table td, .table th {
             vertical-align: middle;
             font-size: 12px;
@@ -76,11 +58,6 @@
             font-size: 14px;
             padding: 4px;
         }
-
-        .page-break {
-            page-break-after: always;
-        }
-
 
         html, body {
             height: 100%;
@@ -136,7 +113,7 @@
 
         <div class="col-6 text-end">
             <div class="doc-title">COTIZACIÓN @Model.Cotizacion</div>
-            <div class="small-muted fw-bold"><strong>Fecha:</strong> @Model.Fecha.ToString("dd de MMMM del yyyy")</div>
+            <div class="small-muted fw-bold"><strong>Fecha:</strong> @Model.Fecha.ToString("dd 'de' MMMM 'del' yyyy")</div>
             <div class="small-muted fw-bold"><strong>Asesor:</strong> @Model.UsuarioResponsable</div>
         </div>
 

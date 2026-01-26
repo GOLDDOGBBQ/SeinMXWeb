@@ -17,6 +17,8 @@ public partial class VsProducto
 
     public string Codigo { get; set; } = null!;
 
+    public string? CodigoProveedor { get; set; }
+
     public string Descripcion { get; set; } = null!;
 
     public decimal PrecioLista { get; set; }

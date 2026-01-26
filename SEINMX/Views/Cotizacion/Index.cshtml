@@ -137,7 +137,7 @@
                                 @if (UserClaimsHelper.IsAdmin(User))
                                 {
                                     <a class="btn btn-sm btn-secondary"
-                                       href="@Url.Action("OrdenCompra", "Cotizacion", new { idCotizacion = item.IdCotizacion })">
+                                       href="@Url.Action("Index", "OrdenCompra", new { idCotizacion = item.IdCotizacion })">
                                         <i class="fa-solid fa-bag-shopping"></i>
                                     </a>
                                 }

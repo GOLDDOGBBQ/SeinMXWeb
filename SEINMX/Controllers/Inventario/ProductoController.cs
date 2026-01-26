@@ -24,7 +24,7 @@ public class ProductoController : ApplicationController
     // GET
     public async Task<IActionResult> Index(ProductoBuscadorViewModel model)
     {
-        var query = _db.VsProductos.OrderByDescending(x => x.IdProducto).AsQueryable();
+        var query = _db.VsProductos.Where(x => x.Eliminado == false);
 
         if (model.IdProducto != null)
         {
@@ -77,6 +77,7 @@ public class ProductoController : ApplicationController
             IdMoneda = entity.IdMoneda,
 
             Codigo = entity.Codigo,
+            CodigoProveedor = entity.CodigoProveedor,
             Descripcion = entity.Descripcion,
 
             PrecioLista = entity.PrecioLista,
@@ -107,6 +108,7 @@ public class ProductoController : ApplicationController
                 {
                     IdProveedor = model.IdProveedor,
                     Codigo = model.Codigo,
+                    CodigoProveedor = model.CodigoProveedor,
                     IdMoneda = model.IdMoneda,
                     Descripcion = model.Descripcion,
                     Observaciones = model.Observaciones ?? "",
@@ -128,6 +130,7 @@ public class ProductoController : ApplicationController
 
                 item.IdProveedor = model.IdProveedor;
                 item.Codigo = model.Codigo;
+                item.CodigoProveedor = model.CodigoProveedor;
                 item.IdMoneda = model.IdMoneda;
                 item.Descripcion = model.Descripcion;
                 item.Observaciones = model.Observaciones ?? "";

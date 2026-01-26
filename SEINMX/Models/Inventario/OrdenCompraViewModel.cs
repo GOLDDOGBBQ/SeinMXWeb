@@ -28,6 +28,10 @@ public class OrdenCompraViewModel
     [Display(Name = "Cliente")]
     public string? Cliente { get; set; }
 
+    [Display(Name = "Condición de Pago")]
+    [MaxLength(600, ErrorMessage = "Las Condición de Pago no pueden exceder 600 caracteres.")]
+    public string? CondicionPago { get; set; }
+
     [Display(Name = "Tipo Cambio")]
     [Required(ErrorMessage = "El tipo de cambio es obligatorio.")]
     [Range(0.0001, 999999, ErrorMessage = "El tipo de cambio debe ser mayor a 0.")]
@@ -67,7 +71,7 @@ public class OrdenCompraViewModel
     public decimal? Iva { get; set; }
     [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = true)]
     public decimal? Total { get; set; }
-    public List<CotizacionOrdenDetalleViewModel> Detalles { get; set; }
+    public List<CotizacionOrdenDetalleViewModel>? Detalles { get; set; }
 
 
     public List<SelectListItem> GetComboStatus()
