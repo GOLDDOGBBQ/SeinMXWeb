@@ -5,6 +5,7 @@ namespace SEINMX.Models.Inventario;
 public class SpCotizacionDetalleNuevoResult : RequestGenericStoreProcedure
 {
     public int? IdCotizacionDetalle { get; set; }
+    public int? IdCotizacion { get; set; }
 
 }
 

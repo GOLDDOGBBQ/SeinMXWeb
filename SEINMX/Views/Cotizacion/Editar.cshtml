@@ -423,45 +423,137 @@
             data.forEach(d => {
                 if (esAdmin) {
                     tbody.insertAdjacentHTML("beforeend", `
-                    <tr data-id="${d.idCotizacionDetalle}">
+                    <tr data-id="${d.idCotizacionDetalle}" data-mode="view">
                         <td>${d.codigo}</td>
                         <td>${d.descripcion}</td>
-                        <td>${d.precioListaMxn.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td>${d.porcentajeProveedor}</td>
-                        <td>${d.precioProveedor.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td>${d.porcentajeProveedorGanancia}</td>
-                        <td>${d.gananciaProveedor}</td>
-                        <td>${d.precioSein.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td>${d.precioCliente.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td><input class="form-control txtCantidad" value="${d.cantidad}"></td>
-                        <td>${d.total.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td><input class="form-control txtObs" value="${d.observaciones ?? ""}"></td>
-                        <td>
-                            <button class="btn btn-danger btnEliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <td class="precio-lista">${d.precioListaMxn.toLocaleString("es-MX", {
+                        style: "currency",
+                        currency: "MXN"
+                    })}</td>
+                        <td class="porc-proveedor text-center">${d.porcentajeProveedor}</td>
+                        <td class="precio-proveedor">${d.precioProveedor.toLocaleString("es-MX", {
+                        style: "currency",
+                        currency: "MXN"
+                    })}</td>
+                        <td class="porc-ganancia text-center">${d.porcentajeProveedorGanancia}</td>
+                        <td class="ganancia">${d.gananciaProveedor}</td>
+                        <td class="precio-sein">${d.precioSein.toLocaleString("es-MX", {
+                        style: "currency",
+                        currency: "MXN"
+                    })}</td>
+                        <td class="precio-cliente">${d.precioCliente.toLocaleString("es-MX", {
+                        style: "currency",
+                        currency: "MXN"
+                    })}</td>
+                        <td class="cantidad text-center">
+                             <span class="valor">${d.cantidad}</span>
+                                <input class="form-control form-control-sm d-none"
+                                       type="number"
+                                       step="1"
+                                       value="${d.cantidad}">
                         </td>
+
+                        <td class="total">${d.total.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                        <td class="obs">
+                            <span class="valor">${d.observaciones ?? ""}</span>
+                                <input class="form-control form-control-sm d-none"
+                                       value="${d.observaciones ?? ""}">
+                        </td>
+                        <td class="acciones"></td>
                     </tr>
                 `);
                 } else {
                     tbody.insertAdjacentHTML("beforeend", `
-                    <tr data-id="${d.idCotizacionDetalle}">
+                    <tr data-id="${d.idCotizacionDetalle}" data-mode="view">
                         <td>${d.codigo}</td>
                         <td>${d.descripcion}</td>
-                        <td>${d.precioCliente.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td><input class="form-control txtCantidad" value="${d.cantidad}"></td>
-                        <td>${d.total.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
-                        <td><input class="form-control txtObs" value="${d.observaciones ?? ""}"></td>
-                        <td>
-                            <button class="btn btn-danger btnEliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                        <td  class="precio-cliente">${d.precioCliente.toLocaleString("es-MX", {
+                        style: "currency",
+                        currency: "MXN"
+                    })}</td>
+                        <td class="cantidad text-center">
+                             <span class="valor">${d.cantidad}</span>
+                                <input class="form-control form-control-sm d-none"
+                                       type="number"
+                                       step="1"
+                                       value="${d.cantidad}">
                         </td>
+
+                        <td class="total">${d.total.toLocaleString("es-MX", {style: "currency", currency: "MXN"})}</td>
+                        <td class="obs">
+                            <span class="valor">${d.observaciones ?? ""}</span>
+                                <input class="form-control form-control-sm d-none"
+                                       value="${d.observaciones ?? ""}">
+                        </td>
+                        <td class="acciones"></td>
                     </tr>
                 `);
                 }
+
+                const tr = tbody.lastElementChild;
+                renderAcciones(tr);
             });
 
+        }
+
+        function actualizarFilaDesdeModelo(tr, d) {
+
+            if (!d) {
+                console.error("Modelo inválido en actualizarFilaDesdeModelo", d);
+                return;
+            }
+
+            // ===== CANTIDAD =====
+            const tdCantidad = tr.querySelector(".cantidad");
+            if (tdCantidad) {
+                tdCantidad.querySelector(".valor").textContent = d.cantidad;
+                tdCantidad.querySelector("input").value = d.cantidad;
+            }
+
+            // ===== OBSERVACIONES =====
+            const tdObs = tr.querySelector(".obs");
+            if (tdObs) {
+                tdObs.querySelector(".valor").textContent = d.observaciones ?? "";
+                tdObs.querySelector("input").value = d.observaciones ?? "";
+            }
+
+            // ===== PRECIOS Y PORCENTAJES (ADMIN) =====
+            setMoney(tr, ".precio-lista", d.precioListaMxn);
+            setText(tr, ".porc-proveedor", d.porcentajeProveedor);
+            setMoney(tr, ".precio-proveedor", d.precioProveedor);
+            setText(tr, ".porc-ganancia", d.porcentajeProveedorGanancia);
+            setMoney(tr, ".ganancia", d.gananciaProveedor);
+            setMoney(tr, ".precio-sein", d.precioSein);
+
+            // ===== COMUNES =====
+            setMoney(tr, ".precio-cliente", d.precioCliente);
+            setMoney(tr, ".total", d.total);
+
+            // ===== REGRESAR A MODO VISTA =====
+            tr.dataset.mode = "view";
+            tr.querySelectorAll("input").forEach(i => i.classList.add("d-none"));
+            tr.querySelectorAll(".valor").forEach(s => s.classList.remove("d-none"));
+
+            renderAcciones(tr);
+        }
+
+        /* ================= HELPERS ================= */
+
+        function setMoney(tr, selector, value) {
+            const td = tr.querySelector(selector);
+            if (!td || value == null) return;
+
+            td.textContent = value.toLocaleString("es-MX", {
+                style: "currency",
+                currency: "MXN"
+            });
+        }
+
+        function setText(tr, selector, value) {
+            const td = tr.querySelector(selector);
+            if (!td || value == null) return;
+
+            td.textContent = value;
         }
 
         // Agregar producto
@@ -501,60 +593,28 @@
 
         });
 
-        // Editar producto
-        document.addEventListener("change", async (e) => {
-            if (e.target.classList.contains("txtCantidad") ||
-                e.target.classList.contains("txtObs")) {
+        async function eliminarDetalle(btn) {
+            const tr = btn.closest("tr");
+            const id = tr.dataset.id;
 
-                let row = e.target.closest("tr");
-                let idDetalle = row.dataset.id;
+            const res = await fetch(
+                `@Url.Action("DeleteProducto", "Cotizacion")?idDetalle=${id}`,
+                {method: "DELETE"}
+            );
 
-
-                let payload = {
-                    IdCotizacionDetalle: parseInt(idDetalle),
-                    Cantidad: row.querySelector(".txtCantidad").value,
-                    Observaciones: row.querySelector(".txtObs").value
-                };
-
-                const res = await fetch(`@Url.Action("AgregarProducto", "Cotizacion")`, {
-                    method: "POST",
-                    headers: {"Content-Type": "application/json"},
-                    body: JSON.stringify(payload)
-                });
-
-
-                const json = await res.json();
-                if (isError(json)) {
-                    return;
-                }
-                await recargarTotales();
-                await cargarTabla();
-                showToast("Producto actualizado", "Se modificó correctamente");
-
+            if (!res.ok) {
+                showToast("Error", "No se pudo eliminar", "error");
+                return;
             }
-        });
-
-        // Eliminar producto
-        document.addEventListener("click", async (e) => {
-            if (e.target.closest(".btnEliminar")) {
-                let row = e.target.closest("tr");
-                let idDetalle = row.dataset.id;
-
-                const res = await fetch(`@Url.Action("DeleteProducto", "Cotizacion")?idDetalle=${idDetalle}`, {
-                    method: "DELETE",
-                });
-
-                const json = await res.json();
-                if (isError(json)) {
-                    return;
-                }
-
-                await cargarTabla();
-                await recargarTotales();
-                showToast("Producto eliminado", "Se eliminó el producto correctamente");
-
+            const json = await res.json();
+            if (isError(json)) {
+                return;
             }
-        });
+
+            tr.remove();
+            await recargarTotales();
+            showToast("Producto eliminado", "Se eliminó correctamente");
+        }
 
         async function recargarTotales() {
             const res = await fetch(`@Url.Action("GetTotales", "Cotizacion", new { idCotizacion = Model.IdCotizacion })`);
@@ -572,6 +632,116 @@
             infoIva.textContent = json.iva?.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
 
         }
+
+        function renderAcciones(tr) {
+            const acciones = tr.querySelector(".acciones");
+            acciones.classList.add("d-flex", "gap-1", "justify-content-center");
+
+            if (tr.dataset.mode === "edit") {
+                acciones.innerHTML = `
+            <button class="btn btn-success btn-sm" onclick="guardarDetalle(this)">
+                <i class="fas fa-save"></i>
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="cancelarEdicion(this)">
+                <i class="fas fa-times"></i>
+            </button>`;
+                return;
+            }
+
+            acciones.innerHTML = `
+            <button class="btn btn-primary btn-sm" onclick="editarDetalle(this)">
+                <i class="fas fa-pen-to-square"></i>
+            </button>
+            <button class="btn btn-danger btn-sm" onclick="eliminarDetalle(this)">
+                <i class="fas fa-trash"></i>
+            </button>`;
+        }
+
+        function editarDetalle(btn) {
+            const tr = btn.closest("tr");
+            tr.dataset.mode = "edit";
+
+            tr.querySelectorAll(".valor").forEach(s => s.classList.add("d-none"));
+            tr.querySelectorAll("input").forEach(i => {
+                i.classList.remove("d-none");
+                i.disabled = false;
+            });
+
+            renderAcciones(tr);
+        }
+
+        function cancelarEdicion(btn) {
+            const tr = btn.closest("tr");
+            tr.dataset.mode = "view";
+
+            tr.querySelectorAll(".valor").forEach(s => s.classList.remove("d-none"));
+            tr.querySelectorAll("input").forEach(i => i.classList.add("d-none"));
+
+            renderAcciones(tr);
+        }
+
+        async function guardarDetalle(btn) {
+            const tr = btn.closest("tr");
+
+            const payload = {
+                IdCotizacionDetalle: parseInt(tr.dataset.id),
+                Cantidad: parseFloat(tr.querySelector(".cantidad input").value),
+                Observaciones: tr.querySelector(".obs input").value
+            };
+
+            if (payload.Cantidad <= 0) {
+                tr.querySelector(".cantidad input").classList.add("is-invalid");
+                return;
+            }
+
+            tr.querySelector(".cantidad input").classList.remove("is-invalid");
+
+            try {
+
+                const res = await fetch(`@Url.Action("AgregarProducto", "Cotizacion")`, {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(payload)
+                });
+
+
+                if (!res.ok) {
+                    showToast(
+                        "Error",
+                        `Error del servidor (${res.status})`,
+                        "error"
+                    );
+                    return;
+                }
+
+                const json = await res.json();
+                if (isError(json)) return;
+
+
+                const model = json.data;
+                console.log(model)
+                actualizarFilaDesdeModelo(tr, model);
+
+                tr.dataset.id = model.idCotizacionDetalle;
+                tr.dataset.mode = "view";
+                renderAcciones(tr);
+
+                await recargarTotales();
+                showToast("Producto actualizado", "Se modificó correctamente");
+
+            } catch (err) {
+                console.log(err)
+              await  cargarTabla();
+                showToast(
+                    "Error",
+                    "No se pudo conectar con el servidor.",
+                    "error"
+                );
+            }
+
+
+        }
+
 
         // Inicial
         cargarTabla();

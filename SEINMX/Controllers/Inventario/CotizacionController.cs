@@ -218,7 +218,6 @@ public class CotizacionController : ApplicationController
             if (entity.UsuarioResponsable != GetUserId())
             {
                 throw new Exception("No tiene permiso para editar esta cotización");
-
             }
         }
 
@@ -380,7 +379,11 @@ public class CotizacionController : ApplicationController
             return Json(new
             {
                 ok = true,
-                idCotizacionDetalle = result.IdCotizacionDetalle
+                idCotizacionDetalle = result.IdCotizacionDetalle,
+                data = (await ObtenerDetallesRaw(
+                    result.IdCotizacion??request.IdCotizacion,
+                    result.IdCotizacionDetalle
+                )).FirstOrDefault()
             });
         }
         catch (Exception ex)
@@ -392,12 +395,24 @@ public class CotizacionController : ApplicationController
     [HttpGet]
     public async Task<IActionResult> GetDetalles(int idCotizacion)
     {
+        var data = await ObtenerDetallesRaw(idCotizacion);
+        return Json(data);
+    }
+
+    private async Task<List<object>> ObtenerDetallesRaw(
+        int idCotizacion,
+        int? idDetalle = null
+    )
+    {
         var query = _db.VsCotizacionDetalles
             .Where(x => x.IdCotizacion == idCotizacion);
 
+        if (idDetalle.HasValue)
+            query = query.Where(x => x.IdCotizacionDetalle == idDetalle);
+
         if (GetIsAdmin())
         {
-            var lista = await query
+            return await query
                 .Select(x => new
                 {
                     idCotizacionDetalle = x.IdCotizacionDetalle,
@@ -415,28 +430,22 @@ public class CotizacionController : ApplicationController
                     total = x.Total,
                     observaciones = x.Observaciones
                 })
-                .ToListAsync();
-
-            return Json(lista);
+                .ToListAsync<object>();
         }
-        else
-        {
-            var lista = await query
-                .Select(x => new
-                {
-                    idCotizacionDetalle = x.IdCotizacionDetalle,
-                    cantidad = x.Cantidad,
-                    idProducto = x.IdProducto,
-                    codigo = x.Codigo,
-                    descripcion = x.Descripcion,
-                    precioCliente = x.PrecioCliente,
-                    total = x.Total,
-                    observaciones = x.Observaciones
-                })
-                .ToListAsync();
 
-            return Json(lista);
-        }
+        return await query
+            .Select(x => new
+            {
+                idCotizacionDetalle = x.IdCotizacionDetalle,
+                cantidad = x.Cantidad,
+                idProducto = x.IdProducto,
+                codigo = x.Codigo,
+                descripcion = x.Descripcion,
+                precioCliente = x.PrecioCliente,
+                total = x.Total,
+                observaciones = x.Observaciones
+            })
+            .ToListAsync<object>();
     }
 
     [HttpDelete]
@@ -458,9 +467,9 @@ public class CotizacionController : ApplicationController
         }
     }
 
-    public async Task<JsonResult> DropdownCotizaciones(int page = 0, int pageSize = 30, int? id = null, string search = "")
+    public async Task<JsonResult> DropdownCotizaciones(int page = 0, int pageSize = 30, int? id = null,
+        string search = "")
     {
-
         var lista = _db.VsCotizacions.OrderByDescending(x => x.IdCotizacion).AsQueryable();
 
         if (!GetIsAdmin())
@@ -495,5 +504,4 @@ public class CotizacionController : ApplicationController
             data
         });
     }
-
 }

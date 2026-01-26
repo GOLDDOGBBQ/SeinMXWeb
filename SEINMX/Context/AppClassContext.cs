@@ -29,6 +29,7 @@ public partial class AppClassContext : DbContext
             eb.HasNoKey();
             eb.ToView(null); // evita mapearlo a una vista/tabla
             eb.Property(p => p.IdCotizacionDetalle).HasColumnName("IdCotizacionDetalle");
+            eb.Property(p => p.IdCotizacion).HasColumnName("IdCotizacion");
             eb.Property(p => p.IdError).HasColumnName("IdError");
             eb.Property(p => p.MensajeError).HasColumnName("MensajeError");
             eb.Property(p => p.MensajeErrorDev).HasColumnName("MensajeErrorDev");
