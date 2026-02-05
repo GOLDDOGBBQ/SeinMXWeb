@@ -3,9 +3,43 @@
     ViewData["Title"] = "Inicio Page";
 }
 
-<div class="card">
-    <div class="card-body">
-        <h4>Bienvenido a SeinMX</h4>
-        <p>Panel de control inicial.</p>
+@model SEINMX.Models.Cuenta.InicioVM
+
+<div class="row">
+    <div class="col-sm-12 col-md-10 offset-md-1">
+        <div class="card">
+            <div class="card-body">
+                <h4>Bienvenido a SeinMX</h4>
+                <p>Panel de control inicial.</p>
+            </div>
+        </div>
     </div>
+    @if (Model.UltimoTC is null)
+    {
+        <div class="col-sm-12 col-md-10 offset-md-1 mt-3">
+            <div class="card card-outline card-danger">
+                <div class="card-header">
+                    <h3 class="card-title">Tipo de cambio</h3>
+                </div>
+                <div class="card-body">
+                    El sistema no tiene un tipo de cambio configurado
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        bool isToday = (Model.UltimoTC.Fecha.HasValue && Model.UltimoTC.Fecha.Value == DateOnly.FromDateTime(DateTime.Now));
+        var sClassBorder = isToday ? "card-success" : "card-warning";
+        <div class="col-sm-12 col-md-10 offset-md-1 mt-3">
+            <div class="card card-outline @sClassBorder">
+                <div class="card-header">
+                    <h3 class="card-title">Ultima Consulta en el DOF <span class="fw-bold"> @Model.UltimoTC!.Fecha?.ToString("dd 'de' MMMM 'del' yyyy") </span></h3>
+                </div>
+                <div class="card-body">
+                    Tipo de cambio :  @Model.UltimoTC!.TipoCambio
+                </div>
+            </div>
+        </div>
+    }
 </div>

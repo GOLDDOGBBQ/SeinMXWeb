@@ -13,11 +13,11 @@ namespace SEINMX.Controllers
 {
     public class CuentaController : ApplicationController
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _db;
 
-        public CuentaController(AppDbContext context)
+        public CuentaController(AppDbContext db)
         {
-            _context = context;
+            _db = db;
         }
 
         // GET: /Cuenta/Login
@@ -36,7 +36,13 @@ namespace SEINMX.Controllers
         [Authorize]
         public IActionResult Inicio()
         {
-            return View();
+            var model = new InicioVM()
+            {
+              UltimoTC = _db.TipoCambioDofs.OrderByDescending(x => x.Fecha).FirstOrDefault()
+            };
+
+
+            return View(model);
         }
 
 
@@ -61,7 +67,7 @@ namespace SEINMX.Controllers
             }
 
 
-            var user = await _context.Usuarios
+            var user = await _db.Usuarios
                 .FirstOrDefaultAsync(u => u.Usuario1 == model.Usuario && !u.Eliminado);
 
             if (user == null ||
@@ -75,7 +81,7 @@ namespace SEINMX.Controllers
 
             // Actualizar último acceso
             user.UltimoAcceso = DateTime.Now;
-            await _context.SaveChangesAsync();
+            await _db.SaveChangesAsync();
 
 
             // Crear claims
@@ -156,7 +162,7 @@ namespace SEINMX.Controllers
                 return View(model);
             }
 
-            var user = await _context.Usuarios.FindAsync(idUsuario);
+            var user = await _db.Usuarios.FindAsync(idUsuario);
             if (user == null)
                 return RedirectToAction("Login");
 
@@ -164,7 +170,7 @@ namespace SEINMX.Controllers
             user.CambiarPassword = false;
             user.UltimoAcceso = DateTime.Now;
 
-            await _context.SaveChangesAsync();
+            await _db.SaveChangesAsync();
 
             return RedirectToAction("Inicio", "Cuenta");
         }
