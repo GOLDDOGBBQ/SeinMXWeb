@@ -1,3 +1,4 @@
+using System.Globalization;
 using CargoBajaLib.Service;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
@@ -29,7 +30,10 @@ builder.Services.AddDbContext<AppClassContext>(options =>
     options.EnableSensitiveDataLogging();
 });
 
+var culture = new CultureInfo("es-MX");
 
+CultureInfo.DefaultThreadCurrentCulture = culture;
+CultureInfo.DefaultThreadCurrentUICulture = culture;
 
 var keysPath = Path.Combine(builder.Environment.ContentRootPath, "DataProtectionKeys");
 
