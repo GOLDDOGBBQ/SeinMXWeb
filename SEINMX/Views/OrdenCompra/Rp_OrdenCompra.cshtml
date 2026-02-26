@@ -14,10 +14,22 @@
     <title>Orden de Compra - @Model.IdOrdenCompra</title>
 
     <style>
+        @@page {
+            size: letter;
+            margin-top: 25px;
+        }
 
+        .break-avoid {
+            page-break-inside: avoid;
+        }
         html, body {
             height: 100%;
         }
+
+        tr {
+            page-break-inside: avoid;
+        }
+
 
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -148,7 +160,7 @@
                 {
                     <tr>
                         <td class="align-middle text-center">@item.Cantidad</td>
-                        <td class="align-middle">@item.CodigoProveedor</td>
+                        <td class="align-middle" style="min-width: 100px;">@item.CodigoProveedor</td>
                         <td class="align-middle">@item.Descripcion</td>
                         <td class="text-end align-middle">@item.PrecioProveedor.ToString("C2")</td>
                         <td class="text-end align-middle">@item.Total.ToString("C2")</td>
@@ -198,18 +210,6 @@
         </div>
 
     }
-
-
-    <!-- FOOTER (sticky en PDF) -->
-    <div class="page-footer mt-3">
-        <div class="row">
-            <div class="col-12">
-                <img src="@UrlExtensions.Absolute("/img/PiePagina.webp")" class="logo-inferior" alt="Logo Pie"
-                     width="100%">
-            </div>
-        </div>
-    </div>
-
 </div>
 </body>
 </html>

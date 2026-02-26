@@ -106,7 +106,8 @@ public class OrdenCompraController : ApplicationController
         {
             var pdf = await _razorRenderer.RenderViewToPdfAsync(
                 "~/Views/OrdenCompra/Rp_OrdenCompra.cshtml",
-                model
+                model,
+                "/img/PiePagina.webp"
             );
 
 

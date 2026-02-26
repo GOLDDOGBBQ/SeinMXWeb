@@ -105,7 +105,8 @@ public class CotizacionController : ApplicationController
         {
             var pdf = await _razorRenderer.RenderViewToPdfAsync(
                 "~/Views/Cotizacion/Rp_Cotizacion.cshtml",
-                model
+                model,
+                "/img/PiePagina.webp"
             );
 
 

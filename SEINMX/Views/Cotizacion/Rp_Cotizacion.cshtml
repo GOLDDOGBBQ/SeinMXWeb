@@ -17,6 +17,20 @@
 
 
     <style>
+
+        @@page {
+            size: letter;
+            margin-top: 25px;
+        }
+        tr {
+            page-break-inside: avoid;
+        }
+        .break-avoid {
+            page-break-inside: avoid;
+        }
+        .break-all {
+            word-break: break-all;
+        }
         body {
             font-family: Arial, Helvetica, sans-serif;
             font-size: 10px;
@@ -63,10 +77,6 @@
             height: 100%;
         }
 
-        body {
-            display: flex;
-            flex-direction: column;
-        }
 
         .doc-title {
             font-size: 20px;
@@ -78,23 +88,12 @@
             font-size: 13px;
         }
 
-        .page-footer {
-            margin-top: auto; /* empuja el footer al fondo */
-            padding-top: 10px;
-            font-size: 11px;
-            border-top: 1px solid #ccc;
-
+        page-footer{
+            margin-top:40px;
+            border-top:1px solid #ccc;
         }
 
-        /* Para PuppeteerSharp y PDF: footer fijo */
-        @@media print {
-            .page-footer {
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-            }
-        }
+
     </style>
 
     <!-- Bootstrap 5 -->
@@ -133,15 +132,14 @@
                 </tr>
                 <tr>
                     <td><strong>Contacto:</strong></td>
-                    <td class="text-start"> @Model.NombreContacto</td>
-                    <td colspan="2"><span><strong>Teléfono:</strong></span> @Model.Telefono</td>
+                    <td class="text-start" colspan="2"> @Model.NombreContacto <span><strong> Teléfono:</strong></span> @Model.Telefono </td>
+
 
                 </tr>
                 <tr>
                     <td class="text-end" colspan="1"><strong>Vigencia:</strong></td>
-                    <td class="text-end" colspan="3">
-                        <strong>15 días naturales a partir de la fecha de
-                            elaboración</strong></td>
+                    <td class="text-start" colspan="2"><strong>15 días naturales a partir de la fecha de
+                        elaboración</strong></td>
                 </tr>
                 </tbody>
 
@@ -151,14 +149,14 @@
     </div>
 
     <!-- TABLA DETALLE -->
-    <div class="row mb-4">
+    <div class="row mb-2">
         <table class="table table-sm table-bordered table-striped ">
             <thead class="table-secondary ColorTablePrincipal">
             <tr>
                 <th>#</th>
                 <th>Código</th>
                 <th>Descripción</th>
-                <th class="text-end">Cantidad</th>
+                <th class="text-end">Cant</th>
                 <th class="text-end">Precio Unitario</th>
                 <th class="text-end">Importe</th>
                 <th>Observaciones</th>
@@ -169,10 +167,10 @@
             @foreach (var item in Model.Detalles)
             {
                 <tr>
-                    <td>@RowNumber</td>
-                    <td>@item.Codigo</td>
+                    <td class="text-center">@RowNumber</td>
+                    <td  style="min-width: 100px;">@item.Codigo</td>
                     <td>@item.Descripcion</td>
-                    <td class="text-end">@item.Cantidad</td>
+                    <td class="text-end">@item.Cantidad.ToString("N2")</td>
                     <td class="text-end">@item.PrecioCliente.ToString("C2")</td>
                     <td class="text-end">@item.Total.ToString("C2")</td>
                     <td>@item.Observaciones</td>
@@ -183,7 +181,7 @@
         </table>
     </div>
     <!-- TOTALES -->
-    <div class="row mt-4">
+    <div class="row">
         <div class="col-8 d-flex align-self-end  flex-column">
             @{
 
@@ -192,9 +190,9 @@
             <div ><strong>Monto en letra:</strong></div>
             <div>@NumeroEnLetras.NumeroALetras(cTotal)</div>
         </div>
-        <div class="col-4">
-            <div class="table-container">
-                <table class="w-100 totales">
+        <div class="col-4  break-avoid ">
+            <div class="table-container  break-avoid ">
+                <table class="w-100 totales  break-avoid ">
                     <tr>
                         <td class="fw-bold text-end">Subtotal:</td>
                         <td class="text-end">
@@ -230,8 +228,8 @@
 
     <!-- CONDICIONES -->
 
-    <div class="row mt-4">
-        <div class="col-12">
+    <div class="row">
+        <div class="col-12 break-avoid mt-4">
             <span class="fw-bold"><strong>Términos y condiciones</strong></span>
             <ul>
                 <li>Existencias sujetas a disponibilidad.</li>
@@ -248,7 +246,7 @@
 </div>
 
 
-<footer>
+@*<footer>
     <div class="page-footer mt-4">
 
         <!-- LOGO INFERIOR -->
@@ -256,7 +254,7 @@
             <img src="@UrlExtensions.Absolute("/img/PiePagina.webp")" class="logo-inferior" alt="Logo Pie" width="100%">
         </div>
     </div>
-</footer>
+</footer>*@
 </body>
 </html>
 

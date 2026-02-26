@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewEngines;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using PuppeteerSharp;
+using PuppeteerSharp.Media;
 
 
 namespace SEINMX.Clases.Utilerias;
@@ -48,11 +49,32 @@ public class RazorViewToStringRenderer
         }
     }
 
-    public async Task<byte[]> RenderViewToPdfAsync<TModel>(string viewName, TModel model)
+    public async Task<byte[]> RenderViewToPdfAsync<TModel>(string viewName, TModel model,
+        string? footerImagePath = null)
     {
         var html = await RenderViewToStringAsync(viewName, model);
 
-        var pdfBytes = await ConvertHtmlToPdfAsync(html);
+        string? footerTemplate = null;
+
+        if (!string.IsNullOrWhiteSpace(footerImagePath))
+        {
+            var fullPath = Path.Combine(Environment.CurrentDirectory, "wwwroot",
+                footerImagePath.TrimStart('/'));
+
+            if (File.Exists(fullPath))
+            {
+                var bytes = await File.ReadAllBytesAsync(fullPath);
+                var ext = Path.GetExtension(fullPath).Replace(".", "");
+                var base64 = Convert.ToBase64String(bytes);
+
+                footerTemplate = $@"
+                    <div style='width:100%; padding:0 20px;'>
+                        <img src='data:image/{ext};base64,{base64}' style='width:100%;'/>
+                    </div>";
+            }
+        }
+
+        var pdfBytes = await ConvertHtmlToPdfAsync(html, footerTemplate);
         return pdfBytes;
     }
 
@@ -158,12 +180,18 @@ public class RazorViewToStringRenderer
             pdfOptions.DisplayHeaderFooter = true;
             pdfOptions.HeaderTemplate = "<div></div>";
             pdfOptions.FooterTemplate = footerTemplate;
+            pdfOptions.MarginOptions = new MarginOptions
+            {
+                Bottom = "120px", // espacio reservado para footer
+            };
+
         }
 
 
         var pdfBytes = await page.PdfDataAsync(pdfOptions);
 
-        await browser.CloseAsync();
+        await page.CloseAsync();
+        //await browser.CloseAsync();
 
         return pdfBytes;
     }
