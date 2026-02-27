@@ -24,6 +24,12 @@ public static class BadgeGenerator
             case 6:
                 return "badge bg-dark";
 
+            case 7:
+                return "badge bg-danger";
+
+            case 99:
+                return "badge bg-danger";
+
             default:
                 return "badge bg-light text-dark";
         }

@@ -13,7 +13,9 @@ public static class CombosFijos
             new SelectListItem("AUTORIZADA", "3", status == 3),
             new SelectListItem("PAGADA", "4", status == 4),
             new SelectListItem("EN PROCESO", "5", status == 5),
-            new SelectListItem("CERRADA", "6", status == 6)
+            new SelectListItem("CERRADA", "6", status == 6),
+            new SelectListItem("RECHAZADA", "7", status == 7),
+            new SelectListItem("CANCELADA", "99", status == 99)
         };
 
         if (isFilter)
@@ -30,7 +32,7 @@ public static class CombosFijos
             new SelectListItem("COLOCADA", "2", status == 2),
             new SelectListItem("PAGADA", "3", status == 3),
             new SelectListItem("ENTREGADA", "4", status == 4),
-            new SelectListItem("CERRADA", "5", status == 5)
+            new SelectListItem("CERRADA", "5", status == 5),
         };
 
         if (isFilter)

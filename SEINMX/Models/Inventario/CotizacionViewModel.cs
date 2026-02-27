@@ -57,7 +57,7 @@ public class CotizacionViewModel
     // -------------------------
 
     [Required(ErrorMessage = "Debe seleccionar el estatus.")]
-    [Range(1, 6, ErrorMessage = "Status inválido.")]
+    [Range(1, 99, ErrorMessage = "Status inválido.")]
     public int Status { get; set; }
 
     // -------------------------
