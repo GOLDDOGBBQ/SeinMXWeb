@@ -326,7 +326,7 @@ public class OrdenCompraController : ApplicationController
                    PrecioSein                  = COALESCE(ocd.PrecioSein, c.PrecioSein),
                    PorcentajeProveedor         = COALESCE(ocd.PorcentajeProveedor, c.PorcentajeProveedor),
                    PorcentajeProveedorGanancia = COALESCE(ocd.PorcentajeProveedorGanancia, c.PorcentajeProveedorGanancia),
-                   Total                       = (COALESCE(ocd.PrecioProveedor, c.PrecioProveedor) * ISNULL(ocd.Cantidad, 0))
+                   Total                       = (COALESCE(ocd.PrecioSein, c.PrecioSein) * ISNULL(ocd.Cantidad, 0))
             FROM CTE_Productos                        c
                      LEFT JOIN CTE_Asignados          a ON c.IdCotizacionDetalle = a.IdCotizacionDetalle
                      LEFT JOIN INV.OrdenCompraDetalle ocd
