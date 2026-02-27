@@ -129,13 +129,19 @@ public class OrdenCompraController : ApplicationController
             return View("Nueva", model);
         }
 
+
+        var proveedor = _db.Proveedors.Find(model.IdProveedor);
+        var porcentajeProveedor = proveedor?.Tarifa ?? 0;
+        var porcentajeProveedorGanancia = proveedor?.TarifaGanancia ?? 0;
+
         var nueva = new OrdenCompraNuevaViewModel
         {
             Fecha = DateOnly.FromDateTime(DateTime.Now),
             Status = 1,
             IdCotizacion = model.IdCotizacion,
             IdProveedor = model.IdProveedor,
-            PorcentajeProveedor = _db.Proveedors.Find(model.IdProveedor)?.Tarifa ?? 0,
+            PorcentajeProveedor = porcentajeProveedor,
+            PorcentajeProveedorGanancia = porcentajeProveedorGanancia,
             TipoCambio = _db.TipoCambioDofs.OrderByDescending(x => x.Fecha).FirstOrDefault()?.TipoCambio ?? 1,
         };
 
@@ -215,6 +221,7 @@ public class OrdenCompraController : ApplicationController
                 Proveedor = entity.Proveedor,
                 TipoCambio = entity.TipoCambio,
                 PorcentajeProveedor = entity.PorcentajeProveedor,
+                PorcentajeProveedorGanancia = entity.PorcentajeProveedorGanancia,
                 CondicionPago = entity.CondicionPago,
                 Status = entity.Status ?? 1,
                 Observaciones = entity.Observaciones,
@@ -281,11 +288,19 @@ public class OrdenCompraController : ApplicationController
                                           PrecioListaMXN  = IIF(p.IdMoneda = 1, p.PrecioLista, (p.PrecioLista * OC.TipoCambio)),
                                           PrecioProveedor = (IIF(p.IdMoneda = 1, p.PrecioLista, (p.PrecioLista * OC.TipoCambio)) -
                                                              (IIF(p.IdMoneda = 1, p.PrecioLista, (p.PrecioLista * OC.TipoCambio)) *
-                                                              (OC.PorcentajeProveedor/100))),
+                                                              (OC.PorcentajeProveedor / 100))),
+
+                                          PrecioSein      =((IIF(p.IdMoneda = 1, p.PrecioLista, (p.PrecioLista * OC.TipoCambio)) -
+                                                             (IIF(p.IdMoneda = 1, p.PrecioLista, (p.PrecioLista * OC.TipoCambio)) *
+                                                              (OC.PorcentajeProveedor / 100)))
+                                              / (1 - (OC.PorcentajeProveedorGanancia / 100))),
+
+                                          OC.PorcentajeProveedorGanancia,
                                           OC.PorcentajeProveedor
-                                   FROM INV.CotizacionDetalle    cd                                       
+                                   FROM INV.CotizacionDetalle    cd
                                             JOIN INV.OrdenCompra OC ON cd.IdCotizacion = OC.IdCotizacion
-                                            JOIN INV.Producto    p ON cd.IdProducto = p.IdProducto AND OC.IdProveedor = p.IdProveedor
+                                            JOIN INV.Producto    p
+                                                 ON cd.IdProducto = p.IdProducto AND OC.IdProveedor = p.IdProveedor
                                    WHERE OC.IdOrdenCompra = @IdOrdenCompra),
                  CTE_Asignados AS (SELECT ocd.IdCotizacionDetalle,
                                           SUM(ocd.Cantidad) AS Asignados
@@ -301,19 +316,21 @@ public class OrdenCompraController : ApplicationController
                    c.Descripcion,
                    ocd.IdOrdenCompraDetalle,
                    ocd.IdOrdenCompra,
-                   CantidadCotizada    = c.Cantidad,
-                   Cantidad            = ISNULL(ocd.Cantidad, 0),
-                   CantidadDisponible  = c.Cantidad
+                   CantidadCotizada            = c.Cantidad,
+                   Cantidad                    = ISNULL(ocd.Cantidad, 0),
+                   CantidadDisponible          = c.Cantidad
                        - ISNULL(a.Asignados, 0)
                        - ISNULL(ocd.Cantidad, 0),
-                   PrecioListaMXN      = COALESCE(ocd.PrecioListaMXN, c.PrecioListaMXN),
-                   PrecioProveedor     = COALESCE(ocd.PrecioProveedor, c.PrecioProveedor),
-                   PorcentajeProveedor = COALESCE(ocd.PorcentajeProveedor, c.PorcentajeProveedor),
-                   Total               = (COALESCE(ocd.PrecioProveedor, c.PrecioProveedor) * ISNULL(ocd.Cantidad, 0))
+                   PrecioListaMXN              = COALESCE(ocd.PrecioListaMXN, c.PrecioListaMXN),
+                   PrecioProveedor             = COALESCE(ocd.PrecioProveedor, c.PrecioProveedor),
+                   PrecioSein                  = COALESCE(ocd.PrecioSein, c.PrecioSein),
+                   PorcentajeProveedor         = COALESCE(ocd.PorcentajeProveedor, c.PorcentajeProveedor),
+                   PorcentajeProveedorGanancia = COALESCE(ocd.PorcentajeProveedorGanancia, c.PorcentajeProveedorGanancia),
+                   Total                       = (COALESCE(ocd.PrecioProveedor, c.PrecioProveedor) * ISNULL(ocd.Cantidad, 0))
             FROM CTE_Productos                        c
                      LEFT JOIN CTE_Asignados          a ON c.IdCotizacionDetalle = a.IdCotizacionDetalle
                      LEFT JOIN INV.OrdenCompraDetalle ocd
-                               ON c.IdCotizacionDetalle = ocd.IdCotizacionDetalle AND  ocd.IdOrdenCompra = @IdOrdenCompra
+                               ON c.IdCotizacionDetalle = ocd.IdCotizacionDetalle AND ocd.IdOrdenCompra = @IdOrdenCompra
             {sWhere}
 
     ";
@@ -468,7 +485,7 @@ public class OrdenCompraController : ApplicationController
             return Json(new
             {
                 ok = true,
-                data = await ObtenerDetalleAsync(idCotizacion, idOrdenCompra,null,idCotizacionDetalle)
+                data = await ObtenerDetalleAsync(idCotizacion, idOrdenCompra, null, idCotizacionDetalle)
             });
         }
         catch (Exception ex)

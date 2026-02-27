@@ -15,7 +15,11 @@ public partial class OrdenCompraDetalle
 
     public decimal PorcentajeProveedor { get; set; }
 
+    public decimal PorcentajeProveedorGanancia { get; set; }
+
     public decimal PrecioProveedor { get; set; }
+
+    public decimal PrecioSein { get; set; }
 
     public decimal Cantidad { get; set; }
 

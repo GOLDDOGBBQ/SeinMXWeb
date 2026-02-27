@@ -124,6 +124,12 @@
                         @Html.ValidationMessageFor(model => model.PorcentajeProveedor, "", labelValidation)
 
                     </div>
+                    <div class="col-md-3 col-lg-2">
+                        @Html.LabelFor(model => model.PorcentajeProveedorGanancia, labelAtt)
+                        @Html.EditorFor(model => model.PorcentajeProveedorGanancia, editformAtt)
+                        @Html.ValidationMessageFor(model => model.PorcentajeProveedorGanancia, "", labelValidation)
+
+                    </div>
                     <!-- Condicion Pago -->
                     <div class="col-md-6 col-lg-4">
                         @Html.LabelFor(model => model.CondicionPago, labelAtt)
@@ -168,7 +174,7 @@
                         <th>Cantidad Cotizada</th>
                         <th>Precio Lista (MXN)</th>
                         @*<th>% Proveedor</th>*@
-                        <th>Precio Proveedor</th>
+                        <th>Precio Sein</th>
                         <th>Cantidad Disponible</th>
                         <th>Cantidad OC</th>
                         <th>Total (MXN)</th>
@@ -202,7 +208,8 @@
                             <td class="cantidadCotizada text-center">@Html.DisplayFor(m => item.CantidadCotizada)</td>
                             <td class="precioLista text-end">@Html.DisplayFor(m => item.PrecioListaMXN)</td>
                             @*<td class="porcentajeProveedor text-center">@Html.DisplayFor(m => item.PorcentajeProveedor)</td>*@
-                            <td class="precioProveedor text-end">@Html.DisplayFor(m => item.PrecioProveedor)</td>
+                            @*<td class="precioProveedor text-end">@Html.DisplayFor(m => item.PrecioProveedor)</td>*@
+                            <td class="precioSein text-end">@Html.DisplayFor(m => item.PrecioSein)</td>
                             <td class="cantidadDisponible text-center">@Html.DisplayFor(m => item.CantidadDisponible)</td>
 
                             <td class="cantidad text-center ">
@@ -600,8 +607,10 @@
             tr.querySelector(".precioLista").textContent =
                 model.precioListaMXN.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
 
-            tr.querySelector(".precioProveedor").textContent =
-                model.precioProveedor.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
+            @*tr.querySelector(".precioProveedor").textContent =
+                model.precioProveedor.toLocaleString("es-MX", {style: "currency", currency: "MXN"});  *@
+            tr.querySelector(".precioSein").textContent =
+                model.precioSein.toLocaleString("es-MX", {style: "currency", currency: "MXN"});
 
             @*tr.querySelector(".porcentajeProveedor").textContent =   model.porcentajeProveedor;*@
 

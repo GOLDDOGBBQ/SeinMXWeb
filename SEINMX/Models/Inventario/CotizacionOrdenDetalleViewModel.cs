@@ -47,9 +47,20 @@ public class CotizacionOrdenDetalleViewModel
     [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
     public decimal PrecioProveedor { get; set; }
 
+    [Display(Name = "Precio Sein (MXN)")]
+    [DataType(DataType.Currency)]
+    [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
+    public decimal PrecioSein{ get; set; }
+
+
     [Display(Name = "% Proveedor")]
     [DisplayFormat(DataFormatString = "{0:N2}", ApplyFormatInEditMode = false)]
     public decimal PorcentajeProveedor { get; set; }
+
+    [Display(Name = "% Proveedor Ganancia")]
+    [DisplayFormat(DataFormatString = "{0:N2}", ApplyFormatInEditMode = false)]
+    public decimal PorcentajeProveedorGanancia { get; set; }
+
 
 
     [Display(Name = "Total (MXN)")]

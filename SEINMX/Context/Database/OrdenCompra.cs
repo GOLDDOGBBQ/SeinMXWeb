@@ -19,6 +19,8 @@ public partial class OrdenCompra
 
     public decimal PorcentajeProveedor { get; set; }
 
+    public decimal PorcentajeProveedorGanancia { get; set; }
+
     public decimal PorcentajeIva { get; set; }
 
     public string CondicionPago { get; set; } = null!;

@@ -45,6 +45,10 @@ public class OrdenCompraViewModel
     [Display(Name = "Porcentaje Proveedor")]
     public decimal? PorcentajeProveedor { get; set; }
 
+    [DisplayFormat(DataFormatString = "{0:F4}", ApplyFormatInEditMode = true)]
+    [Display(Name = "Porcentaje Proveedor Ganancia")]
+    public decimal? PorcentajeProveedorGanancia { get; set; }
+
     // -------------------------
     // STATUS
     // -------------------------
@@ -109,6 +113,7 @@ public class OrdenCompraNuevaViewModel
     [Required(ErrorMessage = "Debe seleccionar un Proveedor.")]
     public int IdProveedor { get; set; }
     public decimal? PorcentajeProveedor { get; set; }
+    public decimal? PorcentajeProveedorGanancia { get; set; }
     public int? Status { get; set; }
     public DateOnly? Fecha { get; set; }
 

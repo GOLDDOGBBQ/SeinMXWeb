@@ -23,6 +23,8 @@ public partial class VsOrdenCompra
 
     public decimal PorcentajeProveedor { get; set; }
 
+    public decimal PorcentajeProveedorGanancia { get; set; }
+
     public string StatusDesc { get; set; } = null!;
 
     public DateOnly Fecha { get; set; }

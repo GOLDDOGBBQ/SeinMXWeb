@@ -269,7 +269,7 @@ public partial class AppDbContext : DbContext
 
         modelBuilder.Entity<OrdenCompra>(entity =>
         {
-            entity.HasKey(e => e.IdOrdenCompra).HasName("PK__OrdenCom__685E464BC3AA3F05");
+            entity.HasKey(e => e.IdOrdenCompra).HasName("PK__OrdenCom__685E464B994D59B7");
 
             entity.ToTable("OrdenCompra", "INV");
 
@@ -287,6 +287,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnType("numeric(18, 4)")
                 .HasColumnName("PorcentajeIVA");
             entity.Property(e => e.PorcentajeProveedor).HasColumnType("numeric(18, 4)");
+            entity.Property(e => e.PorcentajeProveedorGanancia).HasColumnType("numeric(18, 4)");
             entity.Property(e => e.Status).HasDefaultValue((short)1);
             entity.Property(e => e.TipoCambio).HasColumnType("numeric(18, 4)");
             entity.Property(e => e.UsrAct).HasMaxLength(50);
@@ -295,17 +296,17 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.IdCotizacionNavigation).WithMany(p => p.OrdenCompras)
                 .HasForeignKey(d => d.IdCotizacion)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrdenComp__IdCot__1B9317B3");
+                .HasConstraintName("FK__OrdenComp__IdCot__73501C2F");
 
             entity.HasOne(d => d.IdProveedorNavigation).WithMany(p => p.OrdenCompras)
                 .HasForeignKey(d => d.IdProveedor)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrdenComp__IdPro__1C873BEC");
+                .HasConstraintName("FK__OrdenComp__IdPro__74444068");
         });
 
         modelBuilder.Entity<OrdenCompraDetalle>(entity =>
         {
-            entity.HasKey(e => e.IdOrdenCompraDetalle).HasName("PK__OrdenCom__B9A15910CB65C973");
+            entity.HasKey(e => e.IdOrdenCompraDetalle).HasName("PK__OrdenCom__B9A1591062C02D9B");
 
             entity.ToTable("OrdenCompraDetalle", "INV");
 
@@ -317,10 +318,12 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.FchReg).HasColumnType("datetime");
             entity.Property(e => e.ModificadoPor).HasMaxLength(100);
             entity.Property(e => e.PorcentajeProveedor).HasColumnType("numeric(18, 4)");
+            entity.Property(e => e.PorcentajeProveedorGanancia).HasColumnType("numeric(18, 4)");
             entity.Property(e => e.PrecioListaMxn)
                 .HasColumnType("numeric(18, 2)")
                 .HasColumnName("PrecioListaMXN");
             entity.Property(e => e.PrecioProveedor).HasColumnType("numeric(18, 2)");
+            entity.Property(e => e.PrecioSein).HasColumnType("numeric(18, 2)");
             entity.Property(e => e.Total).HasColumnType("numeric(18, 2)");
             entity.Property(e => e.UsrAct).HasMaxLength(50);
             entity.Property(e => e.UsrReg).HasMaxLength(50);
@@ -328,12 +331,12 @@ public partial class AppDbContext : DbContext
             entity.HasOne(d => d.IdCotizacionDetalleNavigation).WithMany(p => p.OrdenCompraDetalles)
                 .HasForeignKey(d => d.IdCotizacionDetalle)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrdenComp__IdCot__2DB1C7EE");
+                .HasConstraintName("FK__OrdenComp__IdCot__7EC1CEDB");
 
             entity.HasOne(d => d.IdOrdenCompraNavigation).WithMany(p => p.OrdenCompraDetalles)
                 .HasForeignKey(d => d.IdOrdenCompra)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrdenComp__IdOrd__2CBDA3B5");
+                .HasConstraintName("FK__OrdenComp__IdOrd__7DCDAAA2");
         });
 
         modelBuilder.Entity<Perfil>(entity =>
@@ -629,6 +632,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("IVA");
             entity.Property(e => e.Observaciones).HasMaxLength(600);
             entity.Property(e => e.PorcentajeProveedor).HasColumnType("numeric(18, 4)");
+            entity.Property(e => e.PorcentajeProveedorGanancia).HasColumnType("numeric(18, 4)");
             entity.Property(e => e.Proveedor).HasMaxLength(250);
             entity.Property(e => e.ProveedorRazonSocial)
                 .HasMaxLength(250)
@@ -656,10 +660,12 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.CodigoProveedor).HasMaxLength(50);
             entity.Property(e => e.Descripcion).HasMaxLength(500);
             entity.Property(e => e.PorcentajeProveedor).HasColumnType("numeric(18, 4)");
+            entity.Property(e => e.PorcentajeProveedorGanancia).HasColumnType("numeric(18, 4)");
             entity.Property(e => e.PrecioListaMxn)
                 .HasColumnType("numeric(18, 2)")
                 .HasColumnName("PrecioListaMXN");
             entity.Property(e => e.PrecioProveedor).HasColumnType("numeric(18, 2)");
+            entity.Property(e => e.PrecioSein).HasColumnType("numeric(18, 2)");
             entity.Property(e => e.Total).HasColumnType("numeric(18, 2)");
         });
 
