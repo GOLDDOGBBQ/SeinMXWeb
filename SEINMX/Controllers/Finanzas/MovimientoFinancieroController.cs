@@ -18,7 +18,13 @@ public class MovimientoFinancieroController : ApplicationController
     // =====================================================
     public async Task<IActionResult> Index(MovimientoFinancieroFilterViewModel filter)
     {
-        var query = _db.MovimientosFinancieros
+        if (!GetIsAdmin())
+        {
+            return Unauthorized();
+        }
+
+
+        var query = _db.MovimientoFinancieros
             .Where(x => !x.Eliminado)
             .Include(x => x.IdProveedorNavigation)
             .AsQueryable();
@@ -95,7 +101,7 @@ public class MovimientoFinancieroController : ApplicationController
 
             if ((req.IdMovimientoFinanciero ?? 0) == 0)
             {
-                var maxOrden = await _db.MovimientosFinancieros
+                var maxOrden = await _db.MovimientoFinancieros
                     .Where(x => !x.Eliminado)
                     .MaxAsync(x => (int?)x.Orden) ?? 0;
 
@@ -114,11 +120,11 @@ public class MovimientoFinancieroController : ApplicationController
                     UsrReg            = GetUserId()
                 };
 
-                _db.MovimientosFinancieros.Add(entity);
+                _db.MovimientoFinancieros.Add(entity);
             }
             else
             {
-                entity = await _db.MovimientosFinancieros.FindAsync(req.IdMovimientoFinanciero)
+                entity = await _db.MovimientoFinancieros.FindAsync(req.IdMovimientoFinanciero)
                     ?? throw new InvalidOperationException("Registro no encontrado");
 
                 entity.Tipo              = req.Tipo;
@@ -174,7 +180,7 @@ public class MovimientoFinancieroController : ApplicationController
     {
         try
         {
-            var item = await _db.MovimientosFinancieros.FindAsync(id);
+            var item = await _db.MovimientoFinancieros.FindAsync(id);
             if (item == null)
                 return Json(new { ok = false, msg = "Registro no encontrado" });
 
@@ -203,7 +209,7 @@ public class MovimientoFinancieroController : ApplicationController
 
         try
         {
-            var entities = await _db.MovimientosFinancieros
+            var entities = await _db.MovimientoFinancieros
                 .Where(x => req.Ids.Contains(x.IdMovimientoFinanciero))
                 .ToListAsync();
 

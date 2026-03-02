@@ -24,6 +24,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<CotizacionDetalle> CotizacionDetalles { get; set; }
 
+    public virtual DbSet<MovimientoFinanciero> MovimientoFinancieros { get; set; }
+
     public virtual DbSet<OrdenCompra> OrdenCompras { get; set; }
 
     public virtual DbSet<OrdenCompraDetalle> OrdenCompraDetalles { get; set; }
@@ -53,8 +55,6 @@ public partial class AppDbContext : DbContext
     public virtual DbSet<VsOrdenCompraDetalle> VsOrdenCompraDetalles { get; set; }
 
     public virtual DbSet<VsProducto> VsProductos { get; set; }
-
-    public virtual DbSet<MovimientoFinanciero> MovimientosFinancieros { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -267,6 +267,40 @@ public partial class AppDbContext : DbContext
                 .HasForeignKey(d => d.IdProducto)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK__Cotizacio__IdPro__3A4CA8FD");
+        });
+
+        modelBuilder.Entity<MovimientoFinanciero>(entity =>
+        {
+            entity.HasKey(e => e.IdMovimientoFinanciero);
+
+            entity.ToTable("MovimientoFinanciero", "FIN");
+
+            entity.HasIndex(e => e.Fecha, "IX_MovimientoFinanciero_Fecha").HasFilter("([Eliminado]=(0))");
+
+            entity.HasIndex(e => e.IdProveedor, "IX_MovimientoFinanciero_IdProveedor").HasFilter("([IdProveedor] IS NOT NULL AND [Eliminado]=(0))");
+
+            entity.HasIndex(e => e.Orden, "IX_MovimientoFinanciero_Orden").HasFilter("([Eliminado]=(0))");
+
+            entity.Property(e => e.CreadoPor).HasMaxLength(100);
+            entity.Property(e => e.Descripcion)
+                .HasMaxLength(500)
+                .HasDefaultValue("");
+            entity.Property(e => e.Factura)
+                .HasMaxLength(100)
+                .HasDefaultValue("");
+            entity.Property(e => e.FchAct).HasColumnType("datetime");
+            entity.Property(e => e.FchReg).HasColumnType("datetime");
+            entity.Property(e => e.ModificadoPor).HasMaxLength(100);
+            entity.Property(e => e.Monto).HasColumnType("numeric(18, 2)");
+            entity.Property(e => e.Tipo).HasDefaultValue((byte)1);
+            entity.Property(e => e.UsrAct).HasMaxLength(50);
+            entity.Property(e => e.UsrReg)
+                .HasMaxLength(50)
+                .HasDefaultValue("");
+
+            entity.HasOne(d => d.IdProveedorNavigation).WithMany(p => p.MovimientoFinancieros)
+                .HasForeignKey(d => d.IdProveedor)
+                .HasConstraintName("FK_MovimientoFinanciero_Proveedor");
         });
 
         modelBuilder.Entity<OrdenCompra>(entity =>
@@ -692,32 +726,6 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Proveedor)
                 .HasMaxLength(250)
                 .IsUnicode(false);
-        });
-
-        modelBuilder.Entity<MovimientoFinanciero>(entity =>
-        {
-            entity.HasKey(e => e.IdMovimientoFinanciero)
-                .HasName("PK_MovimientoFinanciero");
-
-            entity.ToTable("MovimientoFinanciero", "FIN");
-
-            entity.Property(e => e.Tipo).HasDefaultValue((byte)1);
-            entity.Property(e => e.Descripcion).HasMaxLength(500).HasDefaultValue("");
-            entity.Property(e => e.Monto).HasColumnType("numeric(18, 2)").HasDefaultValue(0m);
-            entity.Property(e => e.Factura).HasMaxLength(100).HasDefaultValue("");
-            entity.Property(e => e.Orden).HasDefaultValue(0);
-            entity.Property(e => e.CreadoPor).HasMaxLength(100);
-            entity.Property(e => e.FchReg).HasColumnType("datetime");
-            entity.Property(e => e.FchAct).HasColumnType("datetime");
-            entity.Property(e => e.ModificadoPor).HasMaxLength(100);
-            entity.Property(e => e.UsrReg).HasMaxLength(50);
-            entity.Property(e => e.UsrAct).HasMaxLength(50);
-
-            entity.HasOne(d => d.IdProveedorNavigation)
-                .WithMany()
-                .HasForeignKey(d => d.IdProveedor)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_MovimientoFinanciero_Proveedor");
         });
 
         OnModelCreatingPartial(modelBuilder);

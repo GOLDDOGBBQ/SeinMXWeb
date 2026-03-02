@@ -35,6 +35,8 @@ public partial class Proveedor
 
     public string RazonSocial { get; set; } = null!;
 
+    public virtual ICollection<MovimientoFinanciero> MovimientoFinancieros { get; set; } = new List<MovimientoFinanciero>();
+
     public virtual ICollection<OrdenCompra> OrdenCompras { get; set; } = new List<OrdenCompra>();
 
     public virtual ICollection<Producto> Productos { get; set; } = new List<Producto>();
