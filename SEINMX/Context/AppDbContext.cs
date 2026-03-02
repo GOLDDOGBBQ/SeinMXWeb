@@ -54,6 +54,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<VsProducto> VsProductos { get; set; }
 
+    public virtual DbSet<MovimientoFinanciero> MovimientosFinancieros { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("VCHAVEZ");
@@ -690,6 +692,32 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Proveedor)
                 .HasMaxLength(250)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<MovimientoFinanciero>(entity =>
+        {
+            entity.HasKey(e => e.IdMovimientoFinanciero)
+                .HasName("PK_MovimientoFinanciero");
+
+            entity.ToTable("MovimientoFinanciero", "FIN");
+
+            entity.Property(e => e.Tipo).HasDefaultValue((byte)1);
+            entity.Property(e => e.Descripcion).HasMaxLength(500).HasDefaultValue("");
+            entity.Property(e => e.Monto).HasColumnType("numeric(18, 2)").HasDefaultValue(0m);
+            entity.Property(e => e.Factura).HasMaxLength(100).HasDefaultValue("");
+            entity.Property(e => e.Orden).HasDefaultValue(0);
+            entity.Property(e => e.CreadoPor).HasMaxLength(100);
+            entity.Property(e => e.FchReg).HasColumnType("datetime");
+            entity.Property(e => e.FchAct).HasColumnType("datetime");
+            entity.Property(e => e.ModificadoPor).HasMaxLength(100);
+            entity.Property(e => e.UsrReg).HasMaxLength(50);
+            entity.Property(e => e.UsrAct).HasMaxLength(50);
+
+            entity.HasOne(d => d.IdProveedorNavigation)
+                .WithMany()
+                .HasForeignKey(d => d.IdProveedor)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK_MovimientoFinanciero_Proveedor");
         });
 
         OnModelCreatingPartial(modelBuilder);

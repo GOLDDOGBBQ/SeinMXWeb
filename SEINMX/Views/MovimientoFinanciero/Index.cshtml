@@ -1,0 +1,802 @@
+@model SEINMX.Models.Finanzas.MovimientoFinancieroFilterViewModel
+@using System.Globalization
+@using System.Text.Json
+
+@{
+    ViewData["Title"] = "Ingresos y Egresos";
+    var proveedoresJson = JsonSerializer.Serialize(ViewBag.Proveedores ?? new object[0]);
+    var ci = CultureInfo.InvariantCulture;
+}
+
+<style>
+    /* ---- View / Edit toggle via CSS ---- */
+    tr[data-mode="view"]  .edit-mode  { display: none !important; }
+    tr[data-mode="edit"]  .view-mode  { display: none !important; }
+    tr[data-mode="edit"]              { background-color: rgba(13, 110, 253, 0.05) !important; }
+
+    /* ---- Drag & Drop ---- */
+    .drag-handle                      { width: 36px; text-align: center; cursor: grab; }
+    tr[data-mode="edit"] .drag-handle { cursor: default; opacity: 0.25; }
+    tr.drag-over td                   { background-color: rgba(13, 110, 253, 0.12) !important;
+                                        outline: 2px dashed #0d6efd; }
+    tr.drag-dragging                  { opacity: 0.4; }
+
+    /* ---- Misc ---- */
+    .td-monto { font-variant-numeric: tabular-nums; }
+    .col-acciones { width: 90px; }
+</style>
+
+<div class="container-fluid mt-4 px-sm-0">
+
+    <!-- ================================================
+         FILTROS
+    ================================================= -->
+    <div class="card shadow-sm mb-3">
+        <div class="card-header bg-dark text-white d-flex align-items-center">
+            <h3 class="card-title mb-0">
+                <i class="fa-solid fa-filter"></i> Filtros
+            </h3>
+            <div class="card-tools ms-auto">
+                <button type="button" class="btn btn-tool text-white" data-lte-toggle="card-collapse">
+                    <i class="fa-solid fa-minus"></i>
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+
+                <div class="col-md-2">
+                    <label class="form-label">Fecha desde</label>
+                    <input type="date" name="FechaDesde" class="form-control" value="@Model.FechaDesde">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Fecha hasta</label>
+                    <input type="date" name="FechaHasta" class="form-control" value="@Model.FechaHasta">
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Tipo</label>
+                    <select name="Tipo" class="form-select">
+                        <option value="0">Todos</option>
+                        <option value="1" selected="@(Model.Tipo == 1)">Ingreso</option>
+                        <option value="2" selected="@(Model.Tipo == 2)">Egreso</option>
+                    </select>
+                </div>
+
+                <div class="col-md-2">
+                    <label class="form-label">Proveedor</label>
+                    <input type="text" name="ProveedorNombre" class="form-control"
+                           placeholder="Buscar..." value="@Model.ProveedorNombre">
+                </div>
+
+                <div class="col-md-1">
+                    <label class="form-label">Monto mín.</label>
+                    <input type="number" step="0.01" name="MontoMin" class="form-control"
+                           value="@Model.MontoMin?.ToString(ci)">
+                </div>
+
+                <div class="col-md-1">
+                    <label class="form-label">Monto máx.</label>
+                    <input type="number" step="0.01" name="MontoMax" class="form-control"
+                           value="@Model.MontoMax?.ToString(ci)">
+                </div>
+
+                <div class="col-md-1">
+                    <label class="form-label">Pend. fact.</label>
+                    <select name="PendienteFacturar" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="true"  selected="@(Model.PendienteFacturar == true)">Sí</option>
+                        <option value="false" selected="@(Model.PendienteFacturar == false)">No</option>
+                    </select>
+                </div>
+
+                <div class="col-md-1 d-flex gap-1">
+                    <button type="submit" class="btn btn-primary flex-fill" title="Buscar">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                    <a href="@Url.Action("Index", "MovimientoFinanciero")" class="btn btn-secondary flex-fill" title="Limpiar">
+                        <i class="fa-solid fa-xmark"></i>
+                    </a>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+    <!-- ================================================
+         TABLA PRINCIPAL
+    ================================================= -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white d-flex align-items-center">
+            <h3 class="card-title mb-0">
+                <i class="fa-solid fa-money-bill-transfer"></i> Ingresos y Egresos
+            </h3>
+            <span class="badge bg-light text-dark ms-2">@Model.Items.Count registros</span>
+        </div>
+        <div class="card-body">
+
+            <div class="mb-3">
+                <button class="btn btn-primary" onclick="abrirModalAgregar()">
+                    <i class="fa-solid fa-plus"></i> Agregar
+                </button>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-sm table-hover table-bordered align-middle mb-0">
+                    <thead class="table-dark">
+                        <tr>
+                            <th style="width:36px;" title="Arrastrar para reordenar">
+                                <i class="fa-solid fa-grip-vertical fa-xs"></i>
+                            </th>
+                            <th style="width:46px;" class="text-center">#</th>
+                            <th style="width:90px;">Tipo</th>
+                            <th style="width:108px;">Fecha</th>
+                            <th>Descripción</th>
+                            <th style="width:120px;" class="text-end">Monto</th>
+                            <th style="width:160px;">Proveedor</th>
+                            <th style="width:120px;">Factura</th>
+                            <th style="width:78px;" class="text-center">
+                                <abbr title="Pendiente de facturar">Pend.</abbr>
+                            </th>
+                            <th class="col-acciones text-center">Opciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-movimientos">
+
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr data-id="@item.IdMovimientoFinanciero"
+                                data-mode="view"
+                                data-tipo="@item.Tipo"
+                                data-fecha="@item.Fecha.ToString("yyyy-MM-dd")"
+                                data-descripcion="@item.Descripcion"
+                                data-monto="@item.Monto.ToString("F2", ci)"
+                                data-id-proveedor="@(item.IdProveedor?.ToString() ?? "")"
+                                data-proveedor-nombre="@(item.ProveedorNombre ?? "")"
+                                data-factura="@item.Factura"
+                                data-pendiente-facturar="@item.PendienteFacturar.ToString().ToLower()"
+                                data-orden="@item.Orden"
+                                draggable="true">
+
+                                <!-- DRAG HANDLE -->
+                                <td class="drag-handle">
+                                    <i class="fa-solid fa-grip-vertical text-muted"></i>
+                                </td>
+
+                                <!-- ORDEN -->
+                                <td class="text-center">
+                                    <span class="td-orden">@item.Orden</span>
+                                </td>
+
+                                <!-- TIPO -->
+                                <td>
+                                    <span class="view-mode td-tipo">
+                                        @if (item.Tipo == 1)
+                                        {
+                                            <span class="badge bg-success">Ingreso</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-danger">Egreso</span>
+                                        }
+                                    </span>
+                                    <select class="edit-mode form-select form-select-sm inp-tipo">
+                                        <option value="1">Ingreso</option>
+                                        <option value="2">Egreso</option>
+                                    </select>
+                                </td>
+
+                                <!-- FECHA -->
+                                <td>
+                                    <span class="view-mode td-fecha">@item.Fecha.ToString("dd/MM/yyyy")</span>
+                                    <input type="date" class="edit-mode form-control form-control-sm inp-fecha">
+                                </td>
+
+                                <!-- DESCRIPCION -->
+                                <td>
+                                    <span class="view-mode td-descripcion">@item.Descripcion</span>
+                                    <input type="text" class="edit-mode form-control form-control-sm inp-descripcion"
+                                           maxlength="500" placeholder="Descripción">
+                                </td>
+
+                                <!-- MONTO -->
+                                <td class="text-end">
+                                    <span class="view-mode td-monto">@item.Monto.ToString("C2")</span>
+                                    <input type="number" step="0.01" min="0"
+                                           class="edit-mode form-control form-control-sm inp-monto text-end"
+                                           placeholder="0.00">
+                                </td>
+
+                                <!-- PROVEEDOR -->
+                                <td>
+                                    <span class="view-mode td-proveedor">@(item.ProveedorNombre ?? "—")</span>
+                                    <select class="edit-mode form-select form-select-sm inp-proveedor"></select>
+                                </td>
+
+                                <!-- FACTURA -->
+                                <td>
+                                    <span class="view-mode td-factura">
+                                        @(string.IsNullOrEmpty(item.Factura) ? "—" : item.Factura)
+                                    </span>
+                                    <input type="text" class="edit-mode form-control form-control-sm inp-factura"
+                                           maxlength="100" placeholder="Núm. factura">
+                                </td>
+
+                                <!-- PENDIENTE FACTURAR -->
+                                <td class="text-center">
+                                    <span class="view-mode td-pendiente">
+                                        @if (item.PendienteFacturar)
+                                        {
+                                            <i class="fa-solid fa-circle-check text-warning"></i>
+                                        }
+                                    </span>
+                                    <div class="edit-mode d-flex justify-content-center">
+                                        <input type="checkbox" class="form-check-input inp-pendiente">
+                                    </div>
+                                </td>
+
+                                <!-- ACCIONES -->
+                                <td class="text-center">
+                                    <div class="view-mode d-flex justify-content-center gap-1">
+                                        <button class="btn btn-sm btn-primary" onclick="editarFila(this)"
+                                                title="Editar">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" onclick="eliminarFila(this)"
+                                                title="Eliminar">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <div class="edit-mode d-flex justify-content-center gap-1">
+                                        <button class="btn btn-sm btn-success" onclick="guardarFila(this)"
+                                                title="Guardar">
+                                            <i class="fa-solid fa-check"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-secondary" onclick="cancelarEdicion(this)"
+                                                title="Cancelar">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                </td>
+
+                            </tr>
+                        }
+
+                        @if (!Model.Items.Any())
+                        {
+                            <tr id="tr-sin-registros">
+                                <td colspan="10" class="text-center text-muted py-5">
+                                    <i class="fa-solid fa-inbox fa-2x d-block mb-2 opacity-50"></i>
+                                    Sin registros
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                    @if (Model.Items.Any())
+                    {
+                        var totalIngresos = Model.Items.Where(i => i.Tipo == 1).Sum(i => i.Monto);
+                        var totalEgresos  = Model.Items.Where(i => i.Tipo == 2).Sum(i => i.Monto);
+                        var saldo         = totalIngresos - totalEgresos;
+
+                        <tfoot class="table-secondary fw-semibold">
+                            <tr>
+                                <td colspan="5" class="text-end pe-3">Totales:</td>
+                                <td colspan="5" class="ps-2">
+                                    <span class="text-success me-3">
+                                        <i class="fa-solid fa-arrow-trend-up"></i>
+                                        Ingresos: @totalIngresos.ToString("C2")
+                                    </span>
+                                    <span class="text-danger me-3">
+                                        <i class="fa-solid fa-arrow-trend-down"></i>
+                                        Egresos: @totalEgresos.ToString("C2")
+                                    </span>
+                                    <span class="@(saldo >= 0 ? "text-success" : "text-danger")">
+                                        <i class="fa-solid fa-scale-balanced"></i>
+                                        Saldo: @saldo.ToString("C2")
+                                    </span>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    }
+
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- ================================================
+     MODAL — AGREGAR
+================================================= -->
+<div class="modal fade" id="modalAgregar" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">
+                    <i class="fa-solid fa-plus"></i> Agregar Movimiento
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+
+                    <div class="col-md-4">
+                        <label class="form-label">Tipo <span class="text-danger">*</span></label>
+                        <select id="m-tipo" class="form-select">
+                            <option value="1">Ingreso</option>
+                            <option value="2">Egreso</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Fecha <span class="text-danger">*</span></label>
+                        <input type="date" id="m-fecha" class="form-control">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Monto <span class="text-danger">*</span></label>
+                        <input type="number" step="0.01" min="0" id="m-monto"
+                               class="form-control text-end" placeholder="0.00">
+                    </div>
+
+                    <div class="col-12">
+                        <label class="form-label">Descripción <span class="text-danger">*</span></label>
+                        <input type="text" id="m-descripcion" class="form-control"
+                               maxlength="500" placeholder="Descripción del movimiento">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Proveedor</label>
+                        <select id="m-proveedor" class="form-select"></select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Factura</label>
+                        <input type="text" id="m-factura" class="form-control"
+                               maxlength="100" placeholder="Núm. factura">
+                    </div>
+
+                    <div class="col-md-2 d-flex align-items-end pb-1">
+                        <div class="form-check">
+                            <input type="checkbox" id="m-pendiente" class="form-check-input">
+                            <label class="form-check-label" for="m-pendiente">Pend. facturar</label>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fa-solid fa-xmark"></i> Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="btn-guardar-modal">
+                    <i class="fa-solid fa-floppy-disk"></i> Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ============================================================
+    // CONSTANTES
+    // ============================================================
+    const PROVEEDORES = @Html.Raw(proveedoresJson);
+    let _modalBs = null;
+
+    // ============================================================
+    // HELPERS — FORMATO
+    // ============================================================
+    const _fmtMoneda = new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' });
+
+    function fmtMonto(val) {
+        return _fmtMoneda.format(parseFloat(val) || 0);
+    }
+
+    function fmtFecha(iso) {
+        if (!iso) return '—';
+        const [y, m, d] = iso.split('-');
+        return `${d}/${m}/${y}`;
+    }
+
+    function badgeTipo(tipo) {
+        return tipo == 1
+            ? '<span class="badge bg-success">Ingreso</span>'
+            : '<span class="badge bg-danger">Egreso</span>';
+    }
+
+    // XSS-safe escaping para innerHTML
+    function esc(s) {
+        const el = document.createElement('span');
+        el.textContent = s ?? '';
+        return el.innerHTML;
+    }
+
+    // ============================================================
+    // HELPERS — SELECT PROVEEDOR
+    // ============================================================
+    function poblarSelectProveedor(sel, selectedId) {
+        sel.innerHTML = '<option value="">— Sin proveedor —</option>';
+        PROVEEDORES.forEach(p => {
+            const opt = document.createElement('option');
+            opt.value       = p.id;
+            opt.textContent = p.nombre;
+            if (String(p.id) === String(selectedId)) opt.selected = true;
+            sel.appendChild(opt);
+        });
+    }
+
+    // ============================================================
+    // MODO VIEW / EDIT
+    // ============================================================
+    function setModo(tr, modo) {
+        tr.dataset.mode = modo;
+        tr.setAttribute('draggable', modo === 'view' ? 'true' : 'false');
+    }
+
+    function actualizarFilaDesdeModelo(tr, m) {
+        // dataset
+        tr.dataset.tipo             = m.tipo;
+        tr.dataset.fecha            = m.fecha;
+        tr.dataset.descripcion      = m.descripcion;
+        tr.dataset.monto            = m.monto;
+        tr.dataset.idProveedor      = m.idProveedor ?? '';
+        tr.dataset.proveedorNombre  = m.proveedorNombre ?? '';
+        tr.dataset.factura          = m.factura ?? '';
+        tr.dataset.pendienteFacturar = String(m.pendienteFacturar);
+        tr.dataset.orden            = m.orden;
+
+        // spans view-mode
+        tr.querySelector('.td-orden').textContent      = m.orden;
+        tr.querySelector('.td-tipo').innerHTML         = badgeTipo(m.tipo);
+        tr.querySelector('.td-fecha').textContent      = fmtFecha(m.fecha);
+        tr.querySelector('.td-descripcion').textContent = m.descripcion;
+        tr.querySelector('.td-monto').textContent      = fmtMonto(m.monto);
+        tr.querySelector('.td-proveedor').textContent  = m.proveedorNombre || '—';
+        tr.querySelector('.td-factura').textContent    = m.factura || '—';
+        tr.querySelector('.td-pendiente').innerHTML    = m.pendienteFacturar
+            ? '<i class="fa-solid fa-circle-check text-warning"></i>'
+            : '';
+
+        setModo(tr, 'view');
+    }
+
+    // ============================================================
+    // EDITAR FILA
+    // ============================================================
+    function editarFila(btn) {
+        // Cancelar cualquier otra edición activa
+        document.querySelectorAll('#tbody-movimientos tr[data-mode="edit"]')
+            .forEach(r => setModo(r, 'view'));
+
+        const tr = btn.closest('tr');
+        tr.querySelector('.inp-tipo').value    = tr.dataset.tipo;
+        tr.querySelector('.inp-fecha').value   = tr.dataset.fecha;
+        tr.querySelector('.inp-descripcion').value = tr.dataset.descripcion;
+        tr.querySelector('.inp-monto').value   = tr.dataset.monto;
+        tr.querySelector('.inp-factura').value = tr.dataset.factura ?? '';
+        tr.querySelector('.inp-pendiente').checked = tr.dataset.pendienteFacturar === 'true';
+        poblarSelectProveedor(tr.querySelector('.inp-proveedor'), tr.dataset.idProveedor);
+
+        setModo(tr, 'edit');
+    }
+
+    function cancelarEdicion(btn) {
+        setModo(btn.closest('tr'), 'view');
+    }
+
+    // ============================================================
+    // GUARDAR FILA (inline edit)
+    // ============================================================
+    async function guardarFila(btn) {
+        const tr          = btn.closest('tr');
+        const descripcion = tr.querySelector('.inp-descripcion').value.trim();
+        const fecha       = tr.querySelector('.inp-fecha').value;
+        const monto       = parseFloat(tr.querySelector('.inp-monto').value);
+
+        // Validación visual
+        const setErr = (el) => { el.classList.add('is-invalid');    return false; };
+        const setOk  = (el) => { el.classList.remove('is-invalid'); return true;  };
+
+        const valid =
+            (descripcion ? setOk(tr.querySelector('.inp-descripcion')) : setErr(tr.querySelector('.inp-descripcion'))) &
+            (fecha       ? setOk(tr.querySelector('.inp-fecha'))        : setErr(tr.querySelector('.inp-fecha')))       &
+            (monto > 0   ? setOk(tr.querySelector('.inp-monto'))        : setErr(tr.querySelector('.inp-monto')));
+
+        if (!valid) { showToast('Validación', 'Revisa los campos marcados en rojo', 'warning'); return; }
+
+        const orig   = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        btn.disabled  = true;
+
+        try {
+            const res  = await fetch('/MovimientoFinanciero/Guardar', {
+                method : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body   : JSON.stringify({
+                    idMovimientoFinanciero: parseInt(tr.dataset.id),
+                    tipo              : parseInt(tr.querySelector('.inp-tipo').value),
+                    fechaStr          : fecha,
+                    descripcion,
+                    monto,
+                    idProveedor       : parseInt(tr.querySelector('.inp-proveedor').value) || null,
+                    factura           : tr.querySelector('.inp-factura').value.trim(),
+                    pendienteFacturar : tr.querySelector('.inp-pendiente').checked
+                })
+            });
+
+            const json = await res.json();
+            if (!json.ok) throw new Error(json.msg ?? 'Error al guardar');
+
+            actualizarFilaDesdeModelo(tr, json.data);
+            showToast('Guardado', 'Registro actualizado', 'success');
+
+        } catch (err) {
+            showToast('Error', err.message, 'error');
+            btn.innerHTML = orig;
+            btn.disabled  = false;
+        }
+    }
+
+    // ============================================================
+    // ELIMINAR FILA
+    // ============================================================
+    async function eliminarFila(btn) {
+        if (!confirm('¿Confirmas eliminar este registro?')) return;
+
+        const tr   = btn.closest('tr');
+        const id   = parseInt(tr.dataset.id);
+        const orig = btn.innerHTML;
+
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        btn.disabled  = true;
+
+        try {
+            const res  = await fetch(`/MovimientoFinanciero/Eliminar/${id}`, { method: 'DELETE' });
+            const json = await res.json();
+            if (!json.ok) throw new Error(json.msg ?? 'Error al eliminar');
+
+            tr.style.transition = 'opacity .3s';
+            tr.style.opacity    = '0';
+            setTimeout(() => tr.remove(), 320);
+            showToast('Eliminado', 'Registro eliminado', 'success');
+
+        } catch (err) {
+            showToast('Error', err.message, 'error');
+            btn.innerHTML = orig;
+            btn.disabled  = false;
+        }
+    }
+
+    // ============================================================
+    // MODAL — AGREGAR
+    // ============================================================
+    function abrirModalAgregar() {
+        document.getElementById('m-tipo').value      = '2';
+        document.getElementById('m-fecha').value     = new Date().toISOString().split('T')[0];
+        document.getElementById('m-descripcion').value = '';
+        document.getElementById('m-monto').value     = '';
+        document.getElementById('m-factura').value   = '';
+        document.getElementById('m-pendiente').checked = false;
+
+        poblarSelectProveedor(document.getElementById('m-proveedor'), '');
+        document.querySelectorAll('#modalAgregar .is-invalid')
+            .forEach(e => e.classList.remove('is-invalid'));
+
+        _modalBs.show();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        _modalBs = new bootstrap.Modal(document.getElementById('modalAgregar'));
+
+        document.getElementById('btn-guardar-modal').addEventListener('click', async () => {
+            const descripcion = document.getElementById('m-descripcion').value.trim();
+            const fecha       = document.getElementById('m-fecha').value;
+            const monto       = parseFloat(document.getElementById('m-monto').value);
+
+            const setErr = (id) => { document.getElementById(id).classList.add('is-invalid');    return false; };
+            const setOk  = (id) => { document.getElementById(id).classList.remove('is-invalid'); return true;  };
+
+            const valid =
+                (descripcion ? setOk('m-descripcion') : setErr('m-descripcion')) &
+                (fecha       ? setOk('m-fecha')        : setErr('m-fecha'))       &
+                (monto > 0   ? setOk('m-monto')        : setErr('m-monto'));
+
+            if (!valid) { showToast('Validación', 'Revisa los campos requeridos', 'warning'); return; }
+
+            const btn  = document.getElementById('btn-guardar-modal');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Guardando...';
+            btn.disabled  = true;
+
+            try {
+                const res  = await fetch('/MovimientoFinanciero/Guardar', {
+                    method : 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body   : JSON.stringify({
+                        idMovimientoFinanciero: null,
+                        tipo              : parseInt(document.getElementById('m-tipo').value),
+                        fechaStr          : fecha,
+                        descripcion,
+                        monto,
+                        idProveedor       : parseInt(document.getElementById('m-proveedor').value) || null,
+                        factura           : document.getElementById('m-factura').value.trim(),
+                        pendienteFacturar : document.getElementById('m-pendiente').checked
+                    })
+                });
+
+                const json = await res.json();
+                if (!json.ok) throw new Error(json.msg ?? 'Error al guardar');
+
+                _modalBs.hide();
+                _agregarFilaTabla(json.data);
+                showToast('Agregado', 'Registro creado correctamente', 'success');
+
+            } catch (err) {
+                showToast('Error', err.message, 'error');
+            } finally {
+                btn.innerHTML = orig;
+                btn.disabled  = false;
+            }
+        });
+
+        initDragDrop();
+    });
+
+    function _agregarFilaTabla(m) {
+        const tbody  = document.getElementById('tbody-movimientos');
+        const sinReg = document.getElementById('tr-sin-registros');
+        if (sinReg) sinReg.remove();
+
+        const tr = document.createElement('tr');
+        tr.dataset.id               = m.idMovimientoFinanciero;
+        tr.dataset.mode             = 'view';
+        tr.dataset.tipo             = m.tipo;
+        tr.dataset.fecha            = m.fecha;
+        tr.dataset.descripcion      = m.descripcion;
+        tr.dataset.monto            = m.monto;
+        tr.dataset.idProveedor      = m.idProveedor ?? '';
+        tr.dataset.proveedorNombre  = m.proveedorNombre ?? '';
+        tr.dataset.factura          = m.factura ?? '';
+        tr.dataset.pendienteFacturar = String(m.pendienteFacturar);
+        tr.dataset.orden            = m.orden;
+        tr.setAttribute('draggable', 'true');
+
+        tr.innerHTML = `
+            <td class="drag-handle"><i class="fa-solid fa-grip-vertical text-muted"></i></td>
+            <td class="text-center"><span class="td-orden">${esc(String(m.orden))}</span></td>
+            <td>
+                <span class="view-mode td-tipo">${badgeTipo(m.tipo)}</span>
+                <select class="edit-mode form-select form-select-sm inp-tipo">
+                    <option value="1">Ingreso</option>
+                    <option value="2">Egreso</option>
+                </select>
+            </td>
+            <td>
+                <span class="view-mode td-fecha">${esc(fmtFecha(m.fecha))}</span>
+                <input type="date" class="edit-mode form-control form-control-sm inp-fecha">
+            </td>
+            <td>
+                <span class="view-mode td-descripcion">${esc(m.descripcion)}</span>
+                <input type="text" class="edit-mode form-control form-control-sm inp-descripcion" maxlength="500">
+            </td>
+            <td class="text-end">
+                <span class="view-mode td-monto">${esc(fmtMonto(m.monto))}</span>
+                <input type="number" step="0.01" min="0" class="edit-mode form-control form-control-sm inp-monto text-end">
+            </td>
+            <td>
+                <span class="view-mode td-proveedor">${esc(m.proveedorNombre || '—')}</span>
+                <select class="edit-mode form-select form-select-sm inp-proveedor"></select>
+            </td>
+            <td>
+                <span class="view-mode td-factura">${esc(m.factura || '—')}</span>
+                <input type="text" class="edit-mode form-control form-control-sm inp-factura" maxlength="100">
+            </td>
+            <td class="text-center">
+                <span class="view-mode td-pendiente">${m.pendienteFacturar ? '<i class="fa-solid fa-circle-check text-warning"></i>' : ''}</span>
+                <div class="edit-mode d-flex justify-content-center">
+                    <input type="checkbox" class="form-check-input inp-pendiente">
+                </div>
+            </td>
+            <td class="text-center">
+                <div class="view-mode d-flex justify-content-center gap-1">
+                    <button class="btn btn-sm btn-primary" onclick="editarFila(this)" title="Editar">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="eliminarFila(this)" title="Eliminar">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+                <div class="edit-mode d-flex justify-content-center gap-1">
+                    <button class="btn btn-sm btn-success" onclick="guardarFila(this)" title="Guardar">
+                        <i class="fa-solid fa-check"></i>
+                    </button>
+                    <button class="btn btn-sm btn-secondary" onclick="cancelarEdicion(this)" title="Cancelar">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+            </td>`;
+
+        tbody.appendChild(tr);
+    }
+
+    // ============================================================
+    // DRAG & DROP
+    // ============================================================
+    let _dragSrc = null;
+
+    function initDragDrop() {
+        const tbody = document.getElementById('tbody-movimientos');
+
+        tbody.addEventListener('dragstart', e => {
+            const tr = e.target.closest('tr[draggable="true"]');
+            if (!tr || tr.dataset.mode === 'edit') { e.preventDefault(); return; }
+            _dragSrc = tr;
+            tr.classList.add('drag-dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        tbody.addEventListener('dragover', e => {
+            e.preventDefault();
+            const tr = e.target.closest('tr[data-id]');
+            if (!tr || tr === _dragSrc) return;
+            tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over'));
+            tr.classList.add('drag-over');
+            e.dataTransfer.dropEffect = 'move';
+        });
+
+        tbody.addEventListener('dragleave', e => {
+            const tr = e.target.closest('tr');
+            if (tr) tr.classList.remove('drag-over');
+        });
+
+        tbody.addEventListener('drop', e => {
+            e.preventDefault();
+            const target = e.target.closest('tr[data-id]');
+            tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over'));
+            if (!target || !_dragSrc || target === _dragSrc) return;
+
+            const rows   = [...tbody.querySelectorAll('tr[data-id]')];
+            const srcIdx = rows.indexOf(_dragSrc);
+            const tgtIdx = rows.indexOf(target);
+
+            tbody.insertBefore(_dragSrc, srcIdx < tgtIdx ? target.nextSibling : target);
+            _reordenar();
+        });
+
+        tbody.addEventListener('dragend', () => {
+            tbody.querySelectorAll('tr').forEach(r => r.classList.remove('drag-over', 'drag-dragging'));
+            _dragSrc = null;
+        });
+    }
+
+    async function _reordenar() {
+        const tbody = document.getElementById('tbody-movimientos');
+        const ids   = [...tbody.querySelectorAll('tr[data-id]')].map(r => parseInt(r.dataset.id));
+
+        try {
+            const res  = await fetch('/MovimientoFinanciero/Reordenar', {
+                method : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body   : JSON.stringify({ ids })
+            });
+            const json = await res.json();
+            if (!json.ok) throw new Error(json.msg ?? 'Error al reordenar');
+
+            // Actualizar numeración en DOM
+            ids.forEach((id, idx) => {
+                const tr   = tbody.querySelector(`tr[data-id="${id}"]`);
+                const span = tr?.querySelector('.td-orden');
+                if (span) { span.textContent = idx + 1; tr.dataset.orden = idx + 1; }
+            });
+
+        } catch (err) {
+            showToast('Error al reordenar', err.message, 'error');
+        }
+    }
+</script>
