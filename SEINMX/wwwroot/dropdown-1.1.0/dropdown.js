@@ -4,7 +4,7 @@
     flip,
     shift,
     autoUpdate
-} from 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.3/+esm';
+} from 'https://cdn.jsdelivr.net/npm/@floating-ui/dom@1.6.13/+esm';
 import {InMemoryDataProvider} from "./dataProviders.js";
 
 
