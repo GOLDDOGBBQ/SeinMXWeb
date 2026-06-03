@@ -428,6 +428,7 @@ public class CotizacionController : ApplicationController
                     gananciaProveedor = x.GananciaProveedor,
                     precioSein = x.PrecioSein,
                     precioCliente = x.PrecioCliente,
+                    claveUnidadSat = x.ClaveUnidadSat,
                     total = x.Total,
                     observaciones = x.Observaciones
                 })
@@ -443,6 +444,7 @@ public class CotizacionController : ApplicationController
                 codigo = x.Codigo,
                 descripcion = x.Descripcion,
                 precioCliente = x.PrecioCliente,
+                claveUnidadSat = x.ClaveUnidadSat,
                 total = x.Total,
                 observaciones = x.Observaciones
             })

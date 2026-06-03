@@ -246,6 +246,7 @@
                     <thead>
                     <tr>
                         <th>Código</th>
+                        <th>Clave Unidad SAT</th>
                         <th>Descripción</th>
                         @if (UserClaimsHelper.IsAdmin(User))
                         {
@@ -425,6 +426,7 @@
                     tbody.insertAdjacentHTML("beforeend", `
                     <tr data-id="${d.idCotizacionDetalle}" data-mode="view">
                         <td>${d.codigo}</td>
+                        <td class="clave-unidad-sat text-center">${d.claveUnidadSat ?? ""}</td>
                         <td>${d.descripcion}</td>
                         <td class="precio-lista">${d.precioListaMxn.toLocaleString("es-MX", {
                         style: "currency",
@@ -466,6 +468,7 @@
                     tbody.insertAdjacentHTML("beforeend", `
                     <tr data-id="${d.idCotizacionDetalle}" data-mode="view">
                         <td>${d.codigo}</td>
+                        <td class="clave-unidad-sat text-center">${d.claveUnidadSat ?? ""}</td>
                         <td>${d.descripcion}</td>
                         <td  class="precio-cliente">${d.precioCliente.toLocaleString("es-MX", {
                         style: "currency",
@@ -528,6 +531,7 @@
             // ===== COMUNES =====
             setMoney(tr, ".precio-cliente", d.precioCliente);
             setMoney(tr, ".total", d.total);
+            setText(tr, ".clave-unidad-sat", d.claveUnidadSat);
 
             // ===== REGRESAR A MODO VISTA =====
             tr.dataset.mode = "view";
