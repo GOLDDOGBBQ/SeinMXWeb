@@ -1,3 +1,15 @@
+/* ── Variables globales de selección de filas (DataTables / Tabulator) ── */
+:root {
+    --cb-seleccion-bg:       #e0f5e9;
+    --cb-seleccion-bg-hover: #a8d5ba;
+    --cb-seleccion-text:     #212529;
+}
+[data-bs-theme="dark"] {
+    --cb-seleccion-bg:       #003d1b;
+    --cb-seleccion-bg-hover: #004d24;
+    --cb-seleccion-text:     #ffffff;
+}
+
 html {
   font-size: 14px;
 }

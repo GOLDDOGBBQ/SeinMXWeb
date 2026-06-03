@@ -28,6 +28,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Docs\Context\" />
+      <Folder Include="Docs\Technical\" />
       <Folder Include="plugins\" />
       <Folder Include="wwwroot\css\font\" />
     </ItemGroup>

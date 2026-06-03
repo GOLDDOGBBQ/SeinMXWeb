@@ -508,7 +508,7 @@
             (fecha       ? setOk(tr.querySelector('.inp-fecha'))        : setErr(tr.querySelector('.inp-fecha')))       &
             (monto > 0   ? setOk(tr.querySelector('.inp-monto'))        : setErr(tr.querySelector('.inp-monto')));
 
-        if (!valid) { showToast('Validación', 'Revisa los campos marcados en rojo', 'warning'); return; }
+        if (!valid) { Notify.warning('Revisa los campos marcados en rojo.'); return; }
 
         const orig   = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
@@ -534,10 +534,10 @@
             if (!json.ok) throw new Error(json.msg ?? 'Error al guardar');
 
             actualizarFilaDesdeModelo(tr, json.data);
-            showToast('Guardado', 'Registro actualizado', 'success');
+            Notify.success('Registro actualizado.');
 
         } catch (err) {
-            showToast('Error', err.message, 'error');
+            Notify.error(err.message);
             btn.innerHTML = orig;
             btn.disabled  = false;
         }
@@ -546,31 +546,36 @@
     // ============================================================
     // ELIMINAR FILA
     // ============================================================
-    async function eliminarFila(btn) {
-        if (!confirm('¿Confirmas eliminar este registro?')) return;
+    function eliminarFila(btn) {
+        var tr   = btn.closest('tr');
+        var id   = parseInt(tr.dataset.id);
 
-        const tr   = btn.closest('tr');
-        const id   = parseInt(tr.dataset.id);
-        const orig = btn.innerHTML;
+        ModalConfirmacion.mostrar({
+            titulo:     'Eliminar movimiento',
+            mensaje:    '¿Confirmas eliminar este registro? Esta acción no se puede deshacer.',
+            etiquetaOk: 'Eliminar',
+            onConfirm:  async function () {
+                var orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                btn.disabled  = true;
 
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-        btn.disabled  = true;
+                try {
+                    var res  = await fetch('/MovimientoFinanciero/Eliminar/' + id, { method: 'DELETE' });
+                    var json = await res.json();
+                    if (!json.ok) throw new Error(json.msg ?? 'Error al eliminar');
 
-        try {
-            const res  = await fetch(`/MovimientoFinanciero/Eliminar/${id}`, { method: 'DELETE' });
-            const json = await res.json();
-            if (!json.ok) throw new Error(json.msg ?? 'Error al eliminar');
+                    tr.style.transition = 'opacity .3s';
+                    tr.style.opacity    = '0';
+                    setTimeout(function () { tr.remove(); }, 320);
+                    Notify.success('Registro eliminado.');
 
-            tr.style.transition = 'opacity .3s';
-            tr.style.opacity    = '0';
-            setTimeout(() => tr.remove(), 320);
-            showToast('Eliminado', 'Registro eliminado', 'success');
-
-        } catch (err) {
-            showToast('Error', err.message, 'error');
-            btn.innerHTML = orig;
-            btn.disabled  = false;
-        }
+                } catch (err) {
+                    Notify.error(err.message);
+                    btn.innerHTML = orig;
+                    btn.disabled  = false;
+                }
+            }
+        });
     }
 
     // ============================================================
@@ -607,7 +612,7 @@
                 (fecha       ? setOk('m-fecha')        : setErr('m-fecha'))       &
                 (monto > 0   ? setOk('m-monto')        : setErr('m-monto'));
 
-            if (!valid) { showToast('Validación', 'Revisa los campos requeridos', 'warning'); return; }
+            if (!valid) { Notify.warning('Revisa los campos requeridos.'); return; }
 
             const btn  = document.getElementById('btn-guardar-modal');
             const orig = btn.innerHTML;
@@ -635,10 +640,10 @@
 
                 _modalBs.hide();
                 _agregarFilaTabla(json.data);
-                showToast('Agregado', 'Registro creado correctamente', 'success');
+                Notify.success('Registro creado correctamente.');
 
             } catch (err) {
-                showToast('Error', err.message, 'error');
+                Notify.error(err.message);
             } finally {
                 btn.innerHTML = orig;
                 btn.disabled  = false;
@@ -796,7 +801,10 @@
             });
 
         } catch (err) {
-            showToast('Error al reordenar', err.message, 'error');
+            Notify.error('Error al reordenar: ' + err.message);
         }
     }
 </script>
+
+@* Modal de confirmación — requerido por ModalConfirmacion.mostrar() *@
+<partial name="_ModalConfirmacion" />

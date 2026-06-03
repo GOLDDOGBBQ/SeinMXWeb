@@ -1,0 +1,133 @@
+﻿@*
+    _TablaControles.cshtml — Partial compartido de botones para tablas
+                             (Tabulator o DataTables).
+
+    Genera un contenedor div[data-cb-controles] con botones declarativos.
+    El atributo data-cb-motor indica qué módulo core (CB_TABULATOR o
+    CB_DATATABLES) debe auto-vincular los botones. Ambos módulos usan el
+    mismo patrón data-cb-accion, por lo que el HTML es compatible.
+
+    Parámetros via ViewData:
+      TablaSelector    (string, requerido) — selector CSS ej. "#tblMenuCBAppWeb"
+      NombreCsv        (string, requerido) — nombre del archivo CSV ej. "menu.csv"
+      PersistenciaId   (string, OBSOLETO)  — ya NO se usa; el JS lee data-cb-persistencia
+                                             del propio elemento tabla. Se ignora si se pasa.
+      Motor            (string, opcional)  — "tabulator" (default) | "datatables"
+      MostrarArbol     (bool,   opcional)  — incluye expandir/colapsar (default: false, solo Tabulator)
+      MostrarImprimir  (bool,   opcional)  — incluye botón imprimir  (default: true)
+      MostrarFiltros   (bool,   opcional)  — incluye toggle filtros  (default: true Tabulator; siempre false en DataTables)
+      MostrarRecordar  (bool,   opcional)  — incluye toggle "recordar filtros" (default: true)
+
+    ESTÁNDAR v1.2.0: el PersistenciaId se declara UNA SOLA VEZ como
+    data-cb-persistencia en el elemento <div>/<table> de la tabla, NO aquí.
+    El partial ya no emite data-cb-persistencia en el contenedor de controles.
+
+    Orden de grupos (izq → der):
+      [G1 opcional: expandir/colapsar · filtros/recordar-filtros]  |  [G2: exportar · imprimir]  |  [G3: limpiar · restablecer]
+
+    Reglas específicas por motor:
+      - Tabulator   — Todos los botones aplican. El toggle 'filtros' oculta/muestra la fila de headerFilter.
+      - DataTables  — 'expandir'/'colapsar' no se renderizan (no hay árbol).
+                      'filtros' se omite SIEMPRE: ColumnControl ya expone su menú ☰ por columna.
+                      'imprimir' delega a la extensión Buttons (fallback window.print).
+
+    Ver: Docs/Standards/ViewsStandard.md §9.2–§9.6 · datatables-cb.js v1.4.0 · tabulator-cb.js v3.3.0
+    Archivo: Views/Shared/_TablaControles.cshtml
+    Versión: 1.3.0  |  Fecha: 2026-04-30
+*@
+@{
+    var tablaSelector   = ViewData["TablaSelector"]  as string ?? "";
+    // PersistenciaId ya no se lee aquí — el JS lo obtiene de data-cb-persistencia del elemento tabla.
+    var nombreCsv       = ViewData["NombreCsv"]      as string ?? "tabla.csv";
+    var motor           = (ViewData["Motor"] as string ?? "tabulator").ToLowerInvariant();
+    var esDataTables    = motor == "datatables";
+
+    var mostrarArbol    = !esDataTables && ViewData["MostrarArbol"]    is bool arbol && arbol;
+    // Botón imprimir eliminado del estándar del proyecto (v1.1.0) — default false
+    var mostrarImprimir = ViewData["MostrarImprimir"] is bool impr ? impr : false;
+    // En DataTables el toggle 'filtros' nunca aplica (ColumnControl siempre visible).
+    var mostrarFiltros  = !esDataTables && (ViewData["MostrarFiltros"] is bool filt ? filt : true);
+    var mostrarRecordar = ViewData["MostrarRecordar"] is bool rec ? rec : true;
+    // ColVis — solo disponible en DataTables (default: true). Pasar MostrarColVis:false para ocultar.
+    var mostrarColVis   = esDataTables && (ViewData["MostrarColVis"] is bool cv ? cv : true);
+    var hayGrupo1       = mostrarArbol || mostrarFiltros || mostrarRecordar;
+}
+
+<div data-cb-controles
+     data-cb-motor="@motor"
+     data-cb-tabla="@tablaSelector"
+     data-cb-csv="@nombreCsv"
+     class="d-flex gap-1 align-items-center">
+
+    @* ── G1: controles opcionales (izquierda) ─── *@
+    @if (mostrarArbol)
+    {
+        <button type="button" data-cb-accion="expandir"
+                class="btn btn-secondary btn-sm" title="Expandir todo">
+            <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        <button type="button" data-cb-accion="colapsar"
+                class="btn btn-secondary btn-sm" title="Colapsar todo">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    }
+
+    @if (mostrarFiltros)
+    {
+        <button type="button" data-cb-accion="filtros"
+                class="btn btn-outline-secondary btn-sm" title="Mostrar/ocultar filtros de columna"
+                aria-pressed="false">
+            <i class="fa-solid fa-filter"></i>
+        </button>
+    }
+
+    @if (mostrarRecordar)
+    {
+        <button type="button" data-cb-accion="recordar-filtros"
+                class="btn btn-outline-secondary btn-sm" title="Recordar filtros al recargar la página"
+                aria-pressed="false">
+            <i class="fa-solid fa-thumbtack"></i>
+        </button>
+    }
+
+    @* ── Separador G1 / G2 ── *@
+    @if (hayGrupo1)
+    {
+        <span class="vr align-self-stretch mx-1 opacity-25"></span>
+    }
+
+    @* ── G2: ColVis · exportar · imprimir ────────────────────────── *@
+    @if (mostrarColVis)
+    {
+        <button type="button" data-cb-accion="colvis"
+                class="btn btn-secondary btn-sm" title="Mostrar/ocultar columnas">
+            <i class="fa-solid fa-table-columns me-1"></i>Columnas
+        </button>
+    }
+    <button type="button" data-cb-accion="exportar"
+            class="btn btn-secondary btn-sm" title="Exportar CSV">
+        <i class="fa-solid fa-file-csv"></i>
+    </button>
+
+    @if (mostrarImprimir)
+    {
+        <button type="button" data-cb-accion="imprimir"
+                class="btn btn-secondary btn-sm" title="Imprimir">
+            <i class="fa-solid fa-print"></i>
+        </button>
+    }
+
+    @* ── Separador G2 / G3 ─────────────────────── *@
+    <span class="vr align-self-stretch mx-1 opacity-25"></span>
+
+    @* ── G3: gestión (derecha fija) ───────────── *@
+    <button type="button" data-cb-accion="limpiar"
+            class="btn btn-secondary btn-sm" title="Limpiar filtros de tabla">
+        <i class="fa-solid fa-filter-circle-xmark"></i>
+    </button>
+    <button type="button" data-cb-accion="restablecer"
+            class="btn btn-warning btn-sm" title="Restablecer tabla">
+        <i class="fa-solid fa-rotate-left"></i>
+    </button>
+</div>
+

@@ -1,0 +1,45 @@
+﻿@*
+    Modal de confirmacion de acciones destructivas — v2.0.0
+    Incluir UNA SOLA VEZ al final del Index.cshtml que lo necesite.
+
+    API DECLARATIVA (preferida) — zero JS por modulo
+    PATRON 1 — Submit de form oculto (POST con redirect, maneja antiforgery):
+      <button class="js-confirmar"
+              data-titulo="Eliminar perfil"
+              data-mensaje="¿Eliminar...?"
+              data-url="/Area/Entidad/Delete/5"
+              data-form="id-del-form-oculto">
+
+    PATRON 2 — Fetch AJAX (sin navegacion, actualiza DOM):
+      <button class="js-confirmar"
+              data-titulo="Eliminar item"
+              data-mensaje="¿Confirmar...?"
+              data-url="/Area/Entidad/Delete/5"
+              data-exito="recargar">    (recargar = default, eliminar-fila = quita el tr del DOM)
+
+    API IMPERATIVA — contextos dinamicos (formatters Tabulator, callbacks):
+      ModalConfirmacion.mostrar({ titulo, mensaje, variante, etiquetaOk, onConfirm });
+
+    Ver: Docs/Standards/ViewsStandard.md §10 y §15.3
+*@
+<div class="modal fade" id="modal-confirmacion" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header py-2">
+                <h5 class="modal-title h6" id="modal-conf-titulo">Confirmar</h5>
+                <button type="button" class="btn-close btn-sm"
+                        data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0" id="modal-conf-mensaje"></p>
+            </div>
+            <div class="modal-footer py-2">
+                <button type="button" class="btn btn-secondary btn-sm"
+                        data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-sm"
+                        id="modal-conf-btn-ok">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+

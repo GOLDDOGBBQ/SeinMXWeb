@@ -1,0 +1,124 @@
+/* datatables-cb.css — v1.5.0 — Overrides y animaciones DataTables para SEINMX */
+
+/* ── Animación de fila guardada (highlight verde 2.5 s) ─────────────────── */
+@keyframes cb-row-guardado {
+    0%   { background-color: rgba(25, 135, 84, .28); }
+    60%  { background-color: rgba(25, 135, 84, .18); }
+    100% { background-color: transparent; }
+}
+@keyframes cb-row-guardado-dark {
+    0%   { background-color: rgba(25, 135, 84, .45); }
+    60%  { background-color: rgba(25, 135, 84, .25); }
+    100% { background-color: transparent; }
+}
+.dt-container table tbody tr.cb-row-guardado,
+.dt-container table tbody tr.cb-row-guardado td {
+    animation: cb-row-guardado 2.5s ease-out forwards;
+}
+[data-bs-theme="dark"] .dt-container table tbody tr.cb-row-guardado,
+[data-bs-theme="dark"] .dt-container table tbody tr.cb-row-guardado td {
+    animation: cb-row-guardado-dark 2.5s ease-out forwards;
+}
+
+/* ── Iconos de orden: visibles en thead.table-dark ──────────────────────── */
+/* DT 3.x genera un <span class="dt-column-order"> con SVG o pseudo-elemento */
+.table-dark thead th .dt-column-order {
+    filter: invert(1) brightness(2);
+}
+.table-dark thead th {
+    --dt-order-arrow_color:           rgb(255, 255, 255);
+    --dt-order-arrow_color-current:   rgb(255, 255, 255);
+    --dt-order-arrow_opacity:         0.6;
+    --dt-order-arrow_opacity-current: 1;
+    --dt-order-icon-color:            rgba(255, 255, 255, 0.7);
+}
+
+/* ── ColumnControl: ícono ☰ siempre al extremo derecho ─────────────────── */
+table.dataTable thead > tr > th  div.dt-column-header,
+table.dataTable thead > tr > td  div.dt-column-header {
+    flex-direction: row !important;
+}
+
+/* ── Botón "Limpiar" activo cuando hay filtros ───────────────────────────── */
+[data-cb-accion="limpiar"].cb-filtro-activo {
+    color:            #fff !important;
+    background-color: var(--bs-primary) !important;
+    border-color:     var(--bs-primary) !important;
+}
+
+/* ── Ajustes generales de UI ─────────────────────────────────────────────── */
+.dt-container { margin-top: 0; }
+table.dataTable thead th.dt-orderable-asc,
+table.dataTable thead th.dt-orderable-desc { cursor: pointer; }
+.dt-paging .pagination { margin-bottom: 0; }
+
+/* ── Paginación activa — color primario del proyecto ─────────────────────── */
+.dt-paging .pagination {
+    --bs-pagination-active-bg:           var(--bs-primary);
+    --bs-pagination-active-border-color: var(--bs-primary);
+    --bs-pagination-active-color:        #fff;
+    --bs-pagination-hover-color:         var(--bs-primary);
+    --bs-pagination-hover-border-color:  var(--bs-primary-border-subtle);
+}
+.dt-info {
+    font-size:  0.875rem;
+    color:      var(--bs-secondary-color);
+    padding-top: 0.5rem;
+}
+
+/* ── Selección de fila — color del proyecto ──────────────────────────────── */
+:root {
+    --dt_background-selected : 168, 213, 186;   /* verde-200 */
+    --dt_color-selected      : 33, 37, 41;
+    --dt_link_color-selected : 0, 121, 53;
+}
+:root[data-bs-theme=dark] {
+    --dt_background-selected : 0, 61, 27;        /* verde-900 */
+    --dt_color-selected      : 255, 255, 255;
+    --dt_link_color-selected : 77, 203, 126;
+}
+table.dataTable tbody tr.selected > td {
+    background-color : var(--cb-seleccion-bg)    !important;
+    color            : var(--cb-seleccion-text)  !important;
+}
+[data-bs-theme="dark"] table.dataTable tbody tr.selected > td {
+    background-color : var(--cb-seleccion-bg)    !important;
+    color            : var(--cb-seleccion-text)  !important;
+}
+
+/* ── ColumnControl dropdown — tema Bootstrap ─────────────────────────────── */
+.dtcc-dropdown {
+    border:       1px solid var(--bs-border-color);
+    border-radius: 0.375rem;
+    box-shadow:   0 4px 16px rgba(0, 0, 0, .12);
+    background:   var(--bs-body-bg);
+    min-width:    220px;
+    z-index:      1050;
+}
+.dtcc-dropdown .dtcc-button:hover { background-color: var(--bs-tertiary-bg); }
+.dtcc-list-search {
+    width:        100%;
+    padding:      4px 8px;
+    border:       1px solid var(--bs-border-color);
+    border-radius: 0.25rem;
+    font-size:    0.8125rem;
+    background:   var(--bs-body-bg);
+    color:        var(--bs-body-color);
+}
+.dtcc-button_dropdown[aria-expanded="true"] .dtcc-button-icon svg {
+    stroke: var(--bs-primary);
+}
+
+/* ── Botones ColVis dentro del layout DT ────────────────────────────────── */
+.dt-buttons { margin-bottom: 0.25rem; }
+
+/* ── Panel ColVis flotante (_TablaControles) ─────────────────────────────── */
+.cb-colvis-panel {
+    background: var(--bs-body-bg);
+    border-color: var(--bs-border-color) !important;
+}
+.cb-colvis-item:hover {
+    background-color: var(--bs-tertiary-bg);
+    border-radius: 0.25rem;
+}
+
