@@ -368,13 +368,7 @@
 
 <script>
     function cambiarTema(tema) {
-        const body = document.body;
-
-        if (tema === "dark")
-            body.classList.add("dark-mode");
-        else
-            body.classList.remove("dark-mode");
-
+        document.documentElement.setAttribute("data-bs-theme", tema);
         document.cookie = "TemaUsuario=" + tema + "; path=/; max-age=" + (365 * 24 * 60 * 60);
     }
 
