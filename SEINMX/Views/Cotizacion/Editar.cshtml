@@ -428,10 +428,7 @@
                         <td>${d.codigo}</td>
                         <td class="clave-unidad-sat text-center">${d.claveUnidadSat ?? ""}</td>
                         <td>${d.descripcion}</td>
-                        <td class="precio-lista">${d.precioListaMxn.toLocaleString("es-MX", {
-                        style: "currency",
-                        currency: "MXN"
-                    })}</td>
+                        <td class="precio-lista"></td>
                         <td class="porc-proveedor text-center">${d.porcentajeProveedor}</td>
                         <td class="precio-proveedor">${d.precioProveedor.toLocaleString("es-MX", {
                         style: "currency",
@@ -495,6 +492,9 @@
 
                 const tr = tbody.lastElementChild;
                 renderAcciones(tr);
+
+                const tdPrecioLista = tr.querySelector(".precio-lista");
+                if (tdPrecioLista) aplicarPrecioLista(tdPrecioLista, d);
             });
 
         }
@@ -521,7 +521,8 @@
             }
 
             // ===== PRECIOS Y PORCENTAJES (ADMIN) =====
-            setMoney(tr, ".precio-lista", d.precioListaMxn);
+            const tdPrecioLista = tr.querySelector(".precio-lista");
+            if (tdPrecioLista) aplicarPrecioLista(tdPrecioLista, d);
             setText(tr, ".porc-proveedor", d.porcentajeProveedor);
             setMoney(tr, ".precio-proveedor", d.precioProveedor);
             setText(tr, ".porc-ganancia", d.porcentajeProveedorGanancia);
@@ -558,6 +559,36 @@
             if (!td || value == null) return;
 
             td.textContent = value;
+        }
+
+        function aplicarPrecioLista(td, d) {
+            const esOtraMoneda = !!d.monedaLista && d.monedaLista !== "MXN";
+
+            const tooltipPrevio = bootstrap.Tooltip.getInstance(td);
+            if (tooltipPrevio) tooltipPrevio.dispose();
+
+            td.textContent = d.precioListaMxn.toLocaleString("es-MX", {
+                style: "currency",
+                currency: "MXN"
+            });
+
+            td.classList.toggle("text-danger", esOtraMoneda);
+            td.classList.toggle("fw-bold", esOtraMoneda);
+
+            if (esOtraMoneda) {
+                const precioOriginal = d.precioLista.toLocaleString("es-MX", {
+                    style: "currency",
+                    currency: d.monedaLista
+                });
+                td.setAttribute("title", `${precioOriginal} ${d.monedaLista}`);
+                td.setAttribute("data-bs-toggle", "tooltip");
+                td.setAttribute("tabindex", "0");
+                new bootstrap.Tooltip(td, { trigger: "hover focus" });
+            } else {
+                td.removeAttribute("title");
+                td.removeAttribute("data-bs-toggle");
+                td.removeAttribute("tabindex");
+            }
         }
 
         // Agregar producto

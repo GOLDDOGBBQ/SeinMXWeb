@@ -17,9 +17,13 @@ public partial class VsCotizacionDetalle
 
     public decimal PrecioLista { get; set; }
 
+    public string MonedaLista { get; set; } = null!;
+
     public string ClaveUnidadSat { get; set; } = null!;
 
     public int? IdMoneda { get; set; }
+
+    public string Moneda { get; set; } = null!;
 
     public decimal PorcentajeProveedor { get; set; }
 

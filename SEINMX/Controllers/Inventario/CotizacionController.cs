@@ -422,6 +422,8 @@ public class CotizacionController : ApplicationController
                     codigo = x.Codigo,
                     descripcion = x.Descripcion,
                     precioListaMxn = x.PrecioListaMxn,
+                    monedaLista = x.MonedaLista,
+                    precioLista = x.PrecioLista,
                     porcentajeProveedor = x.PorcentajeProveedor,
                     precioProveedor = x.PrecioProveedor,
                     porcentajeProveedorGanancia = x.PorcentajeProveedorGanancia,

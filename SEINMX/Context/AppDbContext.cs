@@ -638,6 +638,12 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Codigo).HasMaxLength(50);
             entity.Property(e => e.Descripcion).HasMaxLength(500);
             entity.Property(e => e.GananciaProveedor).HasColumnType("numeric(18, 2)");
+            entity.Property(e => e.Moneda)
+                .HasMaxLength(3)
+                .IsUnicode(false);
+            entity.Property(e => e.MonedaLista)
+                .HasMaxLength(3)
+                .IsUnicode(false);
             entity.Property(e => e.Observaciones).HasMaxLength(600);
             entity.Property(e => e.PorcentajeProveedor).HasColumnType("numeric(18, 4)");
             entity.Property(e => e.PorcentajeProveedorGanancia).HasColumnType("numeric(18, 4)");
