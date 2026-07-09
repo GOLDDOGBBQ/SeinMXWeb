@@ -1,8 +1,21 @@
 /*
  * datatables-cb.css — Estilos DataTables para CBAppWeb
- * Version: 1.5.0 | Fecha: 2026-05-05
+ * Version: 1.6.0 | Fecha: 2026-07-08
  *
  * Cambios:
+ *   1.6.0 — Fix: iconos de orden y del boton de filtro (Column Control ☰)
+ *           invisibles en thead.table-dark. El bundle DataTables 3.x pinta
+ *           --dt-order-arrow_color / --dtcc-button-icon_color segun el tema
+ *           de PAGINA (:root[data-bs-theme]), no segun el thead. En tema
+ *           claro, un thead.table-dark (fondo casi negro) quedaba con
+ *           flechas casi negras encima = invisibles.
+ *           Existio un intento previo (retirado en el mismo dia) con el
+ *           selector ".table-dark thead th", que nunca coincidio con nada:
+ *           exige un <thead> ANIDADO dentro de un ancestro .table-dark, pero
+ *           en el markup real la clase table-dark esta puesta directamente
+ *           sobre el propio <thead> (<thead class="table-dark">). Se corrige
+ *           usando "thead.table-dark th" (selector sobre el elemento real)
+ *           con especificidad suficiente para pisar los :root del bundle.
  *   1.5.0 — Fix: <a class="btn"> en filas seleccionadas conservan color blanco.
  *           DataTables 3.x aplica --dt_link_color-selected (verde) a todos los
  *           <a>, incluyendo enlaces-botón (<a class="btn btn-*">). Los íconos FA
@@ -96,6 +109,23 @@ table.dataTable thead > tr > td  div.dt-column-header,
 table.dataTable tfoot > tr > th  div.dt-column-footer,
 table.dataTable tfoot > tr > td  div.dt-column-footer {
     flex-direction: row !important;
+}
+
+/* ── Iconos de orden y filtro visibles sobre thead.table-dark ───────────────
+ * table-dark pone fondo casi negro (--bs-table-bg: #212529) en el thead,
+ * pero las flechas de orden y el icono ☰ de ColumnControl toman su color
+ * del tema de PAGINA (:root[data-bs-theme]), no del thead — en tema claro
+ * quedan casi negras sobre fondo casi negro. Se sobrescriben las variables
+ * del bundle directamente en el thead.table-dark, sin depender del theme
+ * switch de la pagina. Ver nota de v1.6.0 arriba.
+ * ─────────────────────────────────────────────────────────────────────────── */
+table.dataTable thead.table-dark th {
+    --dt-order-arrow_color:           rgb(255, 255, 255);
+    --dt-order-arrow_color-current:   rgb(255, 255, 255);
+    --dt-order-arrow_opacity:         0.6;
+    --dt-order-arrow_opacity-current: 1;
+    --dt-order-header_outline-hover:  2px solid rgba(255, 255, 255, 0.4);
+    --dtcc-button-icon_color:         rgba(255, 255, 255, 0.85);
 }
 
 /* ── Botón "Limpiar" activo cuando hay filtros ───────────────────────────── */
