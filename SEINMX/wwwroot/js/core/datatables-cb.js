@@ -57,8 +57,12 @@
  *   - NO requiere jQuery — DT 3.x usa su propia librería DOM interna
  *
  * Archivo:   wwwroot/js/core/datatables-cb.js
- * Versión:   1.5.0  |  Fecha: 2026-05-04
- * Cambios:   1.5.0 — Migración a DataTables 3.0.0-beta.2.
+ * Versión:   1.6.0  |  Fecha: 2026-08-14
+ * Cambios:   1.6.0 — Oculta el control de paginación (.dt-paging) cuando la
+ *                    tabla cabe en una sola página (ej. lengthMenu "Todos").
+ *                    Nueva _configurarVisibilidadPaginacion, enganchada a
+ *                    draw.dt y evaluada una vez al crear la tabla.
+ *            1.5.0 — Migración a DataTables 3.0.0-beta.2.
  *                    Breaking changes corregidos:
  *                    (1) ColReorder 3.x: fixedColumnsLeft eliminado → columna fija
  *                        se configura ahora con { columns: ':gt(0)' } que permite
@@ -514,6 +518,9 @@
         // se engancha a `page.dt` y `length.dt` para guardar cambios.
         _configurarPersistenciaPaginacion(dt, persistenceId, pagingGuardado);
 
+        // ── Ocultar paginación cuando hay 1 sola página (ej. longitud "Todos") ─
+        _configurarVisibilidadPaginacion(dt);
+
         // ── Registrar en _tablas ───────────────────────────────────────────────
         _tablas[selector] = {
             instancia      : dt,
@@ -744,6 +751,34 @@
         };
         dt.on('page.dt',   _guardar);
         dt.on('length.dt', _guardar);
+    }
+
+    // =========================================================================
+    // _configurarVisibilidadPaginacion
+    // =========================================================================
+    /**
+     * Oculta el control de paginación (.dt-paging) cuando la tabla completa
+     * cabe en una sola página — típicamente al elegir "Todos" en el
+     * lengthMenu (pageLength -1), pero también aplica si hay pocos registros
+     * con cualquier longitud de página seleccionada.
+     *
+     * Se evalúa en cada `draw.dt` (cambia con longitud de página, filtros o
+     * búsqueda) y una vez de inmediato para el estado inicial.
+     *
+     * @param {DataTables.Api} dt  Instancia de DataTables
+     * @private
+     */
+    function _configurarVisibilidadPaginacion(dt) {
+        var actualizar = function () {
+            try {
+                var paging = dt.table().container().querySelector('.dt-paging');
+                if (paging) {
+                    paging.style.display = dt.page.info().pages <= 1 ? 'none' : '';
+                }
+            } catch (e) { /* ignorar */ }
+        };
+        dt.on('draw.dt', actualizar);
+        actualizar();
     }
 
     // =========================================================================

@@ -496,6 +496,11 @@ API pública (window.CB_DATATABLES):
 }
 ```
 
+> **Paginación auto-oculta (v1.6.0+):** `crearTabla` engancha `draw.dt` para ocultar el
+> control `.dt-paging` cuando la tabla cabe en una sola página (ej. al elegir "Todos" en
+> el `lengthMenu`, o con pocos registros en cualquier longitud). No requiere configuración
+> adicional — aplica automáticamente a toda tabla creada con `crearTabla`.
+
 ---
 
 ## 7. Inicialización: `crearTabla`
@@ -1366,11 +1371,12 @@ window.MI_CONFIG = {
 
 | Fecha | Cambio | Por qué |
 |---|---|---|
+| 2026-08-14 | Documentado el auto-ocultamiento de `.dt-paging` (`datatables-cb.js` v1.6.0) cuando la tabla cabe en una sola página | La paginación quedaba visible (con un solo botón "1") al seleccionar "Todos" en el lengthMenu — comportamiento confuso para el usuario |
 | 2026-06-02 | Creación inicial — guía completa de implementación DataTables | Transferir el conocimiento acumulado en CBAppWeb al estándar portable para otros proyectos |
 
 ---
 
 *Documentación generada para uso offline por agentes de IA y equipos de desarrollo.*  
-*Versión: 1.0.0 · Fecha: 2026-06-02*  
-*Basada en: `datatables-cb.js` v1.5.0, `cb-tabla.js` v1.0.0, `datatables-cb.css` v1.5.0, `_TablaControles.cshtml` v1.3.0*
+*Versión: 1.1.0 · Fecha: 2026-08-14*  
+*Basada en: `datatables-cb.js` v1.6.0, `cb-tabla.js` v1.0.0, `datatables-cb.css` v1.5.0, `_TablaControles.cshtml` v1.3.0*
 
