@@ -464,6 +464,14 @@ export class CbDropdown extends HTMLElement {
     #showDropdown = async () => {
         this.previousPlaceholder = this.#elements.placeholder.textContent;
 
+        // Enfocar el input de busqueda directamente dentro del mismo gesto tactil.
+        // Los <button> no reciben el evento 'focus' nativo al tocarlos en navegadores
+        // moviles (iOS Safari / Chrome Android), por lo que el listener
+        // button -> 'focus' -> #focusInput nunca se dispara en touch y el teclado
+        // virtual jamas aparece. Esta llamada explicita soluciona la busqueda en movil
+        // sin afectar el comportamiento existente en escritorio.
+        this.#elements.searchBox.focus();
+
         document.addEventListener('pointerup', this.#attachHideDropdown);
 
         const opts = this.dataProvider.open(this.#fetchParameters);
